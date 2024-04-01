@@ -1,3 +1,20 @@
+########################################################################################################################
+# Docker Buildx Multiarch
+# =======================
+#
+# Docs:
+# ## Building manually with external pi
+#
+# - Login to registry: docker login
+# - Create builder: docker buildx create --name plexripper_builder --name localremote_builder0 --platform linux/amd64,linux/amd64/v2,linux/amd64/v3
+# - Add node to builder: docker buildx create --name plexripper_builder --append --node argon --platform linux/arm64,linux/arm/v7,linux/arm/v6 ssh://pi@192.168.1.104 --driver-opt env.BUILDKIT_STEP_LOG_MAX_SIZE=10000000 --driver-opt env.BUILDKIT_STEP_LOG_MAX_SPEED=10000000
+# - Use builder: docker buildx use plexripper_builder
+# - Build: docker buildx build --no-cache --builder plexripper_builder --platform linux/amd64,linux/amd64/v2,linux/amd64/v3,linux/arm64,linux/arm/v7,linux/arm/v6 -t frosit/plexripper:dev . --push
+#
+# Resources:
+# - https://github.com/elgohr/Publish-Docker-Github-Action
+# - https://github.com/docker/setup-buildx-action
+#
 name: Build multiarch docker containers
 
 on:
