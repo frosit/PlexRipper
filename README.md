@@ -1,5 +1,5 @@
 
-# <img src="./export/plexripper/logo/full/full-logo-256.png" alt="PlexRipper" width="32"> PlexRipper
+# <img src="https://www.plexripper.rocks/img/logo/full-logo-256.png" alt="PlexRipper" width="32"> PlexRipper
 
 ![Docker Pulls](https://img.shields.io/docker/pulls/plexripper/plexripper?label=Docker%20Pulls&style=flat-square)
 ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/plexripper/plexripper/latest?label=PlexRipper%20Latest%20Image%20Size&style=flat-square)
@@ -24,10 +24,9 @@ Let others collect media for you and then just download everything!
 
 ## JetBrains
 
-Huge thank you to [<img src="./export/jetbrains/jetbrains.svg" alt="JetBrains" width="32"> JetBrains](http://www.jetbrains.com/) for supporting open source projects and providing us with free licenses of their great tools!
+Huge thank you to [<img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg" alt="JetBrains" width="32"> JetBrains](http://www.jetbrains.com/) for supporting open source projects and providing us with free licenses of their great tools!
 
-- [<img src="./export/jetbrains/resharper.svg" alt="ReSharper" width="32"> ReSharper](http://www.jetbrains.com/resharper/)
-- [<img src="./export/jetbrains/webstorm.svg" alt="WebStorm" width="32"> WebStorm](http://www.jetbrains.com/webstorm/)
-- [<img src="./export/jetbrains/rider.svg" alt="Rider" width="32"> Rider](http://www.jetbrains.com/rider/)
-
-- [<img src="./export/jetbrains/dottrace.svg" alt="dotTrace" width="32"> dotTrace](http://www.jetbrains.com/dottrace/)
+- [<img src="https://resources.jetbrains.com/storage/products/company/brand/logos/ReSharper_icon.svg" alt="ReSharper" width="32"> ReSharper](http://www.jetbrains.com/resharper/)
+- [<img src="https://resources.jetbrains.com/storage/products/company/brand/logos/WebStorm_icon.svg" alt="WebStorm" width="32"> WebStorm](http://www.jetbrains.com/webstorm/)
+- [<img src="https://resources.jetbrains.com/storage/products/company/brand/logos/Rider_icon.svg" alt="Rider" width="32"> Rider](http://www.jetbrains.com/rider/)
+- [<img src="https://resources.jetbrains.com/storage/products/company/brand/logos/dotTrace_icon.svg" alt="dotTrace" width="32"> dotTrace](http://www.jetbrains.com/dottrace/)
