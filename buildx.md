@@ -1,5 +1,62 @@
-Working with Buildx
-===================
+Working with Buildx and GH actions
+=================================
+
+This document describes working with Github action in relation to building multi-arch docker images.
+
+__Goal__: Develop proper CI processes to help maintain and control overall quality.
+
+We should have processes for:
+
+* Testing
+  * Type of tests:
+      * Front-end
+          * e2e
+          * unit
+          * type
+      * Back-end
+        * e2e
+        * unit
+      * Architecture: tests should finally be ran on AMD64 and ARM arch's
+  * Test on:
+    * PR
+    * Tag
+    * Merge
+
+In the release process:
+
+* Building & Releasing
+  * Docker images
+  * Dockerhub description
+  * PlexRipper site?
+  * WebApp
+  * WebApi
+  * versioning (like create tags and docker images with tags)
+
+
+> Running all these tests on all these events on all these architectures will drain build hours
+
+__Platforms (architectures)__
+
+* linux/amd64
+  * v2
+  * v3
+* linux/arm64
+* linux/arm/v7
+
+
+# Current process
+
+Main branch: dev (jasons playground)
+Commits trigger:
+    *
+
+
+
+
+
+# TOC
+
+* Github Actions
 
 To build and push docker images using buildx.
 
@@ -60,7 +117,7 @@ docker buildx build --platform linux/amd64,linux/amd64/v2,linux/amd64/v3,linux/a
 
 
 # Images
-docker inspect image -f "{{.Os}}/{{.Architecture}}" 
+docker inspect image -f "{{.Os}}/{{.Architecture}}"
 ```
 
 
