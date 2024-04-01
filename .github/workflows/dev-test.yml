@@ -116,14 +116,26 @@ jobs:
       - name: Integration Tests
         run: dotnet test tests/IntegrationTests/IntegrationTests.sln --no-build --verbosity normal
   # Ensure the Docker image can be built without errors
+  # To enable testing at multiple platforms, uncomment the 'QEMU' and 'buildx' steps below as well as the 'platforms' variable
   Test-Docker-Build:
     needs: [ Front-End-Unit-Tests, Front-End-Type-Check, Back-End-Unit-Tests, Back-End-Integration-Tests ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Source Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
+      ######## uncomment for multi platform testing ########
+      #- name: Set up QEMU
+      #  uses: docker/setup-qemu-action@v3
+      #- name: Set up Docker Buildx
+      #  uses: docker/setup-buildx-action@v3
+      ######## uncomment for multi platform testing ########
+
       - name: Test Docker Build
         uses: elgohr/Publish-Docker-Github-Action@v5
         with:
           name: plexripper/plexripper
           no_push: true
+          ######## uncomment for multi platform testing ########
+          #platforms: "linux/amd64,linux/arm64"
+          ######## uncomment for multi platform testing ########
