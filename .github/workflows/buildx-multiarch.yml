@@ -43,8 +43,8 @@ on:
       - '.releaserc.json'
 
 env:
-  DEFAULT_PLATFORMS: 'linux/amd64,linux/arm64,linux/arm/v7'
-  DEFAULT_TAGS: 'multiarch-test'
+  DEFAULT_PLATFORMS: 'linux/amd64,linux/arm64'
+  DEFAULT_TAGS: 'multiarch-test2'
 jobs:
   # Build And Release Docker Image
   CreateDockerImagesMutliarch:
@@ -64,11 +64,12 @@ jobs:
       - name: Set platforms variable
         run: |
           if [ -n "${{ github.event.inputs.PLATFORMS }}" ]; then
-            PLATFORM="${{ github.event.inputs.PLATFORMS }}"
+            PLATFORMS="${{ github.event.inputs.PLATFORMS }}"
           else
             PLATFORMS="$DEFAULT_PLATFORMS"
           fi
           echo "PLATFORMS=${PLATFORMS}" >> "$GITHUB_ENV"
+          echo "Platforms: ${PLATFORMS}"
       - name: Set tags variable
         run: |
           if [ -n "${{ github.event.inputs.TAGS }}" ]; then
@@ -77,6 +78,7 @@ jobs:
             TAGS="$DEFAULT_TAGS"
           fi
           echo "TAGS=${TAGS}" >> "$GITHUB_ENV"
+          echo "Platforms: ${PLATFORMS}"
       - name: Publish to Registry with dev tag
         uses: elgohr/Publish-Docker-Github-Action@v5
         env:

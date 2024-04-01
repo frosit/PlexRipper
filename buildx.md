@@ -37,17 +37,21 @@ In the release process:
 
 __Platforms (architectures)__
 
-* linux/amd64
+* __linux/amd64__
   * v2
   * v3
-* linux/arm64
-* linux/arm/v7
+* __linux/arm64__
+* linux/arm/v7 (old pi's)
 
 # Workflows
 
 ## buildx-multiarch.yml
 
 Allows to build and publish docker images for multiple platforms.
+
+Inputs:
+    * platforms
+    * tags
 
 
 # Current process
