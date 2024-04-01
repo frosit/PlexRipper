@@ -49,6 +49,7 @@ jobs:
   # Build And Release Docker Image
   CreateDockerImagesMutliarch:
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
@@ -67,7 +68,7 @@ jobs:
           else
             PLATFORMS="$DEFAULT_PLATFORMS"
           fi
-          echo "::set-env name=PLATFORMS::${PLATFORMS}"
+          echo "PLATFORMS=${PLATFORMS}" >> "$GITHUB_ENV"
       - name: Set tags variable
         run: |
           if [ -n "${{ github.event.inputs.TAGS }}" ]; then
@@ -75,7 +76,7 @@ jobs:
           else
             TAGS="$DEFAULT_TAGS"
           fi
-          echo "::set-env name=TAGS::${TAGS}"
+          echo "TAGS=${TAGS}" >> "$GITHUB_ENV"
       - name: Publish to Registry with dev tag
         uses: elgohr/Publish-Docker-Github-Action@v5
         env:
