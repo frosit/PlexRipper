@@ -79,7 +79,7 @@ jobs:
         env:
           VERSION: ${{ env.RELEASE_VERSION }} # @todo unused variable?
         with:
-          name: "${{ GITHUB_REPOSITORY }}" # dockerhub repo name, to ensure no accidental pushes from forks
+          name: "${{ env.GITHUB_REPOSITORY }}" # dockerhub repo name, to ensure no accidental pushes from forks
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           buildargs: VERSION # @todo unused variable?
