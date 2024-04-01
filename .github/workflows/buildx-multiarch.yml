@@ -56,4 +56,4 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           buildargs: VERSION
           tags: "multiarch"
-          platforms: linux/arm64
+          platforms: linux/arm64,linux/amd64

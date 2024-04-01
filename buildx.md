@@ -7,6 +7,12 @@ To build and push docker images using buildx.
 2. login to registry
 3. build
 
+# paltforms
+
+* Buildx: linux/amd64,linux/amd64/v2,linux/amd64/v3,linux/arm64,linux/riscv64,linux/ppc64le,linux/s390x,linux/386,linux/mips64le,linux/mips64,linux/arm/v7,linux/arm/v6
+* QEMU:  linux/amd64,linux/arm64,linux/riscv64,linux/ppc64le,linux/s390x,linux/386,linux/mips64le,linux/mips64,linux/arm/v7,linux/arm/v6
+* selected: linux/amd64,linux/amd64/v2,linux/amd64/v3,linux/arm64,linux/arm/v7,linux/arm/v6
+
 ## SSH authentication
 
 Setup SSH key authentication to raspberry pi
@@ -51,6 +57,10 @@ docker buildx create --name plexripper_builder --append --node argon --platform 
 
 # build
 docker buildx build --platform linux/amd64,linux/amd64/v2,linux/amd64/v3,linux/arm64,linux/arm/v7 -t frosit/plexripper:dev . --push
+
+
+# Images
+docker inspect image -f "{{.Os}}/{{.Architecture}}" 
 ```
 
 
@@ -60,3 +70,4 @@ docker buildx build --platform linux/amd64,linux/amd64/v2,linux/amd64/v3,linux/a
 * https://medium.com/@life-is-short-so-enjoy-it/docker-how-to-build-and-push-multi-arch-docker-images-to-docker-hub-64dea4931df9
 * https://github.com/elgohr/Publish-Docker-Github-Action
 * https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-restore
+* https://devblogs.microsoft.com/dotnet/improving-multiplatform-container-support/
