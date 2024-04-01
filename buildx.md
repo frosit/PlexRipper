@@ -59,3 +59,4 @@ docker buildx build --platform linux/amd64,linux/amd64/v2,linux/amd64/v3,linux/a
 *   https://github.com/docker/setup-buildx-action
 * https://medium.com/@life-is-short-so-enjoy-it/docker-how-to-build-and-push-multi-arch-docker-images-to-docker-hub-64dea4931df9
 * https://github.com/elgohr/Publish-Docker-Github-Action
+* https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-restore

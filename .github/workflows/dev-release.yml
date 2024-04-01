@@ -2,15 +2,15 @@ name: Create PlexRipper Dev Container Release
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - dev
-    paths-ignore:
-      - '.github/**'
-      - '.idea/**'
-      - '.run/**'
-      - '.vscode/**'
-      - '.releaserc.json'
+#  push:
+#    branches:
+#      - dev
+#    paths-ignore:
+#      - '.github/**'
+#      - '.idea/**'
+#      - '.run/**'
+#      - '.vscode/**'
+#      - '.releaserc.json'
 
 jobs:
   # Build And Release Docker Image
