@@ -2,101 +2,102 @@
 	<!--	Refresh Library Screen	-->
 	<QRow
 		v-if="isRefreshing"
-		full-height
 		align="start"
 		class="q-pt-xl"
-		cy="refresh-library-container">
+		cy="refresh-library-container"
+		full-height>
 		<QCol
 			text-align="center">
 			<ProgressComponent
-				circular-mode
-				class="q-my-lg"
 				:percentage="libraryProgress?.percentage ?? -1"
-				:text="refreshingText" />
+				:text="refreshingText"
+				circular-mode
+				class="q-my-lg" />
 			<QText
-				align="center"
 				:value="$t('components.media-overview.steps-remaining', {
 					index: libraryProgress?.step,
 					total: libraryProgress?.totalSteps,
-				})" />
+				})"
+				align="center" />
 			<QCountdown
 				:value="libraryProgress?.timeRemaining ?? ''" />
 		</QCol>
 	</QRow>
 	<template v-else>
-		<!--	Overview bar	-->
-		<MediaOverviewBar
-			:server="
-				libraryStore.getServerByLibraryId(props.libraryId)"
-			:library="library"
-			:detail-mode="!mediaOverviewStore.showMediaOverview"
-			@back="closeDetailsOverview"
-			@view-change="changeView"
-			@selection-dialog="useOpenControlDialog(mediaSelectionDialogName)"
-			@refresh-library="refreshLibrary" />
+		<div class="media-overview-bar">
+			<!--	Overview bar	-->
+			<MediaOverviewBar
+				:detail-mode="false"
+				:library="library"
+				:server="
+					libraryStore.getServerByLibraryId(libraryId)"
+				@view-change="changeView"
+				@selection-dialog="useOpenControlDialog(mediaSelectionDialogName)"
+				@refresh-library="refreshLibrary" />
+		</div>
+		<div class="media-overview-content">
+			<!-- Media Overview -->
+			<template v-if="!loading && mediaOverviewStore.itemsLength">
+				<template v-if="mediaOverviewStore.hasNoSearchResults">
+					<QAlert type="warning">
+						<QText
+							:value="t('components.media-overview.no-search-results', { query: mediaOverviewStore.filterQuery })" />
+					</QAlert>
+				</template>
+				<template v-else>
+					<!--	Data table display	-->
+					<QRow
 
-		<!-- Media Overview -->
-		<template v-if="!loading && mediaOverviewStore.itemsLength">
-			<template v-if="mediaOverviewStore.hasNoSearchResults">
-				<QAlert type="warning">
-					<QText :value="t('components.media-overview.no-search-results', { query: mediaOverviewStore.filterQuery })" />
-				</QAlert>
+						align="start">
+						<QCol>
+							<template v-if="mediaOverviewStore.getMediaViewMode === ViewMode.Table">
+								<MediaTable
+									:disable-hover-click="mediaType !== PlexMediaType.TvShow"
+									:rows="mediaOverviewStore.getMediaItems"
+									is-scrollable />
+							</template>
+
+							<!-- Poster display -->
+							<template v-else>
+								<PosterTable
+									:items="mediaOverviewStore.getMediaItems"
+									:library-id="libraryId"
+									:media-type="mediaType" />
+							</template>
+						</QCol>
+						<!-- Alphabet Navigation -->
+						<AlphabetNavigation />
+					</QRow>
+				</template>
 			</template>
-			<template v-else>
-				<!--	Data table display	-->
-				<QRow
-					id="media-container"
-					align="start">
-					<QCol v-show="mediaOverviewStore.showMediaOverview">
-						<template v-if="mediaOverviewStore.getMediaViewMode === ViewMode.Table">
-							<MediaTable
-								:rows="mediaOverviewStore.getMediaItems"
-								:disable-hover-click="mediaType !== PlexMediaType.TvShow"
-								is-scrollable />
-						</template>
 
-						<!-- Poster display -->
-						<template v-else>
-							<PosterTable
-								:library-id="libraryId"
-								:media-type="mediaType"
-								:items="mediaOverviewStore.getMediaItems" />
-						</template>
+			<!-- No Media Overview -->
+			<template v-else-if="!loading">
+				<QRow justify="center">
+					<QCol cols="auto">
+						<QAlert type="warning">
+							<template v-if="library?.syncedAt === null">
+								{{ $t('components.media-overview.library-not-yet-synced') }}
+							</template>
+							<template v-else-if="!mediaOverviewStore.itemsLength">
+								{{ $t('components.media-overview.no-data') }}
+							</template>
+							<template v-else>
+								{{ $t('components.media-overview.could-not-display') }}
+							</template>
+						</QAlert>
 					</QCol>
-					<!-- Alphabet Navigation -->
-					<AlphabetNavigation v-show="mediaOverviewStore.showMediaOverview" />
 				</QRow>
 			</template>
-		</template>
-
-		<!-- No Media Overview -->
-		<template v-else-if="!loading">
-			<QRow justify="center">
-				<QCol cols="auto">
-					<QAlert type="warning">
-						<template v-if="library?.syncedAt === null">
-							{{ $t('components.media-overview.library-not-yet-synced') }}
-						</template>
-						<template v-else-if="!mediaOverviewStore.itemsLength">
-							{{ $t('components.media-overview.no-data') }}
-						</template>
-						<template v-else>
-							{{ $t('components.media-overview.could-not-display') }}
-						</template>
-					</QAlert>
-				</QCol>
-			</QRow>
-		</template>
-		<!-- Media Details Display -->
-		<DetailsOverview :name="mediaDetailsDialogName" />
-		<!-- Media Selection Dialog -->
-		<MediaSelectionDialog :name="mediaSelectionDialogName" />
-		<!--	Loading overlay	-->
-		<QLoadingOverlay :loading="!isRefreshing && loading" />
-		<!--		Download confirmation dialog	-->
-		<DownloadConfirmation
-			:name="downloadConfirmationName"
-			@download="downloadStore.downloadMedia($event)" />
+			<!-- Media Selection Dialog -->
+			<MediaSelectionDialog :name="mediaSelectionDialogName" />
+			<!--	Loading overlay	-->
+			<QLoadingOverlay :loading="!isRefreshing && loading" />
+			<!--		Download confirmation dialog	-->
+			<DownloadConfirmation
+				:name="downloadConfirmationName"
+				@download="downloadStore.downloadMedia($event)" />
+		</div>
 	</template>
 </template>
 
@@ -104,15 +105,12 @@
 import Log from 'consola';
 import { get, set } from '@vueuse/core';
 import { useSubscription } from '@vueuse/rxjs';
-import { useRouter, type RouteLocationNormalized, type RouteLocationNormalizedLoaded } from 'vue-router';
 import { type DownloadMediaDTO, type LibraryProgress, PlexMediaType, ViewMode } from '@dto';
-import { listenMediaOverviewOpenDetailsCommand, sendMediaOverviewOpenDetailsCommand } from '@composables/event-bus';
 import {
 	useMediaOverviewBarDownloadCommandBus,
 	useMediaOverviewSortBus,
 	useOpenControlDialog,
 	listenMediaOverviewDownloadCommand,
-	useCloseControlDialog,
 	sendMediaOverviewDownloadCommand,
 	useMediaStore,
 	useMediaOverviewStore,
@@ -130,12 +128,10 @@ const mediaOverviewStore = useMediaOverviewStore();
 const downloadStore = useDownloadStore();
 const libraryStore = useLibraryStore();
 const serverStore = useServerStore();
-const router = useRouter();
 
 // endregion
 
 const downloadConfirmationName = 'mediaDownloadConfirmation';
-const mediaDetailsDialogName = 'mediaDetailsDialogName';
 const mediaSelectionDialogName = 'mediaSelectionDialogName';
 const isRefreshing = ref(false);
 
@@ -145,7 +141,6 @@ const loading = ref(false);
 
 const props = defineProps<{
 	libraryId: number;
-	mediaId: number;
 	mediaType: PlexMediaType;
 }>();
 
@@ -251,122 +246,21 @@ listenMediaOverviewDownloadCommand((command) => {
 	}
 });
 
-listenMediaOverviewOpenDetailsCommand((mediaId: number) => {
-	if (!mediaId) {
-		Log.error('mediaId was invalid, could not open details', mediaId);
-		return;
-	}
-
-	// Replace the url with the library id and media id
-	router
-		.push({
-			name: 'details-overview',
-			params: { libraryId: props.libraryId, tvShowId: mediaId },
-		})
-		.then(() => {
-			useOpenControlDialog(mediaDetailsDialogName, { mediaId, type: props.mediaType });
-			mediaOverviewStore.showMediaOverview = false;
-		});
-});
-
-function closeDetailsOverview() {
-	Log.info('closeDetailsOverview');
-	// Replace the url with the library id
-	router
-		.push({
-			name: 'media-overview',
-			params: { libraryId: props.libraryId },
-		})
-		.then(() => {
-			useCloseControlDialog(mediaDetailsDialogName);
-			mediaOverviewStore.showMediaOverview = true;
-		});
-}
-
 useMediaOverviewBarDownloadCommandBus().on(() => {
-	if (mediaOverviewStore.showMediaOverview) {
-		const downloadCommand: DownloadMediaDTO = {
-			plexServerId: libraryStore.getServerByLibraryId(props.libraryId)?.id ?? 0,
-			plexLibraryId: props.libraryId,
-			mediaIds: mediaOverviewStore.selection.keys,
-			type: props.mediaType,
-		};
-		sendMediaOverviewDownloadCommand([downloadCommand]);
-	}
+	const downloadCommand: DownloadMediaDTO = {
+		plexServerId: libraryStore.getServerByLibraryId(props.libraryId)?.id ?? 0,
+		plexLibraryId: props.libraryId,
+		mediaIds: mediaOverviewStore.selection.keys,
+		type: props.mediaType,
+	};
+	sendMediaOverviewDownloadCommand([downloadCommand]);
 });
 
 useMediaOverviewSortBus().on((event) => {
 	mediaOverviewStore.sortMedia(event);
 });
 
-function setupRouter() {
-	router.beforeEach((to, from, next) => {
-		// From MediaOverview => DetailsOverview
-		if (!from.path.includes('details') && to.path.includes('details')) {
-			let tableRef: HTMLElement | null = null;
-			if (mediaOverviewStore.getMediaViewMode === ViewMode.Table) {
-				tableRef = document.getElementById('media-table-scroll');
-			}
-			if (mediaOverviewStore.getMediaViewMode === ViewMode.Poster) {
-				tableRef = document.getElementById('poster-table');
-			}
-
-			if (!tableRef) {
-				Log.error('tableRef was null for type', mediaOverviewStore.getMediaViewMode);
-				return next();
-			}
-			// Save the current scroll position to be restored when navigating back
-			to.meta?.scrollPos && (to.meta.scrollPos.top = tableRef.scrollTop);
-		}
-
-		return next();
-	});
-
-	router.options.scrollBehavior = (to: RouteLocationNormalized, from: RouteLocationNormalizedLoaded) => {
-		// From DetailsOverview => MediaOverview
-		if (from.path.includes('details') && !to.path.includes('details')) {
-			return new Promise((resolve) => {
-				setTimeout(() => {
-					let tableRef: HTMLElement | null = null;
-					switch (mediaOverviewStore.getMediaViewMode) {
-						case ViewMode.Table:
-							tableRef = document.getElementById('media-table-scroll');
-							break;
-						case ViewMode.Poster:
-							tableRef = document.getElementById('poster-table');
-							break;
-						default:
-							Log.error('Unknown mediaViewMode', mediaOverviewStore.getMediaViewMode);
-							return;
-					}
-
-					if (!tableRef) {
-						Log.error('tableRef was null for type', mediaOverviewStore.getMediaViewMode);
-						return;
-					}
-
-					tableRef.scrollTo({
-						behavior: 'smooth',
-						top: from.meta.scrollPos?.top ?? -1,
-						left: 0,
-					});
-
-					return resolve({
-						behavior: 'smooth',
-						top: from.meta.scrollPos?.top ?? -1,
-						left: 0,
-					});
-				}, 100);
-			});
-		}
-		return Promise.resolve();
-	};
-}
-
-// endregion
-
 onMounted(() => {
-	Log.info('MediaOverview => onMounted');
 	resetProgress(false);
 	set(isRefreshing, false);
 
@@ -380,8 +274,6 @@ onMounted(() => {
 		page: 0,
 		size: 0,
 	});
-
-	setupRouter();
 
 	useSubscription(
 		useSignalrStore()
@@ -397,12 +289,6 @@ onMounted(() => {
 				}
 			}),
 	);
-
-	if (props.mediaId) {
-		nextTick(() => {
-			sendMediaOverviewOpenDetailsCommand(props.mediaId);
-		});
-	}
 });
 </script>
 
@@ -412,9 +298,9 @@ onMounted(() => {
 #media-container,
 .media-table-container,
 .detail-view-container {
-	// We need a set height so we calculate the remaining content space by subtracting other component heights
-	height: calc(100vh - $app-bar-height - $media-overview-bar-height);
-	width: 100%;
-	overflow: hidden;
+  // We need a set height so we calculate the remaining content space by subtracting other component heights
+  height: calc($page-height-minus-app-bar - $media-overview-bar-height);
+  width: 100%;
+  overflow: hidden;
 }
 </style>

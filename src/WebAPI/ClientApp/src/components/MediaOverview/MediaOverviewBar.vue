@@ -212,3 +212,12 @@ const viewOptions = computed((): IViewOptions[] => {
 	];
 });
 </script>
+
+<style lang="scss">
+@import '@/assets/scss/_mixins.scss';
+
+.media-overview-bar {
+  @extend .default-border;
+  min-height: $media-overview-bar-height;
+}
+</style>
