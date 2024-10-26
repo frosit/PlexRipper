@@ -1,5 +1,66 @@
 PlexRipper Changelog
 
+# [0.24.0](https://github.com/PlexRipper/PlexRipper/compare/v0.23.2...v0.24.0) (2024-10-26)
+
+
+### Bug Fixes
+
+* **WebAPI:** Added an IsServerOnline check before picking the next downloadTask to download ([1e9f67f](https://github.com/PlexRipper/PlexRipper/commit/1e9f67fe78ad1feb13e21ad2b0051824bc5082b0))
+* **WebAPI:** Correctly configured CORS to only allow same-origin requests to the server ([e90bfb9](https://github.com/PlexRipper/PlexRipper/commit/e90bfb9480281d3d9e85ce77e3b0d27571f5a9bc))
+* **Web-UI:** Display fallback image when the poster thumbnail cannot be loaded ([dcb77f2](https://github.com/PlexRipper/PlexRipper/commit/dcb77f2773150a9beb60b670c4cfcce9acfd08dc))
+* **WebAPI:** Fix Result.Value exception when accessed in failed mode ([69da8d0](https://github.com/PlexRipper/PlexRipper/commit/69da8d0b4ae838512922c1dd62a7bca0e4262a21))
+* **WebAPI:** Fixed a bug where PlexServers that have the same (local) connections are causing media/libraries to be messed up. These are now filtered out ([c7afef8](https://github.com/PlexRipper/PlexRipper/commit/c7afef8c16b648fda6947d6cbaef5523e4bf7e4c))
+* **WebAPI:** Fixed account data that couldn't be saved when in tokenMode due to validation restrictions ([e34eb5b](https://github.com/PlexRipper/PlexRipper/commit/e34eb5b1048871ba68e5fbd3058d7f8cb462d510))
+* **WebAPI:** Fixed exception when no valid connection could be found and the thumbnail link had to be generated ([2482e12](https://github.com/PlexRipper/PlexRipper/commit/2482e122ad11d805d2a881b09ae133d773be0eca))
+* **Web-UI:** Fixed going back when viewing a tv show to the media overview not loading the last page correctly ([7ebbbb2](https://github.com/PlexRipper/PlexRipper/commit/7ebbbb2e525400d2c17ae9212794b2d203da74b3))
+* **WebAPI:** Fixed incorrect index numbers appearing next to media ([e1b3cf0](https://github.com/PlexRipper/PlexRipper/commit/e1b3cf07fefebb11d6a8d6810fcb697250da8edd))
+* **WebAPI:** Fixed life cycle hooks not being triggered by a container shutdown ([3b6b2bd](https://github.com/PlexRipper/PlexRipper/commit/3b6b2bd05b26b66eb61539145e24af369248b783))
+* **Web-UI:** Fixed missing default media poster when media has no thumbnail ([4bf3ea8](https://github.com/PlexRipper/PlexRipper/commit/4bf3ea8adbe4ab84df17775d2a4184ab57b32170))
+* **WebAPI:** Fixed out or range unix time errors by parsing long from milliseconds instead of seconds ([dd66e9d](https://github.com/PlexRipper/PlexRipper/commit/dd66e9d4846f1c19e1e3326c5f7079407f9baf22))
+* **WebAPI:** Fixed signalR not working due to wrong order of initialization ([bc87ef0](https://github.com/PlexRipper/PlexRipper/commit/bc87ef026d41c8f70af1a51c1c62650a4a376ae9))
+* **Web-UI:** Fixed the download segments value being half-way hidden due to UI cut-off ([d348b27](https://github.com/PlexRipper/PlexRipper/commit/d348b273bdffa1d2828ae87e671c02cfff617874))
+* **WebAPI:** fixed the download task not pausing when not actually downloading ([7f9d287](https://github.com/PlexRipper/PlexRipper/commit/7f9d28745dcc3006a30cc1b6eabb604918c9449a))
+* **Web-UI:** Fixed the highlight effect not showing when sometimes navigating with the alphabet navigation ([087c1de](https://github.com/PlexRipper/PlexRipper/commit/087c1ded8a9e9c631b49abc6a30bd712bf8c2586))
+* **Web-UI:** Fixed the missing styling of the scrollbar in firefox ([3610ccf](https://github.com/PlexRipper/PlexRipper/commit/3610ccffeb8421b51fff0faef1ceda5162153e98))
+* **WebAPI:** fixed the PlexAPI not returning unauthorized error when the token has become invalid ([f3604fb](https://github.com/PlexRipper/PlexRipper/commit/f3604fb975a564e36696d62139aa0d7bdc837382))
+* **WebAPI:** Fixed the sortIndex not set on TvShows when syncing media ([bc1cb79](https://github.com/PlexRipper/PlexRipper/commit/bc1cb799cccebb874ac905a94d0f0977ef3a4c42))
+* **Web-UI:** Folderpaths can now be edited freely even when download tasks are active, changes will now apply to downloadtask that have to start ([fe2d80e](https://github.com/PlexRipper/PlexRipper/commit/fe2d80ea3f04796a614baf4a8e487295d99de157))
+* **WebAPI:** hopeful fix that adress files to always be created as root ([5a03cb6](https://github.com/PlexRipper/PlexRipper/commit/5a03cb6087af0df3978f62a857e57a10740e153f))
+* **WebAPI:** Only a single copy of the server status will now be kept in the database, this makes getting the latest status much easier and any online checks ([8f9dac1](https://github.com/PlexRipper/PlexRipper/commit/8f9dac165cd2b8bb4e84d87f36312079f47d0443))
+* **WebAPI:** Possible fix that should resolve SQLite Error 5: 'database is locked'. by waiting until the database is unlocked ([0c1151a](https://github.com/PlexRipper/PlexRipper/commit/0c1151a9175b43f600cf631fb66d77c731836dd7))
+* **WebAPI:** Quartz crash when database has to be created ([d7e81de](https://github.com/PlexRipper/PlexRipper/commit/d7e81de36889be0d43115cf5a265deb160ca25ae))
+* **Web-UI:** Remove unneeded scrollbar on the page in firefox ([bb81824](https://github.com/PlexRipper/PlexRipper/commit/bb818246b519548eb361fd55a7bd3a4c5c59d100))
+* **WebAPI:** set stj serializer in quartz test setup ([6badce7](https://github.com/PlexRipper/PlexRipper/commit/6badce74f9bea0f274008dfada9904b1a9ce3ba1))
+* **WebAPI:** Some Plex Libraries have some random invalid GUID so were going to save it as a string in the database instead of a GUID ([a6f92c1](https://github.com/PlexRipper/PlexRipper/commit/a6f92c163d85778dc997cdb58a516aa61dd9ada3))
+* **WebAPI:** unset default timeout, this might conflict with CommandTimeout ([b1ba28b](https://github.com/PlexRipper/PlexRipper/commit/b1ba28b32149356af16bcda032f9f8bf0d7e25db))
+
+
+### Features
+
+* **Web-UI:** Add tv-show download button on the media poster to quick download ([945e836](https://github.com/PlexRipper/PlexRipper/commit/945e836a68317f00cd851bc33f44d857b24fa0d0))
+* **Web-UI:** Added a search feature to libraries which will search within that library. More general search will come later ([7e573f8](https://github.com/PlexRipper/PlexRipper/commit/7e573f8ee8482f26289c1b186faf12d67f1710c1))
+* **WebAPI:** Added failsafe that shutsdown the container when the database cannot be setup ([55c47af](https://github.com/PlexRipper/PlexRipper/commit/55c47afc48a341f551a6506a5b1e3f383f2931dd))
+* **WebAPI:** Added method to easily mock and set up a httpclient for unit tests ([3f26d93](https://github.com/PlexRipper/PlexRipper/commit/3f26d939be6ee46abc52f34d572e30a82a44c07f))
+* **Web-UI:** Added missing pages for photos and unknown to display that they are not supported yet ([e789ad2](https://github.com/PlexRipper/PlexRipper/commit/e789ad2521f83778d9b9b38aa5c207d8b92c6019))
+* **WebAPI:** Added UNMASKED env variable to unmask sensitive data in the logs ([41ff0ae](https://github.com/PlexRipper/PlexRipper/commit/41ff0ae90974e6b1c65085f11e92933e011d791b))
+* **Web-UI:** keep retrying to reconnect with signalr when connection is lost due to offline back-end ([70ccbf1](https://github.com/PlexRipper/PlexRipper/commit/70ccbf1a581de3c36e793a4a91704a40cb0a78cc))
+* **Web-UI:** keep retrying to reconnect with signalr when connection is lost due to offline back-end ([bd5a0c3](https://github.com/PlexRipper/PlexRipper/commit/bd5a0c3fe2ac0037cfa7f788cbfc7781c8880f3b))
+* **WebAPI:** Plex server status online/offline is now checked every 5 minutes ([c4ccf39](https://github.com/PlexRipper/PlexRipper/commit/c4ccf39f0128aff456082f4914a503dde2931374))
+* **WebAPI:** set auto status checker to 10 minutes ([b5f0308](https://github.com/PlexRipper/PlexRipper/commit/b5f03089a334f5220d1efaec5168de29578f89a7))
+* **Web-UI:** The library media icon will now flash when the library is syncing, stay grey when it has not been synced yet and turned white when it has been synced of its media ([8df1304](https://github.com/PlexRipper/PlexRipper/commit/8df13047229fd893e9c1a490abd9b26bc5ac5405))
+
+
+### Performance Improvements
+
+* **Web-UI:** Major navigation performance improvement when using the alphabet navigation to the right ([273eef8](https://github.com/PlexRipper/PlexRipper/commit/273eef86a915d479f185b2ff947f952e9e2f1403))
+* **WebAPI:** minor performance improvements with big databases, stop searching for more media when the media count has been reached ([075aa69](https://github.com/PlexRipper/PlexRipper/commit/075aa698ba51a0510e745319d2fc1f54296d15d1))
+* **WebAPI:** Sorting now happens once when the library media is updated which is then stored as an index, which should be a big performance upgrade and save diskspace ([1676baa](https://github.com/PlexRipper/PlexRipper/commit/1676baa4e6ed41ffa9aaa8ad7aac6f810a58908a))
+
+
+### Reverts
+
+* Revert "Update Dockerfile" ([9f2738d](https://github.com/PlexRipper/PlexRipper/commit/9f2738d02611c9bb14efd1e7310a8b8321615870))
+
 ## [0.23.2](https://github.com/PlexRipper/PlexRipper/compare/v0.23.1...v0.23.2) (2024-10-03)
 
 
