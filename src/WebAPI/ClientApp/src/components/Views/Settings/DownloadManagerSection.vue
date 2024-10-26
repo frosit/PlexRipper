@@ -15,6 +15,7 @@
 				:min="1"
 				:max="8"
 				:step="1"
+				class="q-mt-lg"
 				@change="settingsStore.downloadManagerSettings.downloadSegments = $event" />
 		</HelpRow>
 	</QSection>
