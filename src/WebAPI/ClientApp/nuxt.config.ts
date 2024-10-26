@@ -1,9 +1,5 @@
 import { fileURLToPath } from 'url';
-import { resolve } from 'path';
 import { defineNuxtConfig } from 'nuxt/config';
-import { createCommonJS } from 'mlly';
-
-const { __dirname } = createCommonJS(import.meta.url);
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -177,7 +173,6 @@ export default defineNuxtConfig({
 	build: {
 		transpile: ['primevue'],
 	},
-
 	eslint: {
 		config: {
 			stylistic: {

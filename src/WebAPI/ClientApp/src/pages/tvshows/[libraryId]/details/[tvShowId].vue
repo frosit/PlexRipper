@@ -100,7 +100,6 @@
 </template>
 
 <script setup lang="ts">
-import Log from 'consola';
 import { get, set } from '@vueuse/core';
 import { forkJoin } from 'rxjs';
 import { take } from 'rxjs/operators';
