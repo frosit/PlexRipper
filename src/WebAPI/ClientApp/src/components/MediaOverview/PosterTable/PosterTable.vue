@@ -118,14 +118,14 @@ onMounted(() => {
 @import '@/assets/scss/variables.scss';
 
 #poster-table {
-	overflow-y: auto;
-	overflow-x: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
 
-	max-height: calc(100vh - $app-bar-height - $media-overview-bar-height);
+  max-height: calc($page-height-minus-app-bar - $media-overview-bar-height);
 
-	&--scroll-container {
-		height: 100%;
-		width: 100%;
-	}
+  &--scroll-container {
+    height: 100%;
+    width: 100%;
+  }
 }
 </style>

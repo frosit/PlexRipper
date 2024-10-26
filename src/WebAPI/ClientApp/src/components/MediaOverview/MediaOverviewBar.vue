@@ -218,6 +218,6 @@ const viewOptions = computed((): IViewOptions[] => {
 
 .media-overview-bar {
   @extend .default-border;
-  min-height: 85px;
+  min-height: $media-overview-bar-height;
 }
 </style>

@@ -2,98 +2,102 @@
 	<!--	Refresh Library Screen	-->
 	<QRow
 		v-if="isRefreshing"
-		full-height
 		align="start"
 		class="q-pt-xl"
-		cy="refresh-library-container">
+		cy="refresh-library-container"
+		full-height>
 		<QCol
 			text-align="center">
 			<ProgressComponent
-				circular-mode
-				class="q-my-lg"
 				:percentage="libraryProgress?.percentage ?? -1"
-				:text="refreshingText" />
+				:text="refreshingText"
+				circular-mode
+				class="q-my-lg" />
 			<QText
-				align="center"
 				:value="$t('components.media-overview.steps-remaining', {
 					index: libraryProgress?.step,
 					total: libraryProgress?.totalSteps,
-				})" />
+				})"
+				align="center" />
 			<QCountdown
 				:value="libraryProgress?.timeRemaining ?? ''" />
 		</QCol>
 	</QRow>
 	<template v-else>
-		<!--	Overview bar	-->
-		<MediaOverviewBar
-			:server="
-				libraryStore.getServerByLibraryId(libraryId)"
-			:library="library"
-			:detail-mode="false"
-			@view-change="changeView"
-			@selection-dialog="useOpenControlDialog(mediaSelectionDialogName)"
-			@refresh-library="refreshLibrary" />
+		<div class="media-overview-bar">
+			<!--	Overview bar	-->
+			<MediaOverviewBar
+				:detail-mode="false"
+				:library="library"
+				:server="
+					libraryStore.getServerByLibraryId(libraryId)"
+				@view-change="changeView"
+				@selection-dialog="useOpenControlDialog(mediaSelectionDialogName)"
+				@refresh-library="refreshLibrary" />
+		</div>
+		<div class="media-overview-content">
+			<!-- Media Overview -->
+			<template v-if="!loading && mediaOverviewStore.itemsLength">
+				<template v-if="mediaOverviewStore.hasNoSearchResults">
+					<QAlert type="warning">
+						<QText
+							:value="t('components.media-overview.no-search-results', { query: mediaOverviewStore.filterQuery })" />
+					</QAlert>
+				</template>
+				<template v-else>
+					<!--	Data table display	-->
+					<QRow
 
-		<!-- Media Overview -->
-		<template v-if="!loading && mediaOverviewStore.itemsLength">
-			<template v-if="mediaOverviewStore.hasNoSearchResults">
-				<QAlert type="warning">
-					<QText :value="t('components.media-overview.no-search-results', { query: mediaOverviewStore.filterQuery })" />
-				</QAlert>
+						align="start">
+						<QCol>
+							<template v-if="mediaOverviewStore.getMediaViewMode === ViewMode.Table">
+								<MediaTable
+									:disable-hover-click="mediaType !== PlexMediaType.TvShow"
+									:rows="mediaOverviewStore.getMediaItems"
+									is-scrollable />
+							</template>
+
+							<!-- Poster display -->
+							<template v-else>
+								<PosterTable
+									:items="mediaOverviewStore.getMediaItems"
+									:library-id="libraryId"
+									:media-type="mediaType" />
+							</template>
+						</QCol>
+						<!-- Alphabet Navigation -->
+						<AlphabetNavigation />
+					</QRow>
+				</template>
 			</template>
-			<template v-else>
-				<!--	Data table display	-->
-				<QRow
-					id="media-container"
-					align="start">
-					<QCol>
-						<template v-if="mediaOverviewStore.getMediaViewMode === ViewMode.Table">
-							<MediaTable
-								:rows="mediaOverviewStore.getMediaItems"
-								:disable-hover-click="mediaType !== PlexMediaType.TvShow"
-								is-scrollable />
-						</template>
 
-						<!-- Poster display -->
-						<template v-else>
-							<PosterTable
-								:library-id="libraryId"
-								:media-type="mediaType"
-								:items="mediaOverviewStore.getMediaItems" />
-						</template>
+			<!-- No Media Overview -->
+			<template v-else-if="!loading">
+				<QRow justify="center">
+					<QCol cols="auto">
+						<QAlert type="warning">
+							<template v-if="library?.syncedAt === null">
+								{{ $t('components.media-overview.library-not-yet-synced') }}
+							</template>
+							<template v-else-if="!mediaOverviewStore.itemsLength">
+								{{ $t('components.media-overview.no-data') }}
+							</template>
+							<template v-else>
+								{{ $t('components.media-overview.could-not-display') }}
+							</template>
+						</QAlert>
 					</QCol>
-					<!-- Alphabet Navigation -->
-					<AlphabetNavigation />
 				</QRow>
 			</template>
-		</template>
-
-		<!-- No Media Overview -->
-		<template v-else-if="!loading">
-			<QRow justify="center">
-				<QCol cols="auto">
-					<QAlert type="warning">
-						<template v-if="library?.syncedAt === null">
-							{{ $t('components.media-overview.library-not-yet-synced') }}
-						</template>
-						<template v-else-if="!mediaOverviewStore.itemsLength">
-							{{ $t('components.media-overview.no-data') }}
-						</template>
-						<template v-else>
-							{{ $t('components.media-overview.could-not-display') }}
-						</template>
-					</QAlert>
-				</QCol>
-			</QRow>
-		</template>
-		<!-- Media Selection Dialog -->
-		<MediaSelectionDialog :name="mediaSelectionDialogName" />
-		<!--	Loading overlay	-->
-		<QLoadingOverlay :loading="!isRefreshing && loading" />
-		<!--		Download confirmation dialog	-->
-		<DownloadConfirmation
-			:name="downloadConfirmationName"
-			@download="downloadStore.downloadMedia($event)" />
+			<!-- Media Selection Dialog -->
+			<MediaSelectionDialog :name="mediaSelectionDialogName" />
+			<!--	Loading overlay	-->
+			<QLoadingOverlay :loading="!isRefreshing && loading" />
+			<!--		Download confirmation dialog	-->
+			<DownloadConfirmation
+				:name="downloadConfirmationName"
+				@download="downloadStore.downloadMedia($event)" />
+		</div>
 	</template>
 </template>
 
@@ -294,9 +298,9 @@ onMounted(() => {
 #media-container,
 .media-table-container,
 .detail-view-container {
-	// We need a set height so we calculate the remaining content space by subtracting other component heights
-	height: calc(100vh - $app-bar-height - $media-overview-bar-height);
-	width: 100%;
-	overflow: hidden;
+  // We need a set height so we calculate the remaining content space by subtracting other component heights
+  height: calc($page-height-minus-app-bar - $media-overview-bar-height);
+  width: 100%;
+  overflow: hidden;
 }
 </style>

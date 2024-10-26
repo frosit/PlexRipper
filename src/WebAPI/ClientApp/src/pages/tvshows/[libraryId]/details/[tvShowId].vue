@@ -207,7 +207,7 @@ onBeforeUnmount(() => {
 
 .media-details-dialog {
   .q-dialog__inner {
-    height: calc(100vh - $app-bar-height - $media-overview-bar-height);
+    height: calc($page-height-minus-app-bar - $media-overview-bar-height);
     transition: all 0.12s ease;
 
     top: auto !important;

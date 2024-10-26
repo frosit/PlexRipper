@@ -56,5 +56,8 @@ $media-overview-bar-height: 85px;
 $media-table-row-height: 42px;
 $navigation-drawer-width: 400px;
 
+$page-height-minus-app-bar: calc(100vh - #{$app-bar-height});
+
 $q-card-dialog-title-height: 68px;
 $q-card-dialog-actions-height: 68px;
+

@@ -163,30 +163,28 @@ onMounted(() => {
 @import '@/assets/scss/variables.scss';
 
 .media-table {
-	// overflow-y: auto;
+  &--header,
+  &--intersection,
+  &--intersection > div {
+    height: $media-table-row-height;
+  }
 
-	&--header,
-	&--intersection,
-	&--intersection > div {
-		height: $media-table-row-height;
-	}
-
-	&--content {
-		max-height: calc(100vh - $app-bar-height - $media-overview-bar-height - $media-table-row-height);
-	}
+  &--content {
+    max-height: calc($page-height-minus-app-bar - $media-overview-bar-height - $media-table-row-height);
+  }
 }
 
 .row-title {
-	font-weight: bold;
-	min-width: 300px;
-	max-width: 300px;
+  font-weight: bold;
+  min-width: 300px;
+  max-width: 300px;
 
-	&--hover {
-		cursor: pointer;
+  &--hover {
+    cursor: pointer;
 
-		:hover {
-			color: $primary;
-		}
-	}
+    :hover {
+      color: $primary;
+    }
+  }
 }
 </style>

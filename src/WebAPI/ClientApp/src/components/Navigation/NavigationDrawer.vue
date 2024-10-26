@@ -118,20 +118,19 @@ onMounted(() => {
 @import '@/assets/scss/variables.scss';
 
 .navigation-drawer {
-	height: 100vh;
-	display: flex;
-	flex-direction: column;
-	justify-content: space-between;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 
-	.server-drawer-container {
-		overflow-y: auto;
-		overflow-x: hidden;
+  .server-drawer-container {
+    overflow-y: auto;
+    overflow-x: hidden;
 
-		flex-grow: 3;
-	}
+    flex-grow: 3;
+  }
 
-	.menu-items {
-		flex-grow: 0;
-	}
+  .menu-items {
+    flex-grow: 0;
+  }
 }
 </style>
