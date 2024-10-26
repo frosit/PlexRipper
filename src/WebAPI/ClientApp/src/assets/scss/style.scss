@@ -10,15 +10,13 @@
 /*
 default
 */
-// Prevents unneeded vertical scroll bar on body/page niveau
-html {
-	// overflow-y: hidden;
-}
-
 html,
 body {
 	height: 100%;
-	margin: 0
+	margin: 0;
+
+	// Prevents unneeded vertical scroll bar on body/page level
+	overflow-y: hidden;
 }
 
 
