@@ -57,7 +57,7 @@ public class DownloadWorker_Start_UnitTests : BaseUnitTest<DownloadWorker>
             )
         );
         DownloadWorkerTask? downloadWorkerTaskResult = null;
-        sut.DownloadWorkerTaskUpdate.Subscribe(task => downloadWorkerTaskResult = task);
+        sut.DownloadWorkerTaskUpdate.Subscribe(x => downloadWorkerTaskResult = x);
 
         // Act
         var result = sut.Start();
@@ -89,8 +89,10 @@ public class DownloadWorker_Start_UnitTests : BaseUnitTest<DownloadWorker>
             .Setup(x => x.CreateDownloadFileStream(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<long>()))
             .Returns(Result.Ok<Stream>(new MemoryStream()));
         mock.Mock<IPlexApiClient>()
-            .Setup(x => x.DownloadStreamAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new MemoryStream());
+            .Setup(x =>
+                x.DownloadStreamAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<int>(), It.IsAny<CancellationToken>())
+            )
+            .ReturnsAsync(() => new ThrottledStream(new MemoryStream()));
 
         var task = FakeData.GetDownloadWorkerTask(seed).Generate();
 
@@ -118,7 +120,7 @@ public class DownloadWorker_Start_UnitTests : BaseUnitTest<DownloadWorker>
         );
 
         var downloadWorkerTaskResult = new List<DownloadWorkerTask>();
-        sut.DownloadWorkerTaskUpdate.Subscribe(task => downloadWorkerTaskResult.Add(task));
+        sut.DownloadWorkerTaskUpdate.Subscribe(x => downloadWorkerTaskResult.Add(x));
 
         // Act
         var result = sut.Start();
@@ -129,7 +131,12 @@ public class DownloadWorker_Start_UnitTests : BaseUnitTest<DownloadWorker>
 
         mock.Mock<IPlexApiClient>()
             .Verify(
-                x => x.DownloadStreamAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()),
+                x =>
+                    x.DownloadStreamAsync(
+                        It.IsAny<HttpRequestMessage>(),
+                        It.IsAny<int>(),
+                        It.IsAny<CancellationToken>()
+                    ),
                 Times.Once
             );
     }

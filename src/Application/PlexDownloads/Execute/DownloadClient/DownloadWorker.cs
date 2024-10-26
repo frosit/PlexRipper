@@ -119,9 +119,8 @@ public class DownloadWorker : IDisposable
 
     private async Task<Result> DownloadProcessAsync(CancellationToken cancellationToken = default)
     {
-        ThrottledStream? throttledStream = null;
         Stream? destinationStream = null;
-        Stream? responseStream = null;
+        ThrottledStream? responseStream = null;
         try
         {
             // Retrieve Download URL
@@ -167,14 +166,11 @@ public class DownloadWorker : IDisposable
                 new RangeHeaderValue(DownloadWorkerTask.CurrentByte, DownloadWorkerTask.EndByte).ToString()
             );
 
-            responseStream = await _httpClient.DownloadStreamAsync(request, cancellationToken);
+            responseStream = await _httpClient.DownloadStreamAsync(request, _downloadSpeedLimit, cancellationToken);
             if (responseStream is null)
             {
                 return SendDownloadWorkerError(Result.Fail(new ExceptionalError(new Exception(request.ToString()))));
             }
-
-            // Throttle the stream to enable download speed limiting
-            throttledStream = new ThrottledStream(responseStream, _downloadSpeedLimit);
 
             // Buffer is based on: https://stackoverflow.com/a/39355385/8205497
             var buffer = new byte[(long)ByteSize.FromMebiBytes(4).Bytes];
@@ -185,8 +181,8 @@ public class DownloadWorker : IDisposable
             var loopIndex = 0;
             while (_isDownloading)
             {
-                throttledStream.SetThrottleSpeed(_downloadSpeedLimit);
-                var bytesRead = await throttledStream.ReadAsync(buffer, 0, buffer.Length, cancellationToken);
+                responseStream.SetThrottleSpeed(_downloadSpeedLimit);
+                var bytesRead = await responseStream.ReadAsync(buffer, 0, buffer.Length, cancellationToken);
                 if (bytesRead > 0)
                     bytesRead = (int)Math.Min(DownloadWorkerTask.DataRemaining, bytesRead);
 
@@ -236,9 +232,6 @@ public class DownloadWorker : IDisposable
         {
             if (responseStream != null)
                 await responseStream.DisposeAsync();
-
-            if (throttledStream != null)
-                await throttledStream.DisposeAsync();
 
             if (destinationStream != null)
                 await destinationStream.DisposeAsync();

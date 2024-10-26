@@ -191,10 +191,15 @@ public class PlexApiClient : IPlexApiClient
         return response;
     }
 
-    public async Task<Stream?> DownloadStreamAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    public async Task<ThrottledStream?> DownloadStreamAsync(
+        HttpRequestMessage request,
+        int downloadSpeedLimit,
+        CancellationToken cancellationToken
+    )
     {
         var response = await SendAsync(request);
-        return await response.Content.ReadAsStreamAsync(cancellationToken);
+        var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
+        return new ThrottledStream(stream, downloadSpeedLimit);
     }
 
     public async Task<HttpRequestMessage> CloneAsync(HttpRequestMessage request)
