@@ -145,29 +145,6 @@ body {
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-// * QBtn
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-// Changes the color of the box shadow around buttons when in dark mode
-//body {
-//	&.body--dark {
-//		.q-btn {
-//			&.q-btn--standard {
-//				&:before {
-//					box-shadow: $button-dark-shadow-active;
-//				}
-//			}
-//
-//			&:active,
-//			&.q-btn--active {
-//				&:before {
-//					box-shadow: $button-dark-shadow-active;
-//				}
-//			}
-//		}
-//	}
-//}
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 // * Scrollbars
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 // Source: https://codepen.io/Hawkeye64/pen/bGRXBOY?editors=1100
@@ -182,6 +159,14 @@ body {
   --scrollbar-track-dark: $dark-shadow-color;
   --scrollbar-thumb-dark: rgb(140, 4, 4);
   --scrollbar-thumb-hover-dark: red;
+}
+
+// Only apply to Firefox
+@-moz-document url-prefix() {
+  * {
+    scrollbar-color: red transparent;
+    scrollbar-width: auto;
+  }
 }
 
 ::-webkit-scrollbar {
@@ -211,3 +196,4 @@ body {
     background: var(--scrollbar-thumb-hover-dark);
   }
 }
+
