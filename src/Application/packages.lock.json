@@ -64,6 +64,21 @@
           "Microsoft.Extensions.Options": "8.0.2"
         }
       },
+      "Polly": {
+        "type": "Direct",
+        "requested": "[8.3.1, )",
+        "resolved": "8.3.1",
+        "contentHash": "xN9AxOudus8u4a//Tfu6Wxd5Oj7S4pjh/651S6FfIiVrbxQ8TeM+ieZC8c0y7Qto70zKBM5g8rBTqbAJnbetOA==",
+        "dependencies": {
+          "Polly.Core": "8.3.1"
+        }
+      },
+      "Polly.Core": {
+        "type": "Direct",
+        "requested": "[8.4.2, )",
+        "resolved": "8.4.2",
+        "contentHash": "BpE2I6HBYYA5tF0Vn4eoQOGYTYIK1BlF5EXVgkWGn3mqUUjbXAr13J6fZVbp7Q3epRR8yshacBMlsHMhpOiV3g=="
+      },
       "Quartz.Serialization.SystemTextJson": {
         "type": "Direct",
         "requested": "[3.13.0, )",
