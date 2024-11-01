@@ -300,6 +300,7 @@
         },
         "download-status": {
             "error": "Erreur",
+            "server-unreachable": "Serveur inaccessible",
             "unknown": "Inconnu",
             "queued": "En file d'attente",
             "downloading": "Téléchargement",

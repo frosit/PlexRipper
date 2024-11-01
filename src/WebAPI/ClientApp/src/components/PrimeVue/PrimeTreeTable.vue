@@ -170,6 +170,8 @@ function translateStatus(status: DownloadStatus) {
 			return t('general.download-status.downloading');
 		case DownloadStatus.Error:
 			return t('general.download-status.error');
+		case DownloadStatus.ServerUnreachable:
+			return t('general.download-status.server-unreachable');
 		case DownloadStatus.Paused:
 			return t('general.download-status.paused');
 		case DownloadStatus.Queued:
@@ -190,65 +192,69 @@ const emits = defineEmits<{
 
 <style lang="scss">
 .p-treetable {
-	table {
-		white-space: nowrap;
-		width: 100%;
-	}
+  table {
+    white-space: nowrap;
+    width: 100%;
+  }
 
-	.p-treetable-header {
-		color: inherit;
-		background: transparent;
-		border: none;
-	}
-	.p-treetable-thead > tr > th {
-		color: inherit;
-		background: transparent;
-		border-top: rgba(255, 255, 255, 0.28) 0.13rem solid;
-		border-bottom: rgba(255, 255, 255, 0.28) 0.13rem solid;
-	}
+  .p-treetable-header {
+    color: inherit;
+    background: transparent;
+    border: none;
+  }
 
-	.p-treetable-tbody > tr {
-		color: inherit;
-		background: transparent;
-		//outline: 0.15rem solid white;
-		border-bottom: rgba(255, 255, 255, 0.28) 0.13rem solid;
+  .p-treetable-thead > tr > th {
+    color: inherit;
+    background: transparent;
+    border-top: rgba(255, 255, 255, 0.28) 0.13rem solid;
+    border-bottom: rgba(255, 255, 255, 0.28) 0.13rem solid;
+  }
 
-		&:focus {
-			outline: none;
-		}
-	}
+  .p-treetable-tbody > tr {
+    color: inherit;
+    background: transparent;
+    //outline: 0.15rem solid white;
+    border-bottom: rgba(255, 255, 255, 0.28) 0.13rem solid;
 
-	.p-checkbox-box {
-		&.p-highlight {
-			border-color: red;
-		}
-		.p-checkbox-icon {
-			color: white;
-		}
-	}
+    &:focus {
+      outline: none;
+    }
+  }
 
-	.p-paginator {
-		color: inherit;
-		background: transparent;
-	}
+  .p-checkbox-box {
+    &.p-highlight {
+      border-color: red;
+    }
+
+    .p-checkbox-icon {
+      color: white;
+    }
+  }
+
+  .p-paginator {
+    color: inherit;
+    background: transparent;
+  }
 }
 
 //this creates a pseudochild of the button the size of the first anscestor with "relative" size
 button.p-treetable-toggler.p-link::before {
-	content: '';
-	display: block;
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
+  content: '';
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
+
 //this element originally had "relative" size, overwriting it allow the pseudochild to be sized relative to a later anscestor
 .p-treetable-toggler {
-	position: static;
+  position: static;
 }
+
 // this element contains the full row, by making it relative the pseudochild can size itself based on this
 .p-treetable .p-treetable-tbody > tr {
-	position: relative;
+  position: relative;
 }
 </style>
