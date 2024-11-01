@@ -322,9 +322,8 @@ public static partial class DbContextExtensions
                 .ExecuteUpdateAsync(
                     p =>
                         p.SetProperty(x => x.DownloadStatus, update.Status)
-                            .SetProperty(x => x.Percentage, update.Percentage)
-                            .SetProperty(x => x.BytesReceived, update.DataReceived)
-                            .SetProperty(x => x.DownloadSpeed, update.DownloadSpeed),
+                            .SetProperty(x => x.ElapsedTime, update.ElapsedTime)
+                            .SetProperty(x => x.BytesReceived, update.DataReceived),
                     cancellationToken
                 );
         }

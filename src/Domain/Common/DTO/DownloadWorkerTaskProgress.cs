@@ -10,7 +10,9 @@ public record DownloadWorkerTaskProgress : IDownloadTaskProgress
 
     public long DataReceived { get; init; }
 
-    public long DownloadSpeed { get; init; }
+    public long ElapsedTime { get; init; }
 
     public DownloadStatus Status { get; init; }
+
+    public long DownloadSpeed => DataFormat.GetTransferSpeed(DataReceived, ElapsedTime);
 }

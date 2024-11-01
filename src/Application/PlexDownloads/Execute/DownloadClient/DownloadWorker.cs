@@ -4,15 +4,17 @@ using System.Reactive.Subjects;
 using ByteSizeLib;
 using Data.Contracts;
 using FileSystem.Contracts;
+using Logging.Common;
 using Logging.Interface;
 using PlexApi.Contracts;
 using Polly;
+using Polly.Retry;
 using Timer = System.Timers.Timer;
 
 namespace PlexRipper.Application;
 
 /// <summary>
-/// The <see cref="DownloadWorker"/> is part of the multi-threaded <see cref="PlexDownloadClient"/>
+/// The <see cref="DownloadWorker"/> is part of the multithreaded <see cref="PlexDownloadClient"/>
 /// and will download a part of the <see cref="DownloadTaskGeneric"/>.
 /// </summary>
 public class DownloadWorker : IDisposable
@@ -34,6 +36,8 @@ public class DownloadWorker : IDisposable
 
     private bool _isDownloading = true;
 
+    private readonly AsyncRetryPolicy _retryPolicy;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="DownloadWorker"/> class.
     /// </summary>
@@ -41,6 +45,7 @@ public class DownloadWorker : IDisposable
     /// <param name="dbContext"></param>
     /// <param name="downloadWorkerTask">The download task this worker will execute.</param>
     /// <param name="downloadFileSystem">The filesystem used to store the downloaded data.</param>
+    /// <param name="clientFactory">The factory to create a new <see cref="IPlexApiClient"/>.</param>
     public DownloadWorker(
         ILog<DownloadWorker> log,
         IPlexRipperDbContext dbContext,
@@ -54,15 +59,32 @@ public class DownloadWorker : IDisposable
         _dbContext = dbContext;
         DownloadWorkerTask = downloadWorkerTask;
 
-        _httpClient = clientFactory(new PlexApiClientOptions() { ConnectionUrl = string.Empty });
+        _httpClient = clientFactory(new PlexApiClientOptions { ConnectionUrl = string.Empty });
 
         _timer.Elapsed += (_, _) =>
         {
             DownloadWorkerTask.ElapsedTime += (long)_timer.Interval;
         };
+
+        _retryPolicy = Policy
+            .Handle<HttpIOException>()
+            .WaitAndRetryAsync(
+                retryCount: 3, // Number of retry attempts
+                sleepDurationProvider: attempt => TimeSpan.FromSeconds(Math.Pow(2, attempt)),
+                onRetry: (exception, timeSpan, retryCount, context) =>
+                {
+                    _log.Here()
+                        .Warning(
+                            "Retry {retryCount} due to {exception.Message}. Retrying in {timeSpan.TotalSeconds}s.",
+                            retryCount,
+                            exception.Message,
+                            timeSpan.TotalSeconds
+                        );
+                }
+            );
     }
 
-    public Task<Result> DownloadProcessTask { get; private set; } = new(Result.Ok);
+    public Task DownloadProcessTask { get; private set; } = Task.CompletedTask;
 
     public IObservable<DownloadWorkerLog> DownloadWorkerLog => _downloadWorkerLog.AsObservable();
 
@@ -118,7 +140,7 @@ public class DownloadWorker : IDisposable
         _downloadWorkerLog.Dispose();
     }
 
-    private async Task<Result> DownloadProcessAsync(CancellationToken cancellationToken = default)
+    private async Task DownloadProcessAsync(CancellationToken cancellationToken = default)
     {
         Stream? destinationStream = null;
         ThrottledStream? responseStream = null;
@@ -133,8 +155,8 @@ public class DownloadWorker : IDisposable
 
             if (downloadUrlResult.IsFailed)
             {
-                ServerIsOffline();
-                return downloadUrlResult.ToResult();
+                SetDownloadWorkerTaskChanged(DownloadStatus.ServerUnreachable);
+                return;
             }
 
             var downloadUrl = downloadUrlResult.Value;
@@ -151,8 +173,8 @@ public class DownloadWorker : IDisposable
                     .Error("Could not create a download destination filestream for DownloadWorker with id: {Id}", Id)
                     .ToResult();
                 result.Errors.AddRange(fileStreamResult.Errors);
-                SendDownloadWorkerError(result);
-                return result;
+                SetDownloadWorkerTaskChanged(DownloadStatus.Error, result);
+                return;
             }
 
             destinationStream = fileStreamResult.Value;
@@ -160,7 +182,7 @@ public class DownloadWorker : IDisposable
             // Is 0 when starting new and > 0 when resuming.
             destinationStream.Position = DownloadWorkerTask.BytesReceived;
 
-            // Create download client
+            // Create download HttpRequestMessage with range header
             var request = new HttpRequestMessage(HttpMethod.Get, downloadUrl);
             request.Headers.Add(
                 "Range",
@@ -172,110 +194,97 @@ public class DownloadWorker : IDisposable
 
             _timer.Start();
 
-            // Define a retry policy that retries on HttpIOException
-            var retryPolicy = Policy
-                .Handle<HttpIOException>()
-                .WaitAndRetryAsync(
-                    retryCount: 3, // Number of retry attempts
-                    sleepDurationProvider: attempt => TimeSpan.FromSeconds(Math.Pow(2, attempt)),
-                    onRetry: (exception, timeSpan, retryCount, context) =>
-                    {
-                        _log.Here()
-                            .Warning(
-                                "Retry {retryCount} due to {exception.Message}. Retrying in {timeSpan.TotalSeconds}s.",
-                                retryCount,
-                                exception.Message,
-                                timeSpan.TotalSeconds
-                            );
-                    }
-                );
-
             var loopIndex = 0;
             while (_isDownloading)
             {
-                var result = await retryPolicy.ExecuteAsync(async () =>
+                var result = await _retryPolicy.ExecuteAsync(async () =>
                 {
-                    // Download the data
-                    responseStream ??= await _httpClient.DownloadStreamAsync(
-                        request,
-                        _downloadSpeedLimit,
-                        cancellationToken
-                    );
-
-                    if (responseStream is null)
+                    try
                     {
-                        var result = _log.Here()
-                            .Error("Download worker {Id} with {FileName} had an empty download stream", Id, FileName)
-                            .ToResult();
-                        return SendDownloadWorkerError(result);
+                        // Download the data
+                        responseStream ??= await _httpClient.DownloadStreamAsync(
+                            request,
+                            _downloadSpeedLimit,
+                            cancellationToken
+                        );
+
+                        if (responseStream is null)
+                        {
+                            return _log.Here()
+                                .Error(
+                                    "Download worker {Id} with {FileName} had an empty download stream",
+                                    Id,
+                                    FileName
+                                )
+                                .ToResult();
+                        }
+
+                        responseStream.SetThrottleSpeed(_downloadSpeedLimit);
+
+                        var read = await responseStream.ReadAsync(buffer, 0, buffer.Length, cancellationToken);
+
+                        // Clamp the read to the remaining data
+                        if (read > 0)
+                        {
+                            SetDownloadWorkerTaskChanged(DownloadStatus.Downloading);
+                            read = (int)Math.Min(DownloadWorkerTask.DataRemaining, read);
+                        }
+
+                        return Result.Ok(read);
                     }
-
-                    responseStream.SetThrottleSpeed(_downloadSpeedLimit);
-
-                    var read = await responseStream.ReadAsync(buffer, 0, buffer.Length, cancellationToken);
-
-                    // Clamp the read to the remaining data
-                    if (read > 0)
+                    catch (Exception e)
                     {
-                        SetDownloadWorkerTaskChanged(DownloadStatus.Downloading);
-                        read = (int)Math.Min(DownloadWorkerTask.DataRemaining, read);
+                        return Result.Fail(new ExceptionalError(e)).LogError();
                     }
-
-                    return Result.Ok(read);
                 });
 
                 if (result.IsFailed)
                 {
-                    await DisposeResources();
-                    return SendDownloadWorkerError(result.ToResult());
+                    SetDownloadWorkerTaskChanged(DownloadStatus.Error, result.ToResult());
+                    break;
                 }
 
                 var bytesRead = result.Value;
 
-                // We have at least downloaded something
-                if (loopIndex > 0 && bytesRead == 0)
-                {
-                    await DisposeResources();
-                    SendDownloadFinished();
-                    break;
-                }
-
                 if (loopIndex == 0 && bytesRead <= 0)
                 {
-                    SendDownloadWorkerError(
-                        _log.Here()
-                            .Error(
-                                "Download worker with id: {Id} and filename: {FileName} had and empty download stream on start",
-                                Id,
-                                FileName
-                            )
-                            .ToResult()
-                    );
+                    var errorResult = _log.Here()
+                        .Error(
+                            "Download worker with id: {Id} and filename: {FileName} had and empty download stream on start",
+                            Id,
+                            FileName
+                        )
+                        .ToResult();
+                    SetDownloadWorkerTaskChanged(DownloadStatus.ServerUnreachable, errorResult);
                     break;
                 }
 
                 await destinationStream.WriteAsync(buffer.AsMemory(0, bytesRead), cancellationToken);
                 await destinationStream.FlushAsync(cancellationToken);
 
-                DownloadWorkerTask.BytesReceived += bytesRead;
-                SendDownloadWorkerUpdate();
                 loopIndex++;
+                DownloadWorkerTask.BytesReceived += bytesRead;
+
+                if (DownloadWorkerTask.IsCompleted)
+                {
+                    SetDownloadWorkerTaskChanged(DownloadStatus.DownloadFinished);
+                    break;
+                }
+
+                SendDownloadWorkerUpdate();
             }
-        }
-        catch (HttpIOException e)
-        {
-            return SendDownloadWorkerError(Result.Fail(new ExceptionalError(e)));
         }
         catch (Exception e)
         {
-            return SendDownloadWorkerError(Result.Fail(new ExceptionalError(e)));
+            SetDownloadWorkerTaskChanged(DownloadStatus.Error, Result.Fail(new ExceptionalError(e)));
         }
         finally
         {
             await DisposeResources();
+            Shutdown();
         }
 
-        return Result.Ok();
+        return;
 
         // Dispose all streams
         async Task DisposeResources()
@@ -288,35 +297,63 @@ public class DownloadWorker : IDisposable
         }
     }
 
-    private Result SendDownloadWorkerError(Result errorResult)
+    private void SetDownloadWorkerTaskChanged(DownloadStatus status, Result? errorResult = null)
     {
-        if (errorResult.Errors.Any() && !errorResult.Errors[0].Metadata.ContainsKey(nameof(DownloadWorker) + "Id"))
-            errorResult.Errors[0].Metadata.Add(nameof(DownloadWorker) + "Id", Id);
+        if (DownloadWorkerTask.DownloadStatus == status)
+            return;
 
-        _log.Here().Error("Download worker {Id} with {FileName} had an error!", Id, FileName);
-        errorResult.LogError();
-        DownloadWorkerTask.DownloadStatus = DownloadStatus.Error;
+        var msg = _log.Debug(
+            "Download worker with id: {Id} and with filename: {FileName} changed status to {Status}",
+            Id,
+            FileName,
+            status
+        );
+        DownloadWorkerTask.DownloadStatus = status;
+
+        SendDownloadWorkerLog(status.ToNotificationLevel(), msg.ToLogString());
+
+        LogMetaData? logMsg = null;
+        switch (status)
+        {
+            case DownloadStatus.Error:
+                logMsg = _log.Here().Error("Download worker {Id} with {FileName} had an error!", Id, FileName);
+                break;
+            case DownloadStatus.DownloadFinished:
+                logMsg = _log.Here().Information("Download worker {Id} with {FileName} finished!", Id, FileName);
+                break;
+            case DownloadStatus.ServerUnreachable:
+                logMsg = _log.Error("The server {PlexServerName} is unreachable!", DownloadWorkerTask.PlexServer?.Name);
+                break;
+        }
+
+        if (logMsg != null)
+        {
+            SendDownloadWorkerLog(status.ToNotificationLevel(), logMsg.ToLogString());
+        }
+
+        if (errorResult != null)
+        {
+            if (errorResult.Errors.Any() && !errorResult.Errors[0].Metadata.ContainsKey(nameof(DownloadWorker) + "Id"))
+                errorResult.Errors[0].Metadata.Add(nameof(DownloadWorker) + "Id", Id);
+
+            SendDownloadWorkerLog(NotificationLevel.Error, errorResult.ToString());
+        }
+
         SendDownloadWorkerUpdate();
-        SendDownloadWorkerLog(NotificationLevel.Error, errorResult.ToString());
-        Shutdown();
-
-        return errorResult;
     }
 
-    private void ServerIsOffline()
+    private void SendDownloadWorkerUpdate()
     {
-        const string msg = "The server is unreachable!";
-        DownloadWorkerTask.DownloadStatus = DownloadStatus.ServerUnreachable;
-        SendDownloadWorkerUpdate();
-        SendDownloadWorkerLog(NotificationLevel.Error, msg);
-        Shutdown();
-    }
-
-    private void SendDownloadFinished()
-    {
-        SetDownloadWorkerTaskChanged(DownloadStatus.DownloadFinished);
-        _log.Here().Information("Download worker {Id} with {FileName} finished!", Id, FileName);
-        Shutdown();
+        _downloadWorkerUpdate.OnNext(
+            new DownloadWorkerTaskProgress
+            {
+                DataTotal = DownloadWorkerTask.DataTotal,
+                Percentage = DownloadWorkerTask.Percentage,
+                DataReceived = DownloadWorkerTask.BytesReceived,
+                ElapsedTime = DownloadWorkerTask.ElapsedTime,
+                Status = DownloadWorkerTask.DownloadStatus,
+            }
+        );
     }
 
     private void SendDownloadWorkerLog(NotificationLevel logLevel, string message)
@@ -331,39 +368,6 @@ public class DownloadWorker : IDisposable
                 DownloadTaskId = DownloadWorkerTask.DownloadTaskId,
             }
         );
-    }
-
-    private void SendDownloadWorkerUpdate()
-    {
-        _downloadWorkerUpdate.OnNext(
-            new DownloadWorkerTaskProgress
-            {
-                DataTotal = DownloadWorkerTask.DataTotal,
-                Percentage = DownloadWorkerTask.Percentage,
-                DataReceived = DownloadWorkerTask.BytesReceived,
-                DownloadSpeed = DownloadWorkerTask.DownloadSpeed,
-                Status = DownloadWorkerTask.DownloadStatus,
-            }
-        );
-    }
-
-    private void SetDownloadWorkerTaskChanged(DownloadStatus status)
-    {
-        if (DownloadWorkerTask.DownloadStatus == status)
-            return;
-
-        _log.Debug(
-            "Download worker with id: {Id} and with filename: {FileName} changed status to {Status}",
-            Id,
-            FileName,
-            status
-        );
-        DownloadWorkerTask.DownloadStatus = status;
-        SendDownloadWorkerLog(
-            NotificationLevel.Information,
-            $"Download worker with id: {Id} and with filename: {FileName} changed status to {status}"
-        );
-        SendDownloadWorkerUpdate();
     }
 
     private void Shutdown()

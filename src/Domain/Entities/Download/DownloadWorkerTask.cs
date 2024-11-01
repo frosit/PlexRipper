@@ -108,7 +108,7 @@ public class DownloadWorkerTask : BaseEntity
     /// The time elapsed of this DownloadWorker.
     /// </summary>
     [NotMapped]
-    public bool IsCompleted => BytesReceived == DataTotal;
+    public bool IsCompleted => BytesReceived >= DataTotal;
 
     [NotMapped]
     public decimal Percentage => DataFormat.GetPercentage(BytesReceived, DataTotal);

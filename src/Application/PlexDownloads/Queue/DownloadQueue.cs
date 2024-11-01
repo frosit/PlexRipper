@@ -122,31 +122,35 @@ public class DownloadQueue : IDownloadQueue
     /// <returns></returns>
     internal Result<DownloadTaskGeneric> GetNextDownloadTask(List<DownloadTaskGeneric> downloadTasks)
     {
-        // Check if there is anything downloading already
-        var nextDownloadTask = downloadTasks.FirstOrDefault(x => x.DownloadStatus == DownloadStatus.Downloading);
-        if (nextDownloadTask is not null)
+        List<DownloadStatus> statusCheck =
+        [
+            DownloadStatus.Downloading,
+            DownloadStatus.ServerUnreachable,
+            DownloadStatus.Queued,
+        ];
+
+        foreach (var status in statusCheck)
         {
-            // Should we check deeper for any nested queued tasks inside downloading tasks
-            if (nextDownloadTask.Children.Any())
+            var nextDownloadTask = downloadTasks.FirstOrDefault(x => x.DownloadStatus == status);
+            if (nextDownloadTask is not null)
             {
-                var children = nextDownloadTask.Children;
-                return GetNextDownloadTask(children);
+                // Should we check deeper for any nested tasks
+                if (nextDownloadTask.Children.Any())
+                    return GetNextDownloadTask(nextDownloadTask.Children);
+
+                switch (status)
+                {
+                    case DownloadStatus.Downloading:
+                        return Result
+                            .Fail($"DownloadTask {nextDownloadTask.FullTitle} is already downloading")
+                            .LogWarning();
+                    case DownloadStatus.ServerUnreachable:
+                    case DownloadStatus.Queued:
+                        return Result.Ok(nextDownloadTask);
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
-
-            return Result.Fail($"DownloadTask {nextDownloadTask.FullTitle} is already downloading").LogDebug();
-        }
-
-        // Check if there is anything queued
-        nextDownloadTask = downloadTasks.FirstOrDefault(x => x.DownloadStatus == DownloadStatus.Queued);
-        if (nextDownloadTask is not null)
-        {
-            if (nextDownloadTask.Children.Any())
-            {
-                var children = nextDownloadTask.Children;
-                return GetNextDownloadTask(children);
-            }
-
-            return Result.Ok(nextDownloadTask);
         }
 
         return Result.Fail("There were no downloadTasks left to download.").LogDebug();

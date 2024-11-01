@@ -70,6 +70,7 @@ public static class DownloadTaskActions
         // If any of these statuses are present, return that status.
         List<DownloadStatus> anyStatuses =
         [
+            DownloadStatus.ServerUnreachable,
             DownloadStatus.Error,
             DownloadStatus.Downloading,
             DownloadStatus.Paused,

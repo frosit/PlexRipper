@@ -213,9 +213,7 @@ public class PlexDownloadClient : IAsyncDisposable, IPlexDownloadClient
         DownloadTask.Percentage = downloadWorkerUpdates.Average(x => x.Percentage);
         DownloadTask.DownloadSpeed = downloadWorkerUpdates.Sum(x => x.DownloadSpeed);
 
-        var newDownloadStatus = DownloadTaskActions.Aggregate(downloadWorkerUpdates.Select(x => x.Status).ToList());
-
-        DownloadStatus = newDownloadStatus;
+        DownloadStatus = DownloadTaskActions.Aggregate(downloadWorkerUpdates.Select(x => x.Status).ToList());
 
         await _dbContext.UpdateDownloadWorkerProgress(downloadWorkerUpdates);
         await _dbContext.UpdateDownloadProgress(DownloadTask.ToKey(), DownloadTask);
