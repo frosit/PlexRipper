@@ -55,6 +55,10 @@ public static class DownloadTaskActions
                 actions.Add(StatusRestart);
                 actions.Add(StatusDelete);
                 break;
+            case DownloadStatus.ServerUnreachable:
+                actions.Add(StatusStart);
+                actions.Add(StatusDelete);
+                break;
         }
 
         return actions;
