@@ -315,18 +315,27 @@ public static partial class DbContextExtensions
         CancellationToken cancellationToken = default
     )
     {
-        foreach (var update in updates)
+        var updatesDict = updates.ToDictionary(x => x.Id);
+
+        // Fetch relevant tasks in one query and apply updates
+        var downloadWorkerTasks = await dbContext
+            .DownloadWorkerTasks.AsTracking()
+            .Where(x => updatesDict.Keys.Contains(x.Id))
+            .ToListAsync(cancellationToken);
+
+        foreach (var downloadWorkerTask in downloadWorkerTasks)
         {
-            await dbContext
-                .DownloadWorkerTasks.Where(x => update.Id == x.Id)
-                .ExecuteUpdateAsync(
-                    p =>
-                        p.SetProperty(x => x.DownloadStatus, update.Status)
-                            .SetProperty(x => x.ElapsedTime, update.ElapsedTime)
-                            .SetProperty(x => x.BytesReceived, update.DataReceived),
-                    cancellationToken
-                );
+            // Apply updates directly using the dictionary
+            if (updatesDict.TryGetValue(downloadWorkerTask.Id, out var update))
+            {
+                downloadWorkerTask.DownloadStatus = update.Status;
+                downloadWorkerTask.ElapsedTime = update.ElapsedTime;
+                downloadWorkerTask.BytesReceived = update.DataReceived;
+                downloadWorkerTask.DownloadSpeed = update.DownloadSpeed;
+            }
         }
+
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 
     public static async Task<List<DownloadTaskKey>> GetDownloadableChildTaskKeys(
