@@ -2,17 +2,17 @@ namespace PlexRipper.Domain;
 
 public record DownloadWorkerTaskProgress : IDownloadTaskProgress
 {
-    public int Id { get; init; }
+    public required int Id { get; init; }
 
-    public long DataTotal { get; init; }
+    public required long DataTotal { get; init; }
 
-    public decimal Percentage { get; init; }
+    public required decimal Percentage { get; init; }
 
-    public long DataReceived { get; init; }
+    public required long DataReceived { get; init; }
 
-    public long ElapsedTime { get; init; }
+    public required long ElapsedTime { get; init; }
 
-    public DownloadStatus Status { get; init; }
+    public required DownloadStatus Status { get; init; }
 
-    public long DownloadSpeed => DataFormat.GetTransferSpeed(DataReceived, ElapsedTime);
+    public required long DownloadSpeed { get; init; }
 }

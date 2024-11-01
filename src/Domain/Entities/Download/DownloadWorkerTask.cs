@@ -54,6 +54,9 @@ public class DownloadWorkerTask : BaseEntity
     [Column(Order = 10)]
     public required string FileLocationUrl { get; init; }
 
+    [Column(Order = 11)]
+    public long DownloadSpeed { get; set; }
+
     #endregion
 
     #region Relationships
@@ -91,9 +94,6 @@ public class DownloadWorkerTask : BaseEntity
     /// </summary>
     [NotMapped]
     public TimeSpan ElapsedTimeSpan => TimeSpan.FromMilliseconds(ElapsedTime);
-
-    [NotMapped]
-    public int DownloadSpeed => DataFormat.GetTransferSpeed(BytesReceived, ElapsedTimeSpan.TotalSeconds);
 
     [NotMapped]
     public string DownloadSpeedFormatted => DataFormat.FormatSpeedString(DownloadSpeed);

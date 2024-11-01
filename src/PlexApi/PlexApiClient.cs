@@ -198,8 +198,20 @@ public class PlexApiClient : IPlexApiClient
     )
     {
         var response = await SendAsync(request);
-        var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
-        return new ThrottledStream(stream, downloadSpeedLimit);
+        if (response.IsSuccessStatusCode)
+        {
+            var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
+            return new ThrottledStream(stream, downloadSpeedLimit);
+        }
+
+        _log.Here()
+            .Error(
+                "Failed to download stream from {Url} with reason: {Reason}",
+                request.RequestUri?.ToString(),
+                response.ReasonPhrase
+            );
+
+        return null;
     }
 
     public async Task<HttpRequestMessage> CloneAsync(HttpRequestMessage request)

@@ -115,11 +115,10 @@ public class DownloadQueue : IDownloadQueue
     }
 
     /// <summary>
-    ///  Determines the next downloadable <see cref="DownloadTaskGeneric"/>.
-    /// Will only return a successful result if a queued task can be found
+    /// Determines the next downloadable <see cref="DownloadTaskGeneric"/> to be executed.
     /// </summary>
-    /// <param name="downloadTasks"></param>
-    /// <returns></returns>
+    /// <param name="downloadTasks"> The list of downloadTasks to check for the next downloadable task.</param>
+    /// <returns> The next downloadable <see cref="DownloadTaskGeneric"/> to be executed.</returns>
     internal Result<DownloadTaskGeneric> GetNextDownloadTask(List<DownloadTaskGeneric> downloadTasks)
     {
         List<DownloadStatus> statusCheck =
@@ -141,9 +140,6 @@ public class DownloadQueue : IDownloadQueue
                 switch (status)
                 {
                     case DownloadStatus.Downloading:
-                        return Result
-                            .Fail($"DownloadTask {nextDownloadTask.FullTitle} is already downloading")
-                            .LogWarning();
                     case DownloadStatus.ServerUnreachable:
                     case DownloadStatus.Queued:
                         return Result.Ok(nextDownloadTask);
