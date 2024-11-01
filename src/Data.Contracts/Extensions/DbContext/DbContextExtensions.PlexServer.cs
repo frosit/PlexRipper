@@ -34,8 +34,7 @@ public static partial class DbContextExtensions
     )
     {
         return await dbContext
-            .PlexServerStatuses.Where(x => x.PlexServerId == plexServerId)
-            .Select(x => x.IsSuccessful)
-            .FirstOrDefaultAsync(cancellationToken);
+            .PlexServerStatuses.Where(x => x.PlexServerId == plexServerId && x.IsSuccessful)
+            .AnyAsync(cancellationToken);
     }
 }
