@@ -18,9 +18,15 @@ public class DownloadWorkerTask : BaseEntity
     [Column(Order = 2)]
     public required int PartIndex { get; init; }
 
+    /// <summary>
+    /// The start byte of the range of the media file that will be downloaded.
+    /// </summary>
     [Column(Order = 3)]
     public required long StartByte { get; init; }
 
+    /// <summary>
+    /// The end byte of the range of the media file that will be downloaded.
+    /// </summary>
     [Column(Order = 4)]
     public required long EndByte { get; init; }
 

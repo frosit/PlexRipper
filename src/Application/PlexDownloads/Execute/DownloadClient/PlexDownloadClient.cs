@@ -204,29 +204,20 @@ public class PlexDownloadClient : IAsyncDisposable, IPlexDownloadClient
 
     #region Private Methods
 
-    private async Task OnDownloadWorkerTaskUpdate(IList<DownloadWorkerTask> downloadWorkerUpdates)
+    private async Task OnDownloadWorkerTaskUpdate(IList<DownloadWorkerTaskProgress> downloadWorkerUpdates)
     {
         if (DownloadTask is null || !downloadWorkerUpdates.Any())
             return;
 
-        // Update every DownloadWorkerTask with the updated progress
-        foreach (var downloadWorkerTask in downloadWorkerUpdates)
-        {
-            var i = DownloadTask.DownloadWorkerTasks.FindIndex(x => x.Id == downloadWorkerTask.Id);
-            if (i > -1)
-                DownloadTask.DownloadWorkerTasks[i] = downloadWorkerTask;
-        }
-
-        DownloadTask.DataReceived = downloadWorkerUpdates.Sum(x => x.BytesReceived);
+        DownloadTask.DataReceived = downloadWorkerUpdates.Sum(x => x.DataReceived);
         DownloadTask.Percentage = downloadWorkerUpdates.Average(x => x.Percentage);
         DownloadTask.DownloadSpeed = downloadWorkerUpdates.Sum(x => x.DownloadSpeed);
 
-        var newDownloadStatus = DownloadTaskActions.Aggregate(
-            downloadWorkerUpdates.Select(x => x.DownloadStatus).ToList()
-        );
+        var newDownloadStatus = DownloadTaskActions.Aggregate(downloadWorkerUpdates.Select(x => x.Status).ToList());
 
         DownloadStatus = newDownloadStatus;
 
+        await _dbContext.UpdateDownloadWorkerProgress(downloadWorkerUpdates);
         await _dbContext.UpdateDownloadProgress(DownloadTask.ToKey(), DownloadTask);
         await _dbContext.SetDownloadStatus(DownloadTask.ToKey(), DownloadStatus);
 

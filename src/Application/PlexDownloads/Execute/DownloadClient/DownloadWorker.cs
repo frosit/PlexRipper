@@ -6,6 +6,7 @@ using Data.Contracts;
 using FileSystem.Contracts;
 using Logging.Interface;
 using PlexApi.Contracts;
+using Polly;
 using Timer = System.Timers.Timer;
 
 namespace PlexRipper.Application;
@@ -18,7 +19,7 @@ public class DownloadWorker : IDisposable
 {
     private readonly Subject<DownloadWorkerLog> _downloadWorkerLog = new();
 
-    private readonly Subject<DownloadWorkerTask> _downloadWorkerUpdate = new();
+    private readonly Subject<DownloadWorkerTaskProgress> _downloadWorkerUpdate = new();
 
     private readonly ILog<DownloadWorker> _log;
 
@@ -65,7 +66,7 @@ public class DownloadWorker : IDisposable
 
     public IObservable<DownloadWorkerLog> DownloadWorkerLog => _downloadWorkerLog.AsObservable();
 
-    public IObservable<DownloadWorkerTask> DownloadWorkerTaskUpdate => _downloadWorkerUpdate.AsObservable();
+    public IObservable<DownloadWorkerTaskProgress> DownloadWorkerTaskUpdate => _downloadWorkerUpdate.AsObservable();
 
     /// <summary>
     /// Gets the current <see cref="DownloadWorkerTask"/> being executed.
@@ -132,7 +133,7 @@ public class DownloadWorker : IDisposable
 
             if (downloadUrlResult.IsFailed)
             {
-                SendDownloadWorkerError(downloadUrlResult.ToResult());
+                ServerIsOffline();
                 return downloadUrlResult.ToResult();
             }
 
@@ -166,28 +167,73 @@ public class DownloadWorker : IDisposable
                 new RangeHeaderValue(DownloadWorkerTask.CurrentByte, DownloadWorkerTask.EndByte).ToString()
             );
 
-            responseStream = await _httpClient.DownloadStreamAsync(request, _downloadSpeedLimit, cancellationToken);
-            if (responseStream is null)
-            {
-                return SendDownloadWorkerError(Result.Fail(new ExceptionalError(new Exception(request.ToString()))));
-            }
-
             // Buffer is based on: https://stackoverflow.com/a/39355385/8205497
             var buffer = new byte[(long)ByteSize.FromMebiBytes(4).Bytes];
 
             _timer.Start();
 
-            SetDownloadWorkerTaskChanged(DownloadStatus.Downloading);
+            // Define a retry policy that retries on HttpIOException
+            var retryPolicy = Policy
+                .Handle<HttpIOException>()
+                .WaitAndRetryAsync(
+                    retryCount: 3, // Number of retry attempts
+                    sleepDurationProvider: attempt => TimeSpan.FromSeconds(Math.Pow(2, attempt)),
+                    onRetry: (exception, timeSpan, retryCount, context) =>
+                    {
+                        _log.Here()
+                            .Warning(
+                                "Retry {retryCount} due to {exception.Message}. Retrying in {timeSpan.TotalSeconds}s.",
+                                retryCount,
+                                exception.Message,
+                                timeSpan.TotalSeconds
+                            );
+                    }
+                );
+
             var loopIndex = 0;
             while (_isDownloading)
             {
-                responseStream.SetThrottleSpeed(_downloadSpeedLimit);
-                var bytesRead = await responseStream.ReadAsync(buffer, 0, buffer.Length, cancellationToken);
-                if (bytesRead > 0)
-                    bytesRead = (int)Math.Min(DownloadWorkerTask.DataRemaining, bytesRead);
+                var result = await retryPolicy.ExecuteAsync(async () =>
+                {
+                    // Download the data
+                    responseStream ??= await _httpClient.DownloadStreamAsync(
+                        request,
+                        _downloadSpeedLimit,
+                        cancellationToken
+                    );
+
+                    if (responseStream is null)
+                    {
+                        var result = _log.Here()
+                            .Error("Download worker {Id} with {FileName} had an empty download stream", Id, FileName)
+                            .ToResult();
+                        return SendDownloadWorkerError(result);
+                    }
+
+                    responseStream.SetThrottleSpeed(_downloadSpeedLimit);
+
+                    var read = await responseStream.ReadAsync(buffer, 0, buffer.Length, cancellationToken);
+
+                    // Clamp the read to the remaining data
+                    if (read > 0)
+                    {
+                        SetDownloadWorkerTaskChanged(DownloadStatus.Downloading);
+                        read = (int)Math.Min(DownloadWorkerTask.DataRemaining, read);
+                    }
+
+                    return Result.Ok(read);
+                });
+
+                if (result.IsFailed)
+                {
+                    await DisposeResources();
+                    return SendDownloadWorkerError(result.ToResult());
+                }
+
+                var bytesRead = result.Value;
 
                 // We have at least downloaded something
-                if (loopIndex > 0 && bytesRead <= 0)
+                if (loopIndex > 0 && bytesRead == 0)
                 {
                     await DisposeResources();
                     SendDownloadFinished();
@@ -215,6 +261,10 @@ public class DownloadWorker : IDisposable
                 SendDownloadWorkerUpdate();
                 loopIndex++;
             }
+        }
+        catch (HttpIOException e)
+        {
+            return SendDownloadWorkerError(Result.Fail(new ExceptionalError(e)));
         }
         catch (Exception e)
         {
@@ -253,6 +303,15 @@ public class DownloadWorker : IDisposable
         return errorResult;
     }
 
+    private void ServerIsOffline()
+    {
+        const string msg = "The server is unreachable!";
+        DownloadWorkerTask.DownloadStatus = DownloadStatus.ServerUnreachable;
+        SendDownloadWorkerUpdate();
+        SendDownloadWorkerLog(NotificationLevel.Error, msg);
+        Shutdown();
+    }
+
     private void SendDownloadFinished()
     {
         SetDownloadWorkerTaskChanged(DownloadStatus.DownloadFinished);
@@ -276,7 +335,16 @@ public class DownloadWorker : IDisposable
 
     private void SendDownloadWorkerUpdate()
     {
-        _downloadWorkerUpdate.OnNext(DownloadWorkerTask);
+        _downloadWorkerUpdate.OnNext(
+            new DownloadWorkerTaskProgress
+            {
+                DataTotal = DownloadWorkerTask.DataTotal,
+                Percentage = DownloadWorkerTask.Percentage,
+                DataReceived = DownloadWorkerTask.BytesReceived,
+                DownloadSpeed = DownloadWorkerTask.DownloadSpeed,
+                Status = DownloadWorkerTask.DownloadStatus,
+            }
+        );
     }
 
     private void SetDownloadWorkerTaskChanged(DownloadStatus status)

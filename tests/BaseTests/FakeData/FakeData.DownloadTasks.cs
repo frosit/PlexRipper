@@ -316,7 +316,12 @@ public static partial class FakeData
 
     #region DownloadWorkerTasks
 
-    public static Faker<DownloadWorkerTask> GetDownloadWorkerTask(Seed seed, Action<FakeDataConfig>? options = null)
+    public static Faker<DownloadWorkerTask> GetDownloadWorkerTask(
+        Seed seed,
+        int id = 0,
+        int plexServerId = 0,
+        Action<FakeDataConfig>? options = null
+    )
     {
         FakeDataConfig.FromOptions(options);
 
@@ -324,7 +329,7 @@ public static partial class FakeData
         return new Faker<DownloadWorkerTask>()
             .StrictMode(true)
             .UseSeed(seed.Next())
-            .RuleFor(x => x.Id, _ => 0)
+            .RuleFor(x => x.Id, _ => id)
             .RuleFor(x => x.FileName, f => f.System.FileName() + ".mp4")
             .RuleFor(x => x.StartByte, _ => 0)
             .RuleFor(x => x.EndByte, f => f.Random.Long(0))
@@ -335,7 +340,7 @@ public static partial class FakeData
             .RuleFor(x => x.FileLocationUrl, f => f.Internet.UrlRootedPath())
             .RuleFor(x => x.DownloadStatus, DownloadStatus.Queued)
             .RuleFor(x => x.DownloadTaskId, _ => Guid.Empty)
-            .RuleFor(x => x.PlexServerId, _ => 0)
+            .RuleFor(x => x.PlexServerId, _ => plexServerId)
             .RuleFor(x => x.PlexServer, _ => null)
             .RuleFor(x => x.DownloadTask, _ => null)
             .RuleFor(x => x.DownloadWorkerTaskLogs, new List<DownloadWorkerLog>());

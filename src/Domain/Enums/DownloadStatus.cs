@@ -74,4 +74,10 @@ public enum DownloadStatus
     /// </summary>
     [EnumMember(Value = "Completed")]
     Completed = 10,
+
+    /// <summary>
+    /// The server is offline.
+    /// </summary>
+    [EnumMember(Value = "ServerUnreachable")]
+    ServerUnreachable = 11,
 }

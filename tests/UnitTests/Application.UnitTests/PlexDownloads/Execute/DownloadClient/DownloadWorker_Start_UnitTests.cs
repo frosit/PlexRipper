@@ -1,4 +1,5 @@
 using Autofac;
+using ByteSizeLib;
 using FileSystem.Contracts;
 using Microsoft.EntityFrameworkCore;
 using PlexApi.Contracts;
@@ -11,7 +12,59 @@ public class DownloadWorker_Start_UnitTests : BaseUnitTest<DownloadWorker>
         : base(output) { }
 
     [Fact]
-    public async Task ShouldStopDownloadAndCallErrorState_WhenPlexServerIsOfflineAndStarting()
+    public async Task ShouldDownloadFileSuccessfully_WhenNoErrorsHappen()
+    {
+        // Arrange
+        var seed = await SetupDatabase(
+            37820,
+            config =>
+            {
+                config.PlexServerCount = 1;
+                config.PlexAccountCount = 1;
+            }
+        );
+
+        SetupHttpClient();
+
+        var plexServer = IDbContext.PlexServers.First();
+
+        var destinationStream = new MemoryStream();
+        mock.Mock<IDownloadFileStream>()
+            .Setup(x => x.CreateDownloadFileStream(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<long>()))
+            .Returns(Result.Ok<Stream>(destinationStream))
+            .Verifiable(Times.Once);
+
+        var downloadStream = new ThrottledStream(new MemoryStream(new byte[(int)ByteSize.FromMebiBytes(10).Bytes]));
+        mock.Mock<IPlexApiClient>()
+            .Setup(x =>
+                x.DownloadStreamAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<int>(), It.IsAny<CancellationToken>())
+            )
+            .ReturnsAsync(downloadStream)
+            .Verifiable(Times.Once);
+
+        var downloadWorkerTask = GetDownloadWorkerTask(seed, 1, plexServer.Id, downloadStream.Length);
+
+        var sut = mock.Create<DownloadWorker>(new NamedParameter("downloadWorkerTask", downloadWorkerTask));
+
+        var updateList = new List<DownloadWorkerTaskProgress>();
+        sut.DownloadWorkerTaskUpdate.Subscribe(x => updateList.Add(x));
+
+        // Act
+        var result = sut.Start();
+        await sut.DownloadProcessTask; // Wait for the process to complete
+
+        // Assert
+        result.ShouldNotBeNull();
+
+        updateList.Count.ShouldBe(5);
+        for (var i = 0; i < updateList.Count - 2; i++)
+            updateList[i].Status.ShouldBe(DownloadStatus.Downloading);
+
+        updateList.Last().Status.ShouldBe(DownloadStatus.DownloadFinished);
+    }
+
+    [Fact]
+    public async Task ShouldHaveDownloadStatusServerUnreachable_WhenPlexServerIsOfflineAndStarting()
     {
         // Arrange
         var seed = await SetupDatabase(
@@ -28,48 +81,22 @@ public class DownloadWorker_Start_UnitTests : BaseUnitTest<DownloadWorker>
         var plexServer = IDbContext.PlexServers.First();
         await IDbContext.PlexServerStatuses.Where(x => x.Id > 0).ExecuteDeleteAsync();
 
-        mock.Mock<IDownloadFileStream>()
-            .Setup(x => x.CreateDownloadFileStream(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<long>()))
-            .Returns(Result.Fail("Failed Error"));
-
-        var task = FakeData.GetDownloadWorkerTask(seed).Generate();
-
         var sut = mock.Create<DownloadWorker>(
-            new NamedParameter(
-                "downloadWorkerTask",
-                new DownloadWorkerTask
-                {
-                    Id = 1,
-                    StartByte = task.StartByte,
-                    EndByte = task.EndByte,
-                    DownloadStatus = task.DownloadStatus,
-                    BytesReceived = task.BytesReceived,
-                    ElapsedTime = task.ElapsedTime,
-                    FileLocationUrl = task.FileLocationUrl,
-                    DownloadTaskId = task.DownloadTaskId,
-                    PlexServer = task.PlexServer,
-                    PlexServerId = plexServer.Id,
-                    FileName = task.FileName,
-                    DownloadWorkerTaskLogs = task.DownloadWorkerTaskLogs,
-                    PartIndex = task.PartIndex,
-                    DownloadDirectory = task.DownloadDirectory,
-                }
-            )
+            new NamedParameter("downloadWorkerTask", FakeData.GetDownloadWorkerTask(seed, 1, plexServer.Id).Generate())
         );
-        DownloadWorkerTask? downloadWorkerTaskResult = null;
-        sut.DownloadWorkerTaskUpdate.Subscribe(x => downloadWorkerTaskResult = x);
+        var updateList = new List<DownloadWorkerTaskProgress>();
+        sut.DownloadWorkerTaskUpdate.Subscribe(x => updateList.Add(x));
 
         // Act
         var result = sut.Start();
 
         // Assert
         result.ShouldNotBeNull();
-        downloadWorkerTaskResult.ShouldNotBeNull();
-        downloadWorkerTaskResult.DownloadStatus.ShouldBe(DownloadStatus.Error);
+        updateList.First().Status.ShouldBe(DownloadStatus.ServerUnreachable);
     }
 
     [Fact]
-    public async Task ShouldBeInErrorState_DownloadStreamReturnsEmptyStream()
+    public async Task ShouldBeInErrorState_WhenDownloadStreamReturnsEmptyStream()
     {
         // Arrange
         var seed = await SetupDatabase(
@@ -87,57 +114,123 @@ public class DownloadWorker_Start_UnitTests : BaseUnitTest<DownloadWorker>
 
         mock.Mock<IDownloadFileStream>()
             .Setup(x => x.CreateDownloadFileStream(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<long>()))
-            .Returns(Result.Ok<Stream>(new MemoryStream()));
+            .Returns(Result.Ok<Stream>(new MemoryStream()))
+            .Verifiable(Times.Once);
         mock.Mock<IPlexApiClient>()
             .Setup(x =>
                 x.DownloadStreamAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<int>(), It.IsAny<CancellationToken>())
             )
-            .ReturnsAsync(() => new ThrottledStream(new MemoryStream()));
-
-        var task = FakeData.GetDownloadWorkerTask(seed).Generate();
+            .ReturnsAsync(() => null)
+            .Verifiable(Times.Once);
 
         var sut = mock.Create<DownloadWorker>(
-            new NamedParameter(
-                "downloadWorkerTask",
-                new DownloadWorkerTask
-                {
-                    Id = 1,
-                    StartByte = task.StartByte,
-                    EndByte = task.EndByte,
-                    DownloadStatus = task.DownloadStatus,
-                    BytesReceived = task.BytesReceived,
-                    ElapsedTime = task.ElapsedTime,
-                    FileLocationUrl = task.FileLocationUrl,
-                    DownloadTaskId = task.DownloadTaskId,
-                    PlexServer = task.PlexServer,
-                    PlexServerId = plexServer.Id,
-                    FileName = task.FileName,
-                    DownloadWorkerTaskLogs = task.DownloadWorkerTaskLogs,
-                    PartIndex = task.PartIndex,
-                    DownloadDirectory = task.DownloadDirectory,
-                }
-            )
+            new NamedParameter("downloadWorkerTask", FakeData.GetDownloadWorkerTask(seed, 1, plexServer.Id).Generate())
         );
 
-        var downloadWorkerTaskResult = new List<DownloadWorkerTask>();
-        sut.DownloadWorkerTaskUpdate.Subscribe(x => downloadWorkerTaskResult.Add(x));
+        var updateList = new List<DownloadWorkerTaskProgress>();
+        sut.DownloadWorkerTaskUpdate.Subscribe(x => updateList.Add(x));
 
         // Act
         var result = sut.Start();
 
         // Assert
         result.ShouldNotBeNull();
-        downloadWorkerTaskResult.ShouldAllBe(x => x.DownloadStatus == DownloadStatus.Error);
+        updateList[0].Status.ShouldBe(DownloadStatus.Error);
+    }
+
+    [Fact]
+    public async Task ShouldRetryDownloadStream_WhenPrematureHttpIOExceptionIsThrown()
+    {
+        // Arrange
+        var seed = await SetupDatabase(
+            37820,
+            config =>
+            {
+                config.PlexServerCount = 1;
+                config.PlexAccountCount = 1;
+            }
+        );
+
+        SetupHttpClient();
+
+        var plexServer = IDbContext.PlexServers.First();
+
+        mock.Mock<IDownloadFileStream>()
+            .Setup(x => x.CreateDownloadFileStream(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<long>()))
+            .Returns(Result.Ok<Stream>(new MemoryStream()))
+            .Verifiable(Times.Once);
+
+        var mockStream = new Mock<Stream>();
+        var realStream = new MemoryStream(new byte[(int)ByteSize.FromMebiBytes(40).Bytes]);
+        var callbackIndex = 0;
+        mockStream
+            .Setup(x =>
+                x.ReadAsync(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>())
+            )
+            .Returns(
+                (byte[] buffer, int offset, int count, CancellationToken cancellationToken) =>
+                {
+                    callbackIndex++;
+                    if (callbackIndex == 3)
+                    {
+                        throw new HttpIOException(
+                            HttpRequestError.InvalidResponse,
+                            $"The response ended prematurely, with at least {(int)realStream.Length} additional bytes expected.",
+                            new Exception("ResponseEnded")
+                        );
+                    }
+
+                    return realStream.ReadAsync(buffer, offset, count, cancellationToken);
+                }
+            );
 
         mock.Mock<IPlexApiClient>()
-            .Verify(
-                x =>
-                    x.DownloadStreamAsync(
-                        It.IsAny<HttpRequestMessage>(),
-                        It.IsAny<int>(),
-                        It.IsAny<CancellationToken>()
-                    ),
-                Times.Once
-            );
+            .Setup(x =>
+                x.DownloadStreamAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<int>(), It.IsAny<CancellationToken>())
+            )
+            .ReturnsAsync(new ThrottledStream(realStream))
+            .Verifiable(Times.Once);
+
+        var downloadWorkerTask = GetDownloadWorkerTask(seed, 1, plexServer.Id, realStream.Length);
+
+        var sut = mock.Create<DownloadWorker>(new NamedParameter("downloadWorkerTask", downloadWorkerTask));
+
+        var updateList = new List<DownloadWorkerTaskProgress>();
+        sut.DownloadWorkerTaskUpdate.Subscribe(x => updateList.Add(x));
+
+        // Act
+        var result = sut.Start();
+        await sut.DownloadProcessTask; // Wait for the process to complete
+
+        // Assert
+        result.ShouldNotBeNull();
+
+        for (var i = 0; i < updateList.Count - 2; i++)
+            updateList[i].Status.ShouldBe(DownloadStatus.Downloading);
+
+        updateList.Last().Status.ShouldBe(DownloadStatus.DownloadFinished);
+    }
+
+    private DownloadWorkerTask GetDownloadWorkerTask(Seed seed, int id = 0, int plexServerId = 0, long totalSize = 0)
+    {
+        var task = FakeData.GetDownloadWorkerTask(seed, id, plexServerId).Generate();
+
+        return new DownloadWorkerTask
+        {
+            Id = task.Id,
+            StartByte = task.StartByte,
+            EndByte = totalSize,
+            DownloadStatus = task.DownloadStatus,
+            BytesReceived = task.BytesReceived,
+            ElapsedTime = task.ElapsedTime,
+            FileLocationUrl = task.FileLocationUrl,
+            DownloadTaskId = task.DownloadTaskId,
+            PlexServer = task.PlexServer,
+            PlexServerId = task.PlexServerId,
+            FileName = task.FileName,
+            DownloadWorkerTaskLogs = task.DownloadWorkerTaskLogs,
+            PartIndex = task.PartIndex,
+            DownloadDirectory = task.DownloadDirectory,
+        };
     }
 }

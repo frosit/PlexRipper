@@ -309,6 +309,27 @@ public static partial class DbContextExtensions
         }
     }
 
+    public static async Task UpdateDownloadWorkerProgress(
+        this IPlexRipperDbContext dbContext,
+        IList<DownloadWorkerTaskProgress> updates,
+        CancellationToken cancellationToken = default
+    )
+    {
+        foreach (var update in updates)
+        {
+            await dbContext
+                .DownloadWorkerTasks.Where(x => update.Id == x.Id)
+                .ExecuteUpdateAsync(
+                    p =>
+                        p.SetProperty(x => x.DownloadStatus, update.Status)
+                            .SetProperty(x => x.Percentage, update.Percentage)
+                            .SetProperty(x => x.BytesReceived, update.DataReceived)
+                            .SetProperty(x => x.DownloadSpeed, update.DownloadSpeed),
+                    cancellationToken
+                );
+        }
+    }
+
     public static async Task<List<DownloadTaskKey>> GetDownloadableChildTaskKeys(
         this IPlexRipperDbContext dbContext,
         DownloadTaskKey key,
