@@ -910,6 +910,16 @@ export interface ServerSettingsDTO {
   data: PlexServerSettingItemModule[];
 }
 
+export interface SetNotificationVisibilityEndpointRequest {
+  hidden: boolean;
+  /**
+   * @format int32
+   * @min 0
+   * @exclusiveMin true
+   */
+  id: number;
+}
+
 export interface SettingsModelDTO {
   confirmationSettings: ConfirmationSettingsDTO;
   dateTimeSettings: DateTimeSettingsDTO;

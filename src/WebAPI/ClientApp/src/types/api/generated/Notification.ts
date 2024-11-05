@@ -10,8 +10,9 @@
  */
 
 import type { RequestParams } from "./http-client";
+import { ContentType } from "./http-client";
 
-import type { NotificationDTO, ResultDTO } from "./data-contracts";
+import type { NotificationDTO, ResultDTO, SetNotificationVisibilityEndpointRequest } from "./data-contracts";
 
 import { apiCheckPipe } from "@api/base";
 import Axios from "axios";
@@ -59,15 +60,17 @@ export class Notification {
  * No description
  *
  * @tags Notification
- * @name HideNotificationEndpoint
- * @request PUT:/api/Notification/{notificationId}
+ * @name SetNotificationVisibilityEndpoint
+ * @request PATCH:/api/Notification
 
  */
-  hideNotificationEndpoint = (notificationId: number, params: RequestParams = {}) =>
+  setNotificationVisibilityEndpoint = (data: SetNotificationVisibilityEndpointRequest, params: RequestParams = {}) =>
     from(
       Axios.request<ResultDTO>({
-        url: `/api/Notification/${notificationId}`,
-        method: "PUT",
+        url: `/api/Notification`,
+        method: "PATCH",
+        data: data,
+        type: ContentType.Json,
         format: "json",
         ...params,
       }),
@@ -79,6 +82,5 @@ export class NotificationPaths {
 
   static getAllNotificationsEndpoint = () => queryString.stringifyUrl({ url: `/api/Notification/` });
 
-  static hideNotificationEndpoint = (notificationId: number) =>
-    queryString.stringifyUrl({ url: `/api/Notification/${notificationId}` });
+  static setNotificationVisibilityEndpoint = () => queryString.stringifyUrl({ url: `/api/Notification` });
 }
