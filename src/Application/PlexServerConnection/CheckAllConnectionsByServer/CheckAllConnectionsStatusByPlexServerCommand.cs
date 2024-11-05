@@ -51,12 +51,14 @@ public class CheckAllConnectionsStatusByPlexServerCommandHandler
     {
         var plexServerId = command.PlexServerId;
 
-        var plexServer = await _dbContext.PlexServers.GetAsync(plexServerId, cancellationToken);
-        var plexServerName = await _dbContext.GetPlexServerNameById(plexServerId, cancellationToken);
+        var plexServer = await _dbContext
+            .PlexServers.Include(x => x.PlexServerConnections)
+            .GetAsync(plexServerId, cancellationToken);
 
         if (plexServer == null)
             return ResultExtensions.EntityNotFound(nameof(plexServerId), plexServerId).LogError();
 
+        var plexServerName = await _dbContext.GetPlexServerNameById(plexServerId, cancellationToken);
         if (!plexServer.IsEnabled)
         {
             return ResultExtensions
@@ -64,10 +66,7 @@ public class CheckAllConnectionsStatusByPlexServerCommandHandler
                 .LogError();
         }
 
-        var connections = await _dbContext
-            .PlexServerConnections.Where(x => x.PlexServerId == plexServerId)
-            .ToListAsync(cancellationToken);
-
+        var connections = plexServer.PlexServerConnections.ToList();
         if (!connections.Any())
             return Result.Fail($"No connections found for the given plex server id {plexServerId}").LogError();
 
@@ -83,6 +82,8 @@ public class CheckAllConnectionsStatusByPlexServerCommandHandler
         );
         await _signalRService.SendJobStatusUpdateAsync(update);
 
+        var previousResult = await _dbContext.IsServerOnline(plexServerId, cancellationToken: cancellationToken);
+
         // Create connection check tasks for all connections
         var connectionTasks = connections.Select(async plexServerConnection =>
             await _mediator.Send(new CheckConnectionStatusByIdCommand(plexServerConnection.Id), cancellationToken)
@@ -97,16 +98,24 @@ public class CheckAllConnectionsStatusByPlexServerCommandHandler
         update.Status = JobStatus.Completed;
         await _signalRService.SendJobStatusUpdateAsync(update);
 
-        if (tasksResult.Any(statusResult => statusResult.ValueOrDefault?.IsSuccessful != null))
+        var currentOnlineStatus = tasksResult.Any(statusResult => statusResult.ValueOrDefault?.IsSuccessful != null);
+
+        if (previousResult != currentOnlineStatus)
+        {
+            await _mediator.Publish(
+                new ServerOnlineStatusChangedNotification(plexServerId, currentOnlineStatus),
+                CancellationToken.None
+            );
+        }
+
+        if (currentOnlineStatus)
             return Result.Ok(combinedResults.Value.ToList());
 
-        var msg = _log.Error(
+        return _log.Error(
                 "All connections to plex server with name: {PlexServerName} and id: {PlexServerId} failed to connect",
                 plexServerName,
                 plexServerId
             )
-            .ToLogString();
-
-        return Result.Fail(msg);
+            .ToResult();
     }
 }
