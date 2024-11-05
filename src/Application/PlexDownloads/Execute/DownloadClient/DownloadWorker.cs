@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net.Http.Headers;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -26,11 +27,10 @@ public class DownloadWorker : IDisposable
     private readonly ILog<DownloadWorker> _log;
 
     private readonly IDownloadFileStream _downloadFileSystem;
+
     private readonly IPlexRipperDbContext _dbContext;
 
     private readonly IPlexApiClient _httpClient;
-
-    private readonly Timer _timer = new(100) { AutoReset = true };
 
     private int _downloadSpeedLimit;
 
@@ -60,11 +60,6 @@ public class DownloadWorker : IDisposable
         DownloadWorkerTask = downloadWorkerTask;
 
         _httpClient = clientFactory(new PlexApiClientOptions { ConnectionUrl = string.Empty });
-
-        _timer.Elapsed += (_, _) =>
-        {
-            DownloadWorkerTask.ElapsedTime += (long)_timer.Interval;
-        };
 
         _retryPolicy = Policy
             .Handle<HttpIOException>()
@@ -134,7 +129,6 @@ public class DownloadWorker : IDisposable
 
     public void Dispose()
     {
-        _timer.Dispose();
         _httpClient.Dispose();
         _downloadWorkerUpdate.Dispose();
         _downloadWorkerLog.Dispose();
@@ -192,9 +186,11 @@ public class DownloadWorker : IDisposable
             // Buffer is based on: https://stackoverflow.com/a/39355385/8205497
             var buffer = new byte[(long)ByteSize.FromMebiBytes(4).Bytes];
 
-            _timer.Start();
-
             var loopIndex = 0;
+            var emptyStreamResponse = 0;
+            var stopwatch = Stopwatch.StartNew(); // Start timing for speed calculation
+            var previousBytesReceived = DownloadWorkerTask.BytesReceived; // Track bytes received at the last speed calculation
+
             while (_isDownloading)
             {
                 var result = await _retryPolicy.ExecuteAsync(async () =>
@@ -246,6 +242,16 @@ public class DownloadWorker : IDisposable
 
                 var bytesRead = result.Value;
 
+                if (bytesRead == 0)
+                {
+                    emptyStreamResponse++;
+                    if (emptyStreamResponse > 5)
+                    {
+                        SetDownloadWorkerTaskChanged(DownloadStatus.ServerUnreachable);
+                        break;
+                    }
+                }
+
                 if (loopIndex == 0 && bytesRead <= 0)
                 {
                     var errorResult = _log.Here()
@@ -264,6 +270,18 @@ public class DownloadWorker : IDisposable
 
                 loopIndex++;
                 DownloadWorkerTask.BytesReceived += bytesRead;
+
+                // Calculate the speed based on the elapsed time and bytes downloaded since last check
+                if (stopwatch.ElapsedMilliseconds > 1000)
+                {
+                    DownloadWorkerTask.ElapsedTime += 1;
+                    var bytesReceived = DownloadWorkerTask.BytesReceived - previousBytesReceived;
+                    var downloadSpeed = (long)Math.Floor(bytesReceived / (stopwatch.ElapsedMilliseconds / 1000.0)); // Bytes per second
+
+                    DownloadWorkerTask.DownloadSpeed = downloadSpeed;
+                    previousBytesReceived = DownloadWorkerTask.BytesReceived;
+                    stopwatch.Restart();
+                }
 
                 if (DownloadWorkerTask.IsCompleted)
                 {
@@ -347,11 +365,13 @@ public class DownloadWorker : IDisposable
         _downloadWorkerUpdate.OnNext(
             new DownloadWorkerTaskProgress
             {
+                Id = DownloadWorkerTask.Id,
                 DataTotal = DownloadWorkerTask.DataTotal,
                 Percentage = DownloadWorkerTask.Percentage,
                 DataReceived = DownloadWorkerTask.BytesReceived,
                 ElapsedTime = DownloadWorkerTask.ElapsedTime,
                 Status = DownloadWorkerTask.DownloadStatus,
+                DownloadSpeed = DownloadWorkerTask.DownloadSpeed,
             }
         );
     }
@@ -373,7 +393,6 @@ public class DownloadWorker : IDisposable
     private void Shutdown()
     {
         _isDownloading = false;
-        _timer.Stop();
         _downloadWorkerLog.OnCompleted();
         _downloadWorkerUpdate.OnCompleted();
     }
