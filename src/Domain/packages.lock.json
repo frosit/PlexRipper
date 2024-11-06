@@ -1070,7 +1070,10 @@
         }
       },
       "environment": {
-        "type": "Project"
+        "type": "Project",
+        "dependencies": {
+          "Serilog": "[3.1.1, )"
+        }
       },
       "fluentresultextensions": {
         "type": "Project",
