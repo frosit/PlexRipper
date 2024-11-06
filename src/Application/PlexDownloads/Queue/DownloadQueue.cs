@@ -10,8 +10,6 @@ namespace PlexRipper.Application;
 /// </summary>
 public class DownloadQueue : IDownloadQueue
 {
-    #region Fields
-
     private readonly ILog _log;
     private readonly IPlexRipperDbContext _dbContext;
     private readonly IDownloadTaskScheduler _downloadTaskScheduler;
@@ -20,10 +18,6 @@ public class DownloadQueue : IDownloadQueue
 
     private readonly CancellationToken _token = new();
 
-    #endregion
-
-    #region Constructor
-
     public DownloadQueue(ILog log, IPlexRipperDbContext dbContext, IDownloadTaskScheduler downloadTaskScheduler)
     {
         _log = log;
@@ -31,15 +25,7 @@ public class DownloadQueue : IDownloadQueue
         _downloadTaskScheduler = downloadTaskScheduler;
     }
 
-    #endregion
-
-    #region Properties
-
     public bool IsBusy => _plexServersToCheckChannel.Reader.Count > 0;
-
-    #endregion
-
-    #region Public Methods
 
     public Result Setup()
     {
@@ -77,11 +63,11 @@ public class DownloadQueue : IDownloadQueue
         // Check if the server is online
         if (!await _dbContext.IsServerOnline(plexServerId, cancellationToken: _token))
         {
-            var msg = _log.Warning(
-                "PlexServer with name: {PlexServerName} is not online, cannot continue checking the DownloadQueue to pick the following download",
-                plexServerName
-            );
-            return Result.Fail(msg.ToLogString());
+            return _log.Warning(
+                    "PlexServer with name: {PlexServerName} is not online, cannot continue checking the DownloadQueue to pick the following download",
+                    plexServerName
+                )
+                .ToResult();
         }
 
         var downloadTasks = await _dbContext.GetAllDownloadTasksByServerAsync(plexServerId, cancellationToken: _token);
@@ -152,10 +138,6 @@ public class DownloadQueue : IDownloadQueue
         return Result.Fail("There were no downloadTasks left to download.").LogDebug();
     }
 
-    #endregion
-
-    #region Private Methods
-
     private async Task ExecuteDownloadQueueCheck()
     {
         while (!_token.IsCancellationRequested)
@@ -164,6 +146,4 @@ public class DownloadQueue : IDownloadQueue
             await CheckDownloadQueueServer(item);
         }
     }
-
-    #endregion
 }
