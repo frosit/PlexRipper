@@ -64,7 +64,12 @@ public class PlexDownloadClient : IAsyncDisposable, IPlexDownloadClient
     /// <summary>
     /// Gets the Task that completes when all download workers have finished.
     /// </summary>
-    public Task? DownloadProcessTask { get; private set; }
+    public Task DownloadProcessTask =>
+        Task.WhenAll(
+            _downloadWorkers
+                .Select(x => x.DownloadProcessTask)
+                .Concat([_downloadWorkerTaskUpdateCompletionSource.Task, _downloadWorkerLogCompletionSource.Task])
+        );
 
     public DownloadStatus DownloadStatus
     {
@@ -149,18 +154,6 @@ public class PlexDownloadClient : IAsyncDisposable, IPlexDownloadClient
                 results.Add(startResult);
             }
 
-            DownloadProcessTask = Task.WhenAll(
-                _downloadWorkers
-                    .Select(x => x.DownloadProcessTask)
-                    .Concat(
-                        new Task[]
-                        {
-                            _downloadWorkerTaskUpdateCompletionSource.Task,
-                            _downloadWorkerLogCompletionSource.Task,
-                        }
-                    )
-            );
-
             return results.Merge();
         }
         catch (Exception e)
@@ -176,8 +169,7 @@ public class PlexDownloadClient : IAsyncDisposable, IPlexDownloadClient
         await Task.WhenAll(_downloadWorkers.Select(x => x.StopAsync()));
 
         // We Await the DownloadProcessTask to ensure that the DownloadWorkerUpdates are completed
-        if (DownloadProcessTask is not null)
-            await DownloadProcessTask;
+        await DownloadProcessTask;
 
         await _downloadWorkerTaskUpdateCompletionSource.Task;
         await _downloadWorkerLogCompletionSource.Task;
@@ -190,8 +182,7 @@ public class PlexDownloadClient : IAsyncDisposable, IPlexDownloadClient
     /// </summary>
     public async ValueTask DisposeAsync()
     {
-        if (DownloadProcessTask is not null)
-            await DownloadProcessTask;
+        await DownloadProcessTask;
 
         _downloadSpeedLimitSubscription?.Dispose();
         _downloadWorkerTaskUpdate?.Dispose();
