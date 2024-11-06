@@ -33,11 +33,14 @@ public class CheckAllConnectionsStatusByPlexServerJob : IJob
                 return;
             }
 
-            var serverTasks = plexServerIds.Select(async plexServerId =>
-                await _mediator.Send(new CheckAllConnectionsStatusByPlexServerCommand(plexServerId), cancellationToken)
+            await Task.WhenAll(
+                plexServerIds.Select(async plexServerId =>
+                    await _mediator.Send(
+                        new CheckAllConnectionsStatusByPlexServerCommand(plexServerId),
+                        cancellationToken
+                    )
+                )
             );
-
-            await Task.WhenAll(serverTasks);
 
             _log.Debug(
                 "{JobName} for servers with ids: {PlexServerIds} completed",

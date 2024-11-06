@@ -112,20 +112,25 @@ public static partial class FakeData
             .RuleFor(x => x.PlexServerId, _ => 0);
     }
 
-    public static Faker<PlexServerStatus> GetPlexServerStatus(Seed seed)
+    public static Faker<PlexServerStatus> GetPlexServerStatus(
+        Seed seed,
+        bool isSuccessful = true,
+        int plexServerId = 0,
+        int plexServerConnectionId = 0
+    )
     {
         return new Faker<PlexServerStatus>()
             .StrictMode(true)
             .UseSeed(seed.Next())
             .RuleFor(x => x.Id, _ => 0)
-            .RuleFor(x => x.IsSuccessful, _ => true)
+            .RuleFor(x => x.IsSuccessful, _ => isSuccessful)
             .RuleFor(x => x.StatusCode, _ => 200)
             .RuleFor(x => x.StatusMessage, f => f.Hacker.Phrase())
             .RuleFor(x => x.LastChecked, f => f.Date.Recent())
             .RuleFor(x => x.PlexServerConnection, _ => null)
-            .RuleFor(x => x.PlexServerConnectionId, _ => 0)
+            .RuleFor(x => x.PlexServerConnectionId, _ => plexServerConnectionId)
             .RuleFor(x => x.PlexServer, _ => null)
-            .RuleFor(x => x.PlexServerId, _ => 0);
+            .RuleFor(x => x.PlexServerId, _ => plexServerId);
     }
 
     public static List<PlexAccountServer> GetPlexAccountServer(

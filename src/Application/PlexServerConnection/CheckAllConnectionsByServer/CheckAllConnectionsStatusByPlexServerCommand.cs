@@ -14,16 +14,16 @@ namespace PlexRipper.Application;
 /// <returns>Returns successful result if any connection connected.</returns>
 public record CheckAllConnectionsStatusByPlexServerCommand(int PlexServerId) : IRequest<Result<List<PlexServerStatus>>>;
 
-public class CheckAllConnectionsStatusByPlexServerCommandValidator
+public class CheckAllConnectionsStatusByPlexServerValidator
     : AbstractValidator<CheckAllConnectionsStatusByPlexServerCommand>
 {
-    public CheckAllConnectionsStatusByPlexServerCommandValidator()
+    public CheckAllConnectionsStatusByPlexServerValidator()
     {
         RuleFor(x => x.PlexServerId).GreaterThan(0);
     }
 }
 
-public class CheckAllConnectionsStatusByPlexServerCommandHandler
+public class CheckAllConnectionsStatusByPlexServerHandler
     : IRequestHandler<CheckAllConnectionsStatusByPlexServerCommand, Result<List<PlexServerStatus>>>
 {
     private readonly ILog _log;
@@ -31,7 +31,7 @@ public class CheckAllConnectionsStatusByPlexServerCommandHandler
     private readonly IMediator _mediator;
     private readonly ISignalRService _signalRService;
 
-    public CheckAllConnectionsStatusByPlexServerCommandHandler(
+    public CheckAllConnectionsStatusByPlexServerHandler(
         ILog log,
         IPlexRipperDbContext dbContext,
         IMediator mediator,
@@ -68,7 +68,9 @@ public class CheckAllConnectionsStatusByPlexServerCommandHandler
 
         var connections = plexServer.PlexServerConnections.ToList();
         if (!connections.Any())
-            return Result.Fail($"No connections found for the given plex server id {plexServerId}").LogError();
+        {
+            return _log.Error("No connections found for the plex server {PlexServerName}", plexServerName).ToResult();
+        }
 
         // Send start job status update
         var update = new JobStatusUpdate<CheckAllConnectionStatusUpdateDTO>(
@@ -98,6 +100,7 @@ public class CheckAllConnectionsStatusByPlexServerCommandHandler
         update.Status = JobStatus.Completed;
         await _signalRService.SendJobStatusUpdateAsync(update);
 
+        // Compare previous and current online status
         var currentOnlineStatus = tasksResult.Any(statusResult => statusResult.ValueOrDefault?.IsSuccessful != null);
 
         if (previousResult != currentOnlineStatus)
