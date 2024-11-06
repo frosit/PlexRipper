@@ -46,9 +46,15 @@ public class SetNotificationVisibilityEndpoint : BaseEndpoint<SetNotificationVis
 
     public override async Task HandleAsync(SetNotificationVisibilityEndpointRequest req, CancellationToken ct)
     {
-        await _dbContext
+        var changed = await _dbContext
             .Notifications.Where(x => x.Id == req.Id)
             .ExecuteUpdateAsync(x => x.SetProperty(y => y.Hidden, req.Hidden), ct);
+
+        if (changed == 0)
+        {
+            await SendFluentResult(ResultExtensions.EntityNotFound(nameof(Notification), req.Id), ct);
+            return;
+        }
 
         await SendFluentResult(Result.Ok(), ct);
     }
