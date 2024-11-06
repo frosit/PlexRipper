@@ -1,10 +1,14 @@
-﻿namespace Environment;
+﻿using Serilog.Events;
+
+namespace Environment;
 
 public static class EnvironmentExtensions
 {
     public const string IntegrationTestModeKey = "IntegrationTestMode";
 
     public const string UnmaskedModeKey = "UNMASKED";
+
+    public const string LogLevelKey = "LOG_LEVEL";
 
     public const string DevelopmentRootPathKey = "DEVELOPMENT_ROOT_PATH";
 
@@ -31,6 +35,22 @@ public static class EnvironmentExtensions
     /// When set to true, the application will not mask/censor sensitive data in the logs.
     /// </summary>
     public static bool IsUnmasked() => IsTrue(System.Environment.GetEnvironmentVariable(UnmaskedModeKey));
+
+    public static LogEventLevel GetLogLevel()
+    {
+        var success = Enum.TryParse<LogEventLevel>(
+            System.Environment.GetEnvironmentVariable(LogLevelKey),
+            true,
+            out var logLevel
+        );
+
+        return success ? logLevel : LogEventLevel.Debug;
+    }
+
+    public static void SetLogLevel(LogEventLevel logLevel)
+    {
+        System.Environment.SetEnvironmentVariable(LogLevelKey, logLevel.ToString().ToUpper());
+    }
 
     public static void SetIntegrationTestMode(bool state)
     {

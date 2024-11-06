@@ -19,13 +19,8 @@ public class Program
     {
         try
         {
-            var success = Enum.TryParse<LogEventLevel>(
-                System.Environment.GetEnvironmentVariable("LOG_LEVEL"),
-                true,
-                out var logLevel
-            );
+            LogManager.SetupLogging(EnvironmentExtensions.GetLogLevel());
 
-            LogManager.SetupLogging(success ? logLevel : LogEventLevel.Debug);
             _log.Information("Currently running on {CurrentOS}", OsInfo.CurrentOS);
 
             var builder = WebApplication.CreateBuilder(args);
