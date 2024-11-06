@@ -1,5 +1,6 @@
 using Autofac;
 using Data.Contracts;
+using Environment;
 using Logging.Interface;
 using PlexApi.Contracts;
 using PlexRipper.Data;
@@ -29,6 +30,8 @@ public class BaseUnitTest : IDisposable
     {
         _output = output;
         _logEventLevel = logEventLevel;
+
+        EnvironmentExtensions.SetUnmaskedLogMode(true);
 
         LogManager.SetupLogging(logEventLevel);
         LogConfig.SetTestOutputHelper(output);

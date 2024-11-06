@@ -4,6 +4,8 @@ public static class EnvironmentExtensions
 {
     public const string IntegrationTestModeKey = "IntegrationTestMode";
 
+    public const string UnmaskedModeKey = "UNMASKED";
+
     public const string DevelopmentRootPathKey = "DEVELOPMENT_ROOT_PATH";
 
     private static readonly string TrueValue = Convert.ToString(true);
@@ -25,10 +27,21 @@ public static class EnvironmentExtensions
     /// <returns></returns>
     public static string? GetDevelopmentRootPath() => System.Environment.GetEnvironmentVariable(DevelopmentRootPathKey);
 
-    public static bool IsUnmasked() => IsTrue(System.Environment.GetEnvironmentVariable("UNMASKED"));
+    /// <summary>
+    /// When set to true, the application will not mask/censor sensitive data in the logs.
+    /// </summary>
+    public static bool IsUnmasked() => IsTrue(System.Environment.GetEnvironmentVariable(UnmaskedModeKey));
 
-    public static void SetIntegrationTestMode(bool state = false)
+    public static void SetIntegrationTestMode(bool state)
     {
         System.Environment.SetEnvironmentVariable(IntegrationTestModeKey, state.ToString());
+    }
+
+    /// <summary>
+    /// When set to true, the application will not mask/censor sensitive data in the logs.
+    /// </summary>
+    public static void SetUnmaskedLogMode(bool state)
+    {
+        System.Environment.SetEnvironmentVariable(UnmaskedModeKey, state.ToString());
     }
 }
