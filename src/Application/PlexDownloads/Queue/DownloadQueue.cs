@@ -125,10 +125,11 @@ public class DownloadQueue : IDownloadQueue
 
                 switch (status)
                 {
-                    case DownloadStatus.Downloading:
                     case DownloadStatus.ServerUnreachable:
                     case DownloadStatus.Queued:
                         return Result.Ok(nextDownloadTask);
+                    case DownloadStatus.Downloading:
+                        return Result.Fail("There is already a downloadTask downloading.").LogDebug();
                     default:
                         throw new ArgumentOutOfRangeException();
                 }

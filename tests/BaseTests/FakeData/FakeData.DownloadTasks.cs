@@ -343,6 +343,7 @@ public static partial class FakeData
             .RuleFor(x => x.PlexServerId, _ => plexServerId)
             .RuleFor(x => x.PlexServer, _ => null)
             .RuleFor(x => x.DownloadTask, _ => null)
+            .RuleFor(x => x.DownloadSpeed, _ => 0)
             .RuleFor(x => x.DownloadWorkerTaskLogs, new List<DownloadWorkerLog>());
     }
 
