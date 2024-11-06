@@ -143,6 +143,7 @@ public static partial class FakeData
         return new Faker<DownloadTaskMovieFile>()
             .ApplyDownloadTaskFileBase(seed, options)
             .UseSeed(seed.Next())
+            .StrictMode(true)
             .RuleFor(x => x.Parent, _ => null)
             .RuleFor(x => x.ParentId, _ => Guid.Empty)
             .RuleFor(x => x.MediaType, PlexMediaType.Movie)

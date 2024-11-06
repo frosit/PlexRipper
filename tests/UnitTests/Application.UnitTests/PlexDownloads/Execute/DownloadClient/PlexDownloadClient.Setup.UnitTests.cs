@@ -1,4 +1,4 @@
-﻿namespace PlexRipper.Application.UnitTests.Execute;
+﻿namespace PlexRipper.Application.UnitTests;
 
 public class PlexDownloadClient_Setup_UnitTests : BaseUnitTest<PlexDownloadClient>
 {

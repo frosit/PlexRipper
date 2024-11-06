@@ -13,8 +13,6 @@ namespace PlexRipper.Application;
 /// </summary>
 public class PlexDownloadClient : IAsyncDisposable, IPlexDownloadClient
 {
-    #region Fields
-
     private readonly ILog _log;
     private readonly IMediator _mediator;
     private readonly IPlexRipperDbContext _dbContext;
@@ -29,10 +27,6 @@ public class PlexDownloadClient : IAsyncDisposable, IPlexDownloadClient
 
     private readonly TaskCompletionSource<object> _downloadWorkerTaskUpdateCompletionSource = new();
     private readonly TaskCompletionSource<object> _downloadWorkerLogCompletionSource = new();
-
-    #endregion
-
-    #region Constructor
 
     /// <summary>
     /// Initializes a new instance of the <see cref="PlexDownloadClient"/> class.
@@ -56,10 +50,6 @@ public class PlexDownloadClient : IAsyncDisposable, IPlexDownloadClient
         _downloadWorkerFactory = downloadWorkerFactory;
         _serverSettings = serverSettings;
     }
-
-    #endregion
-
-    #region Properties
 
     /// <summary>
     /// Gets the Task that completes when all download workers have finished.
@@ -88,10 +78,6 @@ public class PlexDownloadClient : IAsyncDisposable, IPlexDownloadClient
 
     public IObservable<IList<DownloadWorkerLog>> ListenToDownloadWorkerLog { get; private set; } =
         Observable.Empty<IList<DownloadWorkerLog>>();
-
-    #endregion
-
-    #region Public Methods
 
     /// <summary>
     /// Setup this <see cref="PlexDownloadClient"/> to prepare for the download process.
@@ -191,10 +177,6 @@ public class PlexDownloadClient : IAsyncDisposable, IPlexDownloadClient
             .Warning("PlexDownloadClient for DownloadTask with Id: {DownloadTaskId} was disposed", DownloadTask?.Id);
     }
 
-    #endregion
-
-    #region Private Methods
-
     private async Task OnDownloadWorkerTaskUpdate(IList<DownloadWorkerTaskProgress> downloadWorkerUpdates)
     {
         if (DownloadTask is null || !downloadWorkerUpdates.Any())
@@ -283,6 +265,4 @@ public class PlexDownloadClient : IAsyncDisposable, IPlexDownloadClient
             () => _downloadWorkerLogCompletionSource.SetResult(true)
         );
     }
-
-    #endregion
 }
