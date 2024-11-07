@@ -140,7 +140,7 @@ public class BaseUnitTest<TUnitTestClass> : BaseUnitTest
         builder.RegisterGeneric(typeof(Log<>)).As(typeof(ILog<>)).InstancePerDependency();
     }
 
-    protected void SetupHttpClient(Action<Mock<HttpMessageHandler>?>? action = null)
+    protected void SetupHttpClient(Action<Mock<HttpMessageHandler>>? action = null)
     {
         mock = AutoMock.GetStrict(builder =>
         {
