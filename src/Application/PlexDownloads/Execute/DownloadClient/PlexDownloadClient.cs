@@ -225,7 +225,7 @@ public class PlexDownloadClient : IAsyncDisposable, IPlexDownloadClient
         _downloadWorkerTaskUpdate = _downloadWorkers
             .Select(x => x.DownloadWorkerTaskUpdate)
             .CombineLatest()
-            .Sample(TimeSpan.FromSeconds(1))
+            .Sample(TimeSpan.FromMilliseconds(500))
             .SelectMany(async data => await OnDownloadWorkerTaskUpdate(data).ToObservable())
             .Subscribe(
                 _ => { },
