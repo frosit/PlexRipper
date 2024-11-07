@@ -79,7 +79,7 @@ public static partial class FakeData
             .RuleFor(x => x.DownloadSpeed, _ => 0)
             .RuleFor(x => x.FileTransferSpeed, _ => 0)
             .RuleFor(x => x.FileName, _ => "file.mp4")
-            .RuleFor(x => x.FileLocationUrl, _ => PlexMockServerConfig.FileUrl)
+            .RuleFor(x => x.FileLocationUrl, _ => DownloadFileUrl)
             .RuleFor(x => x.Quality, f => f.PickRandom("sd", "720", "1080"))
             .RuleFor(
                 x => x.DirectoryMeta,
@@ -338,7 +338,7 @@ public static partial class FakeData
             .RuleFor(x => x.PartIndex, _ => partIndex++)
             .RuleFor(x => x.DownloadDirectory, f => f.System.FilePath())
             .RuleFor(x => x.ElapsedTime, 0)
-            .RuleFor(x => x.FileLocationUrl, _ => PlexMockServerConfig.FileUrl)
+            .RuleFor(x => x.FileLocationUrl, _ => DownloadFileUrl)
             .RuleFor(x => x.DownloadStatus, DownloadStatus.Queued)
             .RuleFor(x => x.DownloadTaskId, _ => Guid.Empty)
             .RuleFor(x => x.PlexServerId, _ => plexServerId)
