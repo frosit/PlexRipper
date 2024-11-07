@@ -18,9 +18,15 @@ public class DownloadWorkerTask : BaseEntity
     [Column(Order = 2)]
     public required int PartIndex { get; init; }
 
+    /// <summary>
+    /// The start byte of the range of the media file that will be downloaded.
+    /// </summary>
     [Column(Order = 3)]
     public required long StartByte { get; init; }
 
+    /// <summary>
+    /// The end byte of the range of the media file that will be downloaded.
+    /// </summary>
     [Column(Order = 4)]
     public required long EndByte { get; init; }
 
@@ -47,6 +53,9 @@ public class DownloadWorkerTask : BaseEntity
 
     [Column(Order = 10)]
     public required string FileLocationUrl { get; init; }
+
+    [Column(Order = 11)]
+    public long DownloadSpeed { get; set; }
 
     #endregion
 
@@ -87,9 +96,6 @@ public class DownloadWorkerTask : BaseEntity
     public TimeSpan ElapsedTimeSpan => TimeSpan.FromMilliseconds(ElapsedTime);
 
     [NotMapped]
-    public int DownloadSpeed => DataFormat.GetTransferSpeed(BytesReceived, ElapsedTimeSpan.TotalSeconds);
-
-    [NotMapped]
     public string DownloadSpeedFormatted => DataFormat.FormatSpeedString(DownloadSpeed);
 
     /// <summary>
@@ -102,7 +108,7 @@ public class DownloadWorkerTask : BaseEntity
     /// The time elapsed of this DownloadWorker.
     /// </summary>
     [NotMapped]
-    public bool IsCompleted => BytesReceived == DataTotal;
+    public bool IsCompleted => BytesReceived >= DataTotal;
 
     [NotMapped]
     public decimal Percentage => DataFormat.GetPercentage(BytesReceived, DataTotal);

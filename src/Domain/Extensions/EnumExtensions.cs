@@ -287,6 +287,7 @@ public static class EnumExtensions
             "Merging" => DownloadStatus.Merging,
             "Moving" => DownloadStatus.Moving,
             "Error" => DownloadStatus.Error,
+            "ServerUnreachable" => DownloadStatus.ServerUnreachable,
             _ => DefaultException(),
         };
 
@@ -323,6 +324,7 @@ public static class EnumExtensions
             DownloadStatus.Merging => "Merging",
             DownloadStatus.Moving => "Moving",
             DownloadStatus.Error => "Error",
+            DownloadStatus.ServerUnreachable => "ServerUnreachable",
             _ => DefaultException(),
         };
 
@@ -485,6 +487,14 @@ public static class EnumExtensions
             or DownloadTaskType.EpisodeData
             or DownloadTaskType.EpisodePart => true,
             var _ => throw new ArgumentOutOfRangeException(nameof(value), value, null),
+        };
+
+    public static NotificationLevel ToNotificationLevel(this DownloadStatus value) =>
+        value switch
+        {
+            DownloadStatus.Error or DownloadStatus.ServerUnreachable or DownloadStatus.Unknown =>
+                NotificationLevel.Error,
+            var _ => NotificationLevel.Information,
         };
 
     #endregion

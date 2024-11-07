@@ -2,11 +2,11 @@ namespace PlexRipper.Domain;
 
 public interface IDownloadTaskProgress
 {
-    public long DataTotal { get; set; }
+    public long DataTotal { get; }
 
-    public decimal Percentage { get; set; }
+    public decimal Percentage { get; }
 
-    public long DataReceived { get; set; }
+    public long DataReceived { get; }
 
-    public long DownloadSpeed { get; set; }
+    public long DownloadSpeed { get; }
 }

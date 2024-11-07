@@ -27,7 +27,7 @@ public class ThrottledStream : Stream
     /// </summary>
     /// <param name="in">The input <see cref="Stream"/>.</param>
     /// <param name="throttleKb">The kb/s to throttle by.</param>
-    public ThrottledStream(Stream @in, int throttleKb)
+    public ThrottledStream(Stream @in, int throttleKb = 0)
     {
         _throttle = (long)ByteSize.FromKibiBytes(throttleKb).Bytes;
         _inputStream = @in;

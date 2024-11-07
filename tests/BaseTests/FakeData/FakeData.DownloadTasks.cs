@@ -79,7 +79,7 @@ public static partial class FakeData
             .RuleFor(x => x.DownloadSpeed, _ => 0)
             .RuleFor(x => x.FileTransferSpeed, _ => 0)
             .RuleFor(x => x.FileName, _ => "file.mp4")
-            .RuleFor(x => x.FileLocationUrl, _ => PlexMockServerConfig.FileUrl)
+            .RuleFor(x => x.FileLocationUrl, _ => DownloadFileUrl)
             .RuleFor(x => x.Quality, f => f.PickRandom("sd", "720", "1080"))
             .RuleFor(
                 x => x.DirectoryMeta,
@@ -143,6 +143,7 @@ public static partial class FakeData
         return new Faker<DownloadTaskMovieFile>()
             .ApplyDownloadTaskFileBase(seed, options)
             .UseSeed(seed.Next())
+            .StrictMode(true)
             .RuleFor(x => x.Parent, _ => null)
             .RuleFor(x => x.ParentId, _ => Guid.Empty)
             .RuleFor(x => x.MediaType, PlexMediaType.Movie)
@@ -316,7 +317,12 @@ public static partial class FakeData
 
     #region DownloadWorkerTasks
 
-    public static Faker<DownloadWorkerTask> GetDownloadWorkerTask(Seed seed, Action<FakeDataConfig>? options = null)
+    public static Faker<DownloadWorkerTask> GetDownloadWorkerTask(
+        Seed seed,
+        int id = 0,
+        int plexServerId = 0,
+        Action<FakeDataConfig>? options = null
+    )
     {
         FakeDataConfig.FromOptions(options);
 
@@ -324,7 +330,7 @@ public static partial class FakeData
         return new Faker<DownloadWorkerTask>()
             .StrictMode(true)
             .UseSeed(seed.Next())
-            .RuleFor(x => x.Id, _ => 0)
+            .RuleFor(x => x.Id, _ => id)
             .RuleFor(x => x.FileName, f => f.System.FileName() + ".mp4")
             .RuleFor(x => x.StartByte, _ => 0)
             .RuleFor(x => x.EndByte, f => f.Random.Long(0))
@@ -332,12 +338,13 @@ public static partial class FakeData
             .RuleFor(x => x.PartIndex, _ => partIndex++)
             .RuleFor(x => x.DownloadDirectory, f => f.System.FilePath())
             .RuleFor(x => x.ElapsedTime, 0)
-            .RuleFor(x => x.FileLocationUrl, f => f.Internet.UrlRootedPath())
+            .RuleFor(x => x.FileLocationUrl, _ => DownloadFileUrl)
             .RuleFor(x => x.DownloadStatus, DownloadStatus.Queued)
             .RuleFor(x => x.DownloadTaskId, _ => Guid.Empty)
-            .RuleFor(x => x.PlexServerId, _ => 0)
+            .RuleFor(x => x.PlexServerId, _ => plexServerId)
             .RuleFor(x => x.PlexServer, _ => null)
             .RuleFor(x => x.DownloadTask, _ => null)
+            .RuleFor(x => x.DownloadSpeed, _ => 0)
             .RuleFor(x => x.DownloadWorkerTaskLogs, new List<DownloadWorkerLog>());
     }
 

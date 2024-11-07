@@ -42,7 +42,7 @@ export const useBackgroundJobsStore = defineStore('BackgroundJobsStore', () => {
 
 			// Refresh the server connections on completion of the CheckPlexServerConnectionsJob
 			getters
-				.getJobStatusUpdate(JobTypes.CheckPlexServerConnectionsJob, JobStatus.Completed)
+				.getJobStatusUpdate(JobTypes.CheckAllConnectionsStatusByPlexServerJob, JobStatus.Completed)
 				.pipe(switchMap(() => connectionStore.refreshPlexServerConnections()))
 				.subscribe();
 
@@ -64,8 +64,10 @@ export const useBackgroundJobsStore = defineStore('BackgroundJobsStore', () => {
 	const getters = {
 		getJobStatusUpdate: (jobType: JobTypes, status: JobStatus | null = null): Observable<JobStatusUpdateDTO> =>
 			state.jobStatusObservable.pipe(filter((x) => x.jobType === jobType && (status ? x.status === status : true))),
-		getCheckPlexServerConnectionsJobUpdate: (status: JobStatus | null = null): Observable<JobStatusUpdateDTO<CheckAllConnectionStatusUpdateDTO>> =>
-			getters.getJobStatusUpdate(JobTypes.CheckPlexServerConnectionsJob, status),
+		getCheckPlexServerConnectionsJobUpdate: (
+			status: JobStatus | null = null,
+		): Observable<JobStatusUpdateDTO<CheckAllConnectionStatusUpdateDTO>> =>
+			getters.getJobStatusUpdate(JobTypes.CheckAllConnectionsStatusByPlexServerJob, status),
 		getInspectPlexServerJobUpdate: (status: JobStatus | null = null): Observable<JobStatusUpdateDTO<number[]>> =>
 			getters.getJobStatusUpdate(JobTypes.InspectPlexServerJob, status),
 		getSyncServerMediaJobUpdate: (status: JobStatus | null = null): Observable<JobStatusUpdateDTO<SyncServerMediaJobUpdateDTO>> =>

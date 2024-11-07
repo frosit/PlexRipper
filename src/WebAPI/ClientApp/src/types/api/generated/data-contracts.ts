@@ -126,6 +126,7 @@ export enum DownloadStatus {
   Merging = "Merging",
   Moving = "Moving",
   Completed = "Completed",
+  ServerUnreachable = "ServerUnreachable",
 }
 
 export interface DownloadTaskDTO {
@@ -314,7 +315,7 @@ export interface JobStatusUpdateDTOOfObject {
 
 export enum JobTypes {
   Unknown = "Unknown",
-  CheckPlexServerConnectionsJob = "CheckPlexServerConnectionsJob",
+  CheckAllConnectionsStatusByPlexServerJob = "CheckAllConnectionsStatusByPlexServerJob",
   DownloadJob = "DownloadJob",
   FileMergeJob = "FileMergeJob",
   SyncServerMediaJob = "SyncServerMediaJob",
@@ -444,7 +445,6 @@ export interface PlexLibraryDTO {
   type: PlexMediaType;
   /** @format date-time */
   updatedAt: string;
-  /** @format guid */
   uuid: string;
 }
 
@@ -908,6 +908,16 @@ export interface ServerDownloadProgressDTO {
 
 export interface ServerSettingsDTO {
   data: PlexServerSettingItemModule[];
+}
+
+export interface SetNotificationVisibilityEndpointRequest {
+  hidden: boolean;
+  /**
+   * @format int32
+   * @min 0
+   * @exclusiveMin true
+   */
+  id: number;
 }
 
 export interface SettingsModelDTO {

@@ -1,4 +1,4 @@
-using Data.Contracts;
+using Environment;
 using Logging.Interface;
 using Serilog.Events;
 
@@ -10,7 +10,8 @@ public class BaseIntegrationTests
 
     protected BaseIntegrationTests(ITestOutputHelper output, LogEventLevel logLevel = LogEventLevel.Verbose)
     {
-        System.Environment.SetEnvironmentVariable("LOG_LEVEL", logLevel.ToString().ToUpper());
+        EnvironmentExtensions.SetLogLevel(logLevel);
+        EnvironmentExtensions.SetUnmaskedLogMode(true);
 
         // Ensure that the test output helper is set first
         LogConfig.SetTestOutputHelper(output);

@@ -13,7 +13,14 @@ export const useNotificationsStore = defineStore('NotificationsStore', () => {
 
 	const actions = {
 		setup(): Observable<ISetupResult> {
-			return actions.fetchNotifications().pipe(switchMap(() => of({ name: useNotificationsStore.name, isSuccess: true })));
+			return actions.fetchNotifications().pipe(
+				switchMap(() =>
+					of({
+						name: useNotificationsStore.name,
+						isSuccess: true,
+					}),
+				),
+			);
 		},
 		fetchNotifications() {
 			return notificationApi.getAllNotificationsEndpoint().pipe(
@@ -32,7 +39,12 @@ export const useNotificationsStore = defineStore('NotificationsStore', () => {
 			if (i > -1) {
 				state.notifications.splice(i, i, { ...state.notifications[i], hidden: true });
 			}
-			notificationApi.hideNotificationEndpoint(id).subscribe();
+			notificationApi
+				.setNotificationVisibilityEndpoint({
+					id,
+					hidden: true,
+				})
+				.subscribe();
 		},
 		clearAllNotifications(): void {
 			state.notifications = [];

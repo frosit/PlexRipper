@@ -1,6 +1,6 @@
 namespace PlexRipper.Domain;
 
-public class DownloadTaskProgress : IDownloadTaskProgress
+public record DownloadTaskProgress : IDownloadTaskProgress
 {
     public long DataTotal { get; set; }
     public decimal Percentage { get; set; }

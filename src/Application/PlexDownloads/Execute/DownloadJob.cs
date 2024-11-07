@@ -114,8 +114,7 @@ public class DownloadJob : IJob, IDisposable
 
             try
             {
-                if (_plexDownloadClient.DownloadProcessTask is not null)
-                    await _plexDownloadClient.DownloadProcessTask.WaitAsync(token);
+                await _plexDownloadClient.DownloadProcessTask.WaitAsync(token);
             }
             catch (TaskCanceledException)
             {

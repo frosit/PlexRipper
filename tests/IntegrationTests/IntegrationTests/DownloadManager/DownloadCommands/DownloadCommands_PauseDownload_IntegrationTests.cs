@@ -61,7 +61,6 @@ public class DownloadCommandsPauseDownloadIntegrationTests : BaseIntegrationTest
         await container.SchedulerService.AwaitScheduler();
 
         // Assert
-
         startResult.IsSuccess.ShouldBeTrue();
         pauseResult.IsSuccess.ShouldBeTrue();
         var downloadTaskDb = container.DbContext.DownloadTaskMovieFile.FirstOrDefault(x =>

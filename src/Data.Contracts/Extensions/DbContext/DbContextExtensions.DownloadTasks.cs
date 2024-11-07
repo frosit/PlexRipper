@@ -309,6 +309,35 @@ public static partial class DbContextExtensions
         }
     }
 
+    public static async Task UpdateDownloadWorkerProgress(
+        this IPlexRipperDbContext dbContext,
+        IList<DownloadWorkerTaskProgress> updates,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var updatesDict = updates.ToDictionary(x => x.Id);
+
+        // Fetch relevant tasks in one query and apply updates
+        var downloadWorkerTasks = await dbContext
+            .DownloadWorkerTasks.AsTracking()
+            .Where(x => updatesDict.Keys.Contains(x.Id))
+            .ToListAsync(cancellationToken);
+
+        foreach (var downloadWorkerTask in downloadWorkerTasks)
+        {
+            // Apply updates directly using the dictionary
+            if (updatesDict.TryGetValue(downloadWorkerTask.Id, out var update))
+            {
+                downloadWorkerTask.DownloadStatus = update.Status;
+                downloadWorkerTask.ElapsedTime = update.ElapsedTime;
+                downloadWorkerTask.BytesReceived = update.DataReceived;
+                downloadWorkerTask.DownloadSpeed = update.DownloadSpeed;
+            }
+        }
+
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
     public static async Task<List<DownloadTaskKey>> GetDownloadableChildTaskKeys(
         this IPlexRipperDbContext dbContext,
         DownloadTaskKey key,

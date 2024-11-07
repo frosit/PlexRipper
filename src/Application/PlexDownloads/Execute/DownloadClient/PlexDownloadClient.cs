@@ -13,8 +13,6 @@ namespace PlexRipper.Application;
 /// </summary>
 public class PlexDownloadClient : IAsyncDisposable, IPlexDownloadClient
 {
-    #region Fields
-
     private readonly ILog _log;
     private readonly IMediator _mediator;
     private readonly IPlexRipperDbContext _dbContext;
@@ -29,10 +27,6 @@ public class PlexDownloadClient : IAsyncDisposable, IPlexDownloadClient
 
     private readonly TaskCompletionSource<object> _downloadWorkerTaskUpdateCompletionSource = new();
     private readonly TaskCompletionSource<object> _downloadWorkerLogCompletionSource = new();
-
-    #endregion
-
-    #region Constructor
 
     /// <summary>
     /// Initializes a new instance of the <see cref="PlexDownloadClient"/> class.
@@ -57,14 +51,15 @@ public class PlexDownloadClient : IAsyncDisposable, IPlexDownloadClient
         _serverSettings = serverSettings;
     }
 
-    #endregion
-
-    #region Properties
-
     /// <summary>
     /// Gets the Task that completes when all download workers have finished.
     /// </summary>
-    public Task? DownloadProcessTask { get; private set; }
+    public Task DownloadProcessTask =>
+        Task.WhenAll(
+            _downloadWorkers
+                .Select(x => x.DownloadProcessTask)
+                .Concat([_downloadWorkerTaskUpdateCompletionSource.Task, _downloadWorkerLogCompletionSource.Task])
+        );
 
     public DownloadStatus DownloadStatus
     {
@@ -83,10 +78,6 @@ public class PlexDownloadClient : IAsyncDisposable, IPlexDownloadClient
 
     public IObservable<IList<DownloadWorkerLog>> ListenToDownloadWorkerLog { get; private set; } =
         Observable.Empty<IList<DownloadWorkerLog>>();
-
-    #endregion
-
-    #region Public Methods
 
     /// <summary>
     /// Setup this <see cref="PlexDownloadClient"/> to prepare for the download process.
@@ -149,18 +140,6 @@ public class PlexDownloadClient : IAsyncDisposable, IPlexDownloadClient
                 results.Add(startResult);
             }
 
-            DownloadProcessTask = Task.WhenAll(
-                _downloadWorkers
-                    .Select(x => x.DownloadProcessTask)
-                    .Concat(
-                        new Task[]
-                        {
-                            _downloadWorkerTaskUpdateCompletionSource.Task,
-                            _downloadWorkerLogCompletionSource.Task,
-                        }
-                    )
-            );
-
             return results.Merge();
         }
         catch (Exception e)
@@ -176,8 +155,7 @@ public class PlexDownloadClient : IAsyncDisposable, IPlexDownloadClient
         await Task.WhenAll(_downloadWorkers.Select(x => x.StopAsync()));
 
         // We Await the DownloadProcessTask to ensure that the DownloadWorkerUpdates are completed
-        if (DownloadProcessTask is not null)
-            await DownloadProcessTask;
+        await DownloadProcessTask;
 
         await _downloadWorkerTaskUpdateCompletionSource.Task;
         await _downloadWorkerLogCompletionSource.Task;
@@ -190,8 +168,7 @@ public class PlexDownloadClient : IAsyncDisposable, IPlexDownloadClient
     /// </summary>
     public async ValueTask DisposeAsync()
     {
-        if (DownloadProcessTask is not null)
-            await DownloadProcessTask;
+        await DownloadProcessTask;
 
         _downloadSpeedLimitSubscription?.Dispose();
         _downloadWorkerTaskUpdate?.Dispose();
@@ -200,33 +177,18 @@ public class PlexDownloadClient : IAsyncDisposable, IPlexDownloadClient
             .Warning("PlexDownloadClient for DownloadTask with Id: {DownloadTaskId} was disposed", DownloadTask?.Id);
     }
 
-    #endregion
-
-    #region Private Methods
-
-    private async Task OnDownloadWorkerTaskUpdate(IList<DownloadWorkerTask> downloadWorkerUpdates)
+    private async Task OnDownloadWorkerTaskUpdate(IList<DownloadWorkerTaskProgress> downloadWorkerUpdates)
     {
         if (DownloadTask is null || !downloadWorkerUpdates.Any())
             return;
 
-        // Update every DownloadWorkerTask with the updated progress
-        foreach (var downloadWorkerTask in downloadWorkerUpdates)
-        {
-            var i = DownloadTask.DownloadWorkerTasks.FindIndex(x => x.Id == downloadWorkerTask.Id);
-            if (i > -1)
-                DownloadTask.DownloadWorkerTasks[i] = downloadWorkerTask;
-        }
-
-        DownloadTask.DataReceived = downloadWorkerUpdates.Sum(x => x.BytesReceived);
+        DownloadTask.DataReceived = downloadWorkerUpdates.Sum(x => x.DataReceived);
         DownloadTask.Percentage = downloadWorkerUpdates.Average(x => x.Percentage);
         DownloadTask.DownloadSpeed = downloadWorkerUpdates.Sum(x => x.DownloadSpeed);
 
-        var newDownloadStatus = DownloadTaskActions.Aggregate(
-            downloadWorkerUpdates.Select(x => x.DownloadStatus).ToList()
-        );
+        DownloadStatus = DownloadTaskActions.Aggregate(downloadWorkerUpdates.Select(x => x.Status).ToList());
 
-        DownloadStatus = newDownloadStatus;
-
+        await _dbContext.UpdateDownloadWorkerProgress(downloadWorkerUpdates);
         await _dbContext.UpdateDownloadProgress(DownloadTask.ToKey(), DownloadTask);
         await _dbContext.SetDownloadStatus(DownloadTask.ToKey(), DownloadStatus);
 
@@ -263,7 +225,7 @@ public class PlexDownloadClient : IAsyncDisposable, IPlexDownloadClient
         _downloadWorkerTaskUpdate = _downloadWorkers
             .Select(x => x.DownloadWorkerTaskUpdate)
             .CombineLatest()
-            .Sample(TimeSpan.FromSeconds(1))
+            .Sample(TimeSpan.FromMilliseconds(500))
             .SelectMany(async data => await OnDownloadWorkerTaskUpdate(data).ToObservable())
             .Subscribe(
                 _ => { },
@@ -303,6 +265,4 @@ public class PlexDownloadClient : IAsyncDisposable, IPlexDownloadClient
             () => _downloadWorkerLogCompletionSource.SetResult(true)
         );
     }
-
-    #endregion
 }

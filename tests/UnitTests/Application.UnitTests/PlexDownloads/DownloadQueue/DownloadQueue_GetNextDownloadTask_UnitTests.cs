@@ -80,6 +80,25 @@ public class DownloadQueue_GetNextDownloadTask_UnitTests : BaseUnitTest<Applicat
     }
 
     [Fact]
+    public async Task ShouldHaveServerUnreachableDownloadTask_WhenADownloadTaskIsAlreadyDownloading()
+    {
+        // Arrange
+        await SetupDatabase(69598, config => config.TvShowDownloadTasksCount = 5);
+
+        var downloadTasks = await IDbContext.GetAllDownloadTasksByServerAsync(asTracking: true);
+        downloadTasks[0].SetDownloadStatus(DownloadStatus.ServerUnreachable);
+        await IDbContext.SaveChangesAsync();
+
+        // Act
+        var nextDownloadTask = _sut.GetNextDownloadTask(downloadTasks);
+
+        // Assert
+        nextDownloadTask.IsSuccess.ShouldBeTrue();
+        var nextDownloadTaskId = downloadTasks[0].Children[0].Children[0].Children[0].Id;
+        nextDownloadTask.Value.Id.ShouldBe(nextDownloadTaskId);
+    }
+
+    [Fact]
     public async Task ShouldHaveNoNextDownloadTask_WhenMergingAndDownloadFinished()
     {
         // Arrange

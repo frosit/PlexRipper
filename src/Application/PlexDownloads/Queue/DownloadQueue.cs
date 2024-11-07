@@ -10,8 +10,6 @@ namespace PlexRipper.Application;
 /// </summary>
 public class DownloadQueue : IDownloadQueue
 {
-    #region Fields
-
     private readonly ILog _log;
     private readonly IPlexRipperDbContext _dbContext;
     private readonly IDownloadTaskScheduler _downloadTaskScheduler;
@@ -20,10 +18,6 @@ public class DownloadQueue : IDownloadQueue
 
     private readonly CancellationToken _token = new();
 
-    #endregion
-
-    #region Constructor
-
     public DownloadQueue(ILog log, IPlexRipperDbContext dbContext, IDownloadTaskScheduler downloadTaskScheduler)
     {
         _log = log;
@@ -31,15 +25,7 @@ public class DownloadQueue : IDownloadQueue
         _downloadTaskScheduler = downloadTaskScheduler;
     }
 
-    #endregion
-
-    #region Properties
-
     public bool IsBusy => _plexServersToCheckChannel.Reader.Count > 0;
-
-    #endregion
-
-    #region Public Methods
 
     public Result Setup()
     {
@@ -77,11 +63,11 @@ public class DownloadQueue : IDownloadQueue
         // Check if the server is online
         if (!await _dbContext.IsServerOnline(plexServerId, cancellationToken: _token))
         {
-            var msg = _log.Warning(
-                "PlexServer with name: {PlexServerName} is not online, cannot continue checking the DownloadQueue to pick the following download",
-                plexServerName
-            );
-            return Result.Fail(msg.ToLogString());
+            return _log.Warning(
+                    "PlexServer with name: {PlexServerName} is not online, cannot continue checking the DownloadQueue to pick the following download",
+                    plexServerName
+                )
+                .ToResult();
         }
 
         var downloadTasks = await _dbContext.GetAllDownloadTasksByServerAsync(plexServerId, cancellationToken: _token);
@@ -115,46 +101,43 @@ public class DownloadQueue : IDownloadQueue
     }
 
     /// <summary>
-    ///  Determines the next downloadable <see cref="DownloadTaskGeneric"/>.
-    /// Will only return a successful result if a queued task can be found
+    /// Determines the next downloadable <see cref="DownloadTaskGeneric"/> to be executed.
     /// </summary>
-    /// <param name="downloadTasks"></param>
-    /// <returns></returns>
+    /// <param name="downloadTasks"> The list of downloadTasks to check for the next downloadable task.</param>
+    /// <returns> The next downloadable <see cref="DownloadTaskGeneric"/> to be executed.</returns>
     internal Result<DownloadTaskGeneric> GetNextDownloadTask(List<DownloadTaskGeneric> downloadTasks)
     {
-        // Check if there is anything downloading already
-        var nextDownloadTask = downloadTasks.FirstOrDefault(x => x.DownloadStatus == DownloadStatus.Downloading);
-        if (nextDownloadTask is not null)
+        List<DownloadStatus> statusCheck =
+        [
+            DownloadStatus.Downloading,
+            DownloadStatus.ServerUnreachable,
+            DownloadStatus.Queued,
+        ];
+
+        foreach (var status in statusCheck)
         {
-            // Should we check deeper for any nested queued tasks inside downloading tasks
-            if (nextDownloadTask.Children.Any())
+            var nextDownloadTask = downloadTasks.FirstOrDefault(x => x.DownloadStatus == status);
+            if (nextDownloadTask is not null)
             {
-                var children = nextDownloadTask.Children;
-                return GetNextDownloadTask(children);
+                // Should we check deeper for any nested tasks
+                if (nextDownloadTask.Children.Any())
+                    return GetNextDownloadTask(nextDownloadTask.Children);
+
+                switch (status)
+                {
+                    case DownloadStatus.ServerUnreachable:
+                    case DownloadStatus.Queued:
+                        return Result.Ok(nextDownloadTask);
+                    case DownloadStatus.Downloading:
+                        return Result.Fail("There is already a downloadTask downloading.").LogDebug();
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
-
-            return Result.Fail($"DownloadTask {nextDownloadTask.FullTitle} is already downloading").LogDebug();
-        }
-
-        // Check if there is anything queued
-        nextDownloadTask = downloadTasks.FirstOrDefault(x => x.DownloadStatus == DownloadStatus.Queued);
-        if (nextDownloadTask is not null)
-        {
-            if (nextDownloadTask.Children.Any())
-            {
-                var children = nextDownloadTask.Children;
-                return GetNextDownloadTask(children);
-            }
-
-            return Result.Ok(nextDownloadTask);
         }
 
         return Result.Fail("There were no downloadTasks left to download.").LogDebug();
     }
-
-    #endregion
-
-    #region Private Methods
 
     private async Task ExecuteDownloadQueueCheck()
     {
@@ -164,6 +147,4 @@ public class DownloadQueue : IDownloadQueue
             await CheckDownloadQueueServer(item);
         }
     }
-
-    #endregion
 }

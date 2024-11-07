@@ -6,6 +6,8 @@ public static partial class FakeData
 
     private static readonly HashSet<int> AlreadyGenerated = [0];
 
+    private static string DownloadFileUrl => "/library/parts/653125/119385313456/file.mp4";
+
     private static int GetUniqueNumber()
     {
         if (AlreadyGenerated.Count >= int.MaxValue)

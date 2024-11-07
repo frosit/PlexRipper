@@ -43,8 +43,7 @@ public class RefreshLibraryMediaCommand_UnitTests : BaseUnitTest<RefreshLibraryM
 
         // Act
         var request = new RefreshLibraryMediaCommand(updatedPlexLibrary.Id);
-        var handler = mock.Create<RefreshLibraryMediaCommandHandler>();
-        var result = await handler.Handle(request, CancellationToken.None);
+        var result = await _sut.Handle(request, CancellationToken.None);
 
         // Assert
         result.ShouldNotBeNull();
@@ -137,8 +136,7 @@ public class RefreshLibraryMediaCommand_UnitTests : BaseUnitTest<RefreshLibraryM
 
         // Act
         var request = new RefreshLibraryMediaCommand(updatedPlexLibrary.Id);
-        var handler = mock.Create<RefreshLibraryMediaCommandHandler>();
-        var result = await handler.Handle(request, CancellationToken.None);
+        var result = await _sut.Handle(request, CancellationToken.None);
 
         // Assert
         result.ShouldNotBeNull();

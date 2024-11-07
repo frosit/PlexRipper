@@ -55,6 +55,10 @@ public static class DownloadTaskActions
                 actions.Add(StatusRestart);
                 actions.Add(StatusDelete);
                 break;
+            case DownloadStatus.ServerUnreachable:
+                actions.Add(StatusStart);
+                actions.Add(StatusDelete);
+                break;
         }
 
         return actions;
@@ -70,6 +74,7 @@ public static class DownloadTaskActions
         // If any of these statuses are present, return that status.
         List<DownloadStatus> anyStatuses =
         [
+            DownloadStatus.ServerUnreachable,
             DownloadStatus.Error,
             DownloadStatus.Downloading,
             DownloadStatus.Paused,
