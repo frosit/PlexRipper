@@ -10,13 +10,13 @@ using Settings.Contracts;
 
 namespace PlexRipper.Application.UnitTests;
 
-public class PlexDownloadClientStopAsyncUnitTests : BaseUnitTest<PlexDownloadClient>
+public class PlexDownloadClientStartUnitTests : BaseUnitTest<PlexDownloadClient>
 {
-    public PlexDownloadClientStopAsyncUnitTests(ITestOutputHelper output)
+    public PlexDownloadClientStartUnitTests(ITestOutputHelper output)
         : base(output) { }
 
     [Fact]
-    public async Task ShouldEmitStopDownloadStatus_WhenDownloadClientIsStoppedSuccessfully()
+    public async Task ShouldReturnSuccessResult_WhenSetupAndStartedSuccessfully()
     {
         //Arrange
         await SetupDatabase(
@@ -29,7 +29,7 @@ public class PlexDownloadClientStopAsyncUnitTests : BaseUnitTest<PlexDownloadCli
             }
         );
 
-        SetupHttpClient(x => x.SetupDownloadFile(100));
+        SetupHttpClient(x => x.SetupDownloadFile(10));
         var downloadSpeedLimit = 1000;
         var dbContext = IDbContext;
         var downloadTask = await dbContext.DownloadTaskMovieFile.FirstAsync();
@@ -96,16 +96,14 @@ public class PlexDownloadClientStopAsyncUnitTests : BaseUnitTest<PlexDownloadCli
         await sut.Setup(downloadTask.ToKey());
 
         var startResult = sut.Start();
-        await Task.Delay(1500);
-        var stopResult = await sut.StopAsync();
 
         // Wait for the process to complete
         await sut.DownloadProcessTask;
 
         // Assert
         startResult.IsSuccess.ShouldBeTrue();
-        stopResult.IsSuccess.ShouldBeTrue();
-
-        statusList.Last().ShouldBe(DownloadStatus.Stopped);
+        updateList.Count.ShouldBeGreaterThanOrEqualTo(4);
+        statusList.Count.ShouldBeGreaterThanOrEqualTo(4);
+        statusList.Last().ShouldBe(DownloadStatus.DownloadFinished);
     }
 }
