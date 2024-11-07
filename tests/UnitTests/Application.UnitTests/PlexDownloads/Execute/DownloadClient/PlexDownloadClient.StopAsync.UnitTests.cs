@@ -106,6 +106,9 @@ public class PlexDownloadClientStopAsyncUnitTests : BaseUnitTest<PlexDownloadCli
         startResult.IsSuccess.ShouldBeTrue();
         stopResult.IsSuccess.ShouldBeTrue();
 
+        updateList.Count.ShouldBeGreaterThanOrEqualTo(2);
+        statusList.Count.ShouldBeGreaterThanOrEqualTo(2);
+
         statusList.Last().ShouldBe(DownloadStatus.Stopped);
     }
 }
