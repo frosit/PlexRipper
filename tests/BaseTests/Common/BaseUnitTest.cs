@@ -21,6 +21,11 @@ public class BaseUnitTest : IDisposable
 
     protected readonly ILog Log;
 
+    protected AutoMock mock { get; set; }
+
+    // Use loose behavior here to avoid Dispose() not mocked exception
+    protected Mock<HttpMessageHandler> HttpHandlerMock = new(MockBehavior.Loose);
+
     /// <summary>
     /// This constructor is run before every test
     /// </summary>
@@ -37,6 +42,8 @@ public class BaseUnitTest : IDisposable
         LogConfig.SetTestOutputHelper(output);
         BogusExtensions.Setup();
         Log = LogManager.CreateLogInstance(output, typeof(BaseUnitTest));
+
+        mock = AutoMock.GetStrict(SetDefaultBuilder);
     }
 
     /// <summary>
@@ -87,35 +94,6 @@ public class BaseUnitTest : IDisposable
         return seed;
     }
 
-    public virtual void Dispose()
-    {
-        if (IsDatabaseSetup)
-        {
-            foreach (var x in _dbContexts)
-            {
-                x.EnsureDeleted();
-                x.Dispose();
-            }
-        }
-    }
-}
-
-public class BaseUnitTest<TUnitTestClass> : BaseUnitTest
-    where TUnitTestClass : class
-{
-    // Use loose behavior here to avoid Dispose() not mocked exception
-    protected Mock<HttpMessageHandler> HttpHandlerMock = new(MockBehavior.Loose);
-
-    protected TUnitTestClass _sut => mock.Create<TUnitTestClass>();
-
-    protected AutoMock mock { get; private set; }
-
-    protected BaseUnitTest(ITestOutputHelper output, LogEventLevel logEventLevel = LogEventLevel.Verbose)
-        : base(output, logEventLevel)
-    {
-        mock = AutoMock.GetStrict(SetDefaultBuilder);
-    }
-
     private void SetDefaultBuilder(ContainerBuilder builder)
     {
         builder
@@ -160,6 +138,27 @@ public class BaseUnitTest<TUnitTestClass> : BaseUnitTest
         // Mock to avoid HttpClient.Dispose() not mocked exception
         mock.Mock<IPlexApiClient>().Setup(x => x.Dispose());
     }
+
+    public virtual void Dispose()
+    {
+        if (IsDatabaseSetup)
+        {
+            foreach (var x in _dbContexts)
+            {
+                x.EnsureDeleted();
+                x.Dispose();
+            }
+        }
+    }
+}
+
+public class BaseUnitTest<TUnitTestClass> : BaseUnitTest
+    where TUnitTestClass : class
+{
+    protected TUnitTestClass _sut => mock.Create<TUnitTestClass>();
+
+    protected BaseUnitTest(ITestOutputHelper output, LogEventLevel logEventLevel = LogEventLevel.Verbose)
+        : base(output, logEventLevel) { }
 
     public override void Dispose()
     {

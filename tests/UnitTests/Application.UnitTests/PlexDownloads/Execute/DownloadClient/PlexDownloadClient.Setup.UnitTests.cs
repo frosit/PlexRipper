@@ -1,8 +1,12 @@
-﻿namespace PlexRipper.Application.UnitTests;
+﻿using Autofac;
+using PlexApi.Contracts;
+using PlexRipper.PlexApi;
 
-public class PlexDownloadClient_Setup_UnitTests : BaseUnitTest<PlexDownloadClient>
+namespace PlexRipper.Application.UnitTests;
+
+public class PlexDownloadClientSetupUnitTests : BaseUnitTest
 {
-    public PlexDownloadClient_Setup_UnitTests(ITestOutputHelper output)
+    public PlexDownloadClientSetupUnitTests(ITestOutputHelper output)
         : base(output) { }
 
     [Fact]
@@ -10,9 +14,19 @@ public class PlexDownloadClient_Setup_UnitTests : BaseUnitTest<PlexDownloadClien
     {
         //Arrange
         await SetupDatabase(82345);
+        var sut = mock.Create<PlexDownloadClient>(
+            new NamedParameter(
+                "downloadWorkerFactory",
+                (DownloadWorkerTask task) => mock.Create<DownloadWorker>(new NamedParameter("downloadWorkerTask", task))
+            ),
+            new NamedParameter(
+                "clientFactory",
+                (PlexApiClientOptions options) => mock.Create<PlexApiClient>(new NamedParameter("options", options))
+            )
+        );
 
         // Act
-        var result = await _sut.Setup(
+        var result = await sut.Setup(
             new DownloadTaskKey
             {
                 Type = DownloadTaskType.None,
