@@ -338,7 +338,7 @@ public static partial class FakeData
             .RuleFor(x => x.PartIndex, _ => partIndex++)
             .RuleFor(x => x.DownloadDirectory, f => f.System.FilePath())
             .RuleFor(x => x.ElapsedTime, 0)
-            .RuleFor(x => x.FileLocationUrl, f => f.Internet.UrlRootedPath())
+            .RuleFor(x => x.FileLocationUrl, _ => PlexMockServerConfig.FileUrl)
             .RuleFor(x => x.DownloadStatus, DownloadStatus.Queued)
             .RuleFor(x => x.DownloadTaskId, _ => Guid.Empty)
             .RuleFor(x => x.PlexServerId, _ => plexServerId)
