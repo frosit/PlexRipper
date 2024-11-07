@@ -32,8 +32,8 @@
 					href="https://github.com/PlexRipper/PlexRipper"
 					target="_blank" />
 
-				<!-- Background Animation Toggle -->
-				<BackgroundAnimationToggleButton />
+				<!-- Background Activity Toggle -->
+				<BackgroundActivityToggleButton />
 
 				<!-- Account Selector -->
 				<AccountSelector />
@@ -68,21 +68,21 @@ function showNotificationsDrawer(): void {
 @import '@/assets/scss/variables.scss';
 
 .app-bar {
-	// @extend .glossy;
-	height: $app-bar-height;
+  // @extend .glossy;
+  height: $app-bar-height;
 }
 
 body {
-	&.body--dark {
-		.app-bar {
-			background: rgba(255, 0, 0, 0.2) !important;
-		}
-	}
+  &.body--dark {
+    .app-bar {
+      background: rgba(255, 0, 0, 0.2) !important;
+    }
+  }
 
-	&.body--light {
-		.app-bar {
-			background: rgba(255, 0, 0, 1) !important;
-		}
-	}
+  &.body--light {
+    .app-bar {
+      background: rgba(255, 0, 0, 1) !important;
+    }
+  }
 }
 </style>

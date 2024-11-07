@@ -134,6 +134,8 @@
 				<td>{{ $t('debug.buttons.delete-icon-button') }}</td>
 				<td>
 					<DeleteIconButton />
+					<!-- Background Activity Toggle -->
+					<BackgroundActivityToggleButton />
 				</td>
 			</tr>
 		</tbody>
