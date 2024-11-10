@@ -2,10 +2,9 @@
 	<QCardDialog
 		min-width="50vw"
 		max-width="50vw"
-		:name="name"
+		:name="DialogType.MediaSelectionDialog"
 		:loading="false"
-		@opened="onOpen()"
-		@closed="onClose">
+		@opened="onOpen()">
 		<template #title>
 			{{
 				$t('components.media-selection-dialog.title', {
@@ -96,11 +95,10 @@
 
 <script setup lang="ts">
 import { get, set } from '@vueuse/core';
+import { DialogType } from '@enums';
 import { useMediaOverviewStore } from '#imports';
 
 const mediaOverviewStore = useMediaOverviewStore();
-
-defineProps<{ name: string }>();
 
 const selectedRange = ref({
 	min: 1,
@@ -134,11 +132,11 @@ function adjustValue(type: string, value: number) {
 function setSelection() {
 	mediaOverviewStore.setSelectionRange(selectedRange.value.min, selectedRange.value.max);
 }
+
 function onOpen(): void {
 	set(selectedRange, {
 		min: 1,
 		max: mediaOverviewStore.itemsLength,
 	});
 }
-function onClose() {}
 </script>

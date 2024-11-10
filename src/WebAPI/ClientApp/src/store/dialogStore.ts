@@ -1,8 +1,8 @@
 import { acceptHMRUpdate, defineStore } from 'pinia';
 import { type Observable, of, Subject } from 'rxjs';
-import type { IAccountDialog, ISetupResult } from '@interfaces';
 import { DialogType } from '@enums';
-import type { CheckAllConnectionStatusUpdateDTO, FolderPathDTO } from '@dto';
+import type { IAccountDialog, IAlert, IHelp, ISetupResult } from '@interfaces';
+import type { CheckAllConnectionStatusUpdateDTO, DownloadMediaDTO, FolderPathDTO } from '@dto';
 
 interface DialogState {
 	name: string;
@@ -35,6 +35,18 @@ export const useDialogStore = defineStore('DialogStore', () => {
 		},
 		openServerSettingsDialog(plexServerId: number): void {
 			state.dialogUpdate.next({ name: DialogType.ServerSettingsDialog, state: true, data: plexServerId });
+		},
+		openDownloadTaskDetailsDialog(downloadTaskId: string): void {
+			state.dialogUpdate.next({ name: DialogType.DownloadDetailsDialog, state: true, data: downloadTaskId });
+		},
+		openMediaConfirmationDownloadDialog(data: DownloadMediaDTO[]): void {
+			state.dialogUpdate.next({ name: DialogType.MediaDownloadConfirmationDialog, state: true, data });
+		},
+		openHelpInfoDialog(data: IHelp): void {
+			state.dialogUpdate.next({ name: DialogType.HelpInfoDialog, state: true, data });
+		},
+		openAlertInfoDialog(alert: IAlert): void {
+			state.dialogUpdate.next({ name: `${DialogType.AlertInfoDialog}-${alert.id}`, state: true, data: alert });
 		},
 	};
 	const getters = {

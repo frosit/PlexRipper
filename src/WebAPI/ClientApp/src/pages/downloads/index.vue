@@ -18,7 +18,7 @@
 					</q-list>
 				</QCol>
 			</QRow>
-			<DownloadDetailsDialog :name="dialogName" />
+			<DownloadDetailsDialog />
 		</template>
 		<QRow
 			v-else
@@ -32,10 +32,10 @@
 
 <script setup lang="ts">
 import type { DownloadProgressDTO } from '@dto';
-import { useOpenControlDialog } from '#imports';
+import { useDownloadStore, useDialogStore } from '#imports';
 
 const downloadStore = useDownloadStore();
-const dialogName = 'download-details-dialog';
+const dialogStore = useDialogStore();
 
 // region single commands
 
@@ -43,7 +43,7 @@ function commandSwitch({ action, item }: { action: string; item: DownloadProgres
 	const ids: string[] = [item.id];
 
 	if (action === 'details') {
-		useOpenControlDialog(dialogName, item.id);
+		dialogStore.openDownloadTaskDetailsDialog(item.id);
 		return;
 	}
 

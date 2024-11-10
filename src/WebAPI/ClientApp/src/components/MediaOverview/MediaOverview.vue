@@ -32,7 +32,7 @@
 				:server="
 					libraryStore.getServerByLibraryId(libraryId)"
 				@view-change="changeView"
-				@selection-dialog="useOpenControlDialog(mediaSelectionDialogName)"
+				@selection-dialog="dialogStore.openDialog(DialogType.MediaSelectionDialog)"
 				@refresh-library="refreshLibrary" />
 		</div>
 		<div class="media-overview-content">
@@ -90,13 +90,11 @@
 				</QRow>
 			</template>
 			<!-- Media Selection Dialog -->
-			<MediaSelectionDialog :name="mediaSelectionDialogName" />
+			<MediaSelectionDialog />
 			<!--	Loading overlay	-->
 			<QLoadingOverlay :loading="!isRefreshing && loading" />
 			<!--		Download confirmation dialog	-->
-			<DownloadConfirmation
-				:name="downloadConfirmationName"
-				@download="downloadStore.downloadMedia($event)" />
+			<DownloadConfirmation @download="downloadStore.downloadMedia($event)" />
 		</div>
 	</template>
 </template>
@@ -106,10 +104,10 @@ import Log from 'consola';
 import { get, set } from '@vueuse/core';
 import { useSubscription } from '@vueuse/rxjs';
 import { type DownloadMediaDTO, type LibraryProgress, PlexMediaType, ViewMode } from '@dto';
+import { DialogType } from '@enums';
 import {
 	useMediaOverviewBarDownloadCommandBus,
 	useMediaOverviewSortBus,
-	useOpenControlDialog,
 	listenMediaOverviewDownloadCommand,
 	sendMediaOverviewDownloadCommand,
 	useMediaStore,
@@ -118,6 +116,7 @@ import {
 	useDownloadStore,
 	useLibraryStore,
 	useServerStore,
+	useDialogStore,
 	useI18n,
 } from '#imports';
 
@@ -128,11 +127,10 @@ const mediaOverviewStore = useMediaOverviewStore();
 const downloadStore = useDownloadStore();
 const libraryStore = useLibraryStore();
 const serverStore = useServerStore();
+const dialogStore = useDialogStore();
 
 // endregion
 
-const downloadConfirmationName = 'mediaDownloadConfirmation';
-const mediaSelectionDialogName = 'mediaSelectionDialogName';
 const isRefreshing = ref(false);
 
 const libraryProgress = ref<LibraryProgress | null>(null);
@@ -239,7 +237,7 @@ listenMediaOverviewDownloadCommand((command) => {
 	// Only show if there is more than 1 selection
 	if (command.length > 0 && command.some((x) => x.mediaIds.length > 0)) {
 		if (isConfirmationEnabled.value) {
-			useOpenControlDialog(downloadConfirmationName, command);
+			dialogStore.openMediaConfirmationDownloadDialog(command);
 		} else {
 			downloadStore.downloadMedia(command);
 		}

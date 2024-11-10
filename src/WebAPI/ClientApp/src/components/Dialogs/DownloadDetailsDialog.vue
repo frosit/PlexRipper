@@ -1,8 +1,9 @@
 <template>
 	<QCardDialog
 		:loading="loading"
-		:name="name"
+		:name="DialogType.DownloadDetailsDialog"
 		:scroll="false"
+		:type="'' as string"
 		:content-height="tabIndex === 'overview' ? '60' : '100'"
 		max-width="60vw"
 		@closed="onClose"
@@ -170,6 +171,7 @@ import { set, get } from '@vueuse/core';
 import { type DownloadTaskDTO, type DownloadWorkerLogDTO, type ReasonDTO } from '@dto';
 import { downloadApi } from '@api';
 import Convert from '@class/Convert';
+import { DialogType } from '@enums';
 
 const { t } = useI18n();
 
@@ -183,13 +185,10 @@ const logs = ref<DownloadWorkerLogDTO[]>([]);
 const logRefreshTimer = useIntervalFn(() => refreshLogs(), 1000);
 
 const errors = ref<ReasonDTO[]>([]);
-defineProps<{
-	name: string;
-}>();
 
-function onOpen(event: unknown) {
+function onOpen(event: string) {
 	set(loading, true);
-	set(downloadTaskId, event as string);
+	set(downloadTaskId, event);
 
 	useSubscription(downloadApi.getDownloadTaskByGuidEndpoint(get(downloadTaskId)).subscribe((data) => {
 		if (data.isSuccess && data.value) {

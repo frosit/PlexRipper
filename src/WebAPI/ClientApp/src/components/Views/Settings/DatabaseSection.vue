@@ -12,11 +12,11 @@
 				:width="400"
 				:label="$t('general.commands.reset-db')"
 				block
-				@click="useOpenControlDialog(confirmationDialogName)" />
+				@click="dialogStore.openDialog(DialogType.ResetDatabaseConfirmationDialog)" />
 			<ConfirmationDialog
 				:title="$t('confirmation.reset-db.title')"
 				:text="$t('confirmation.reset-db.text')"
-				:name="confirmationDialogName"
+				:name="DialogType.ResetDatabaseConfirmationDialog"
 				@confirm="resetDatabaseCommand" />
 		</HelpRow>
 	</QSection>
@@ -25,10 +25,12 @@
 <script setup lang="ts">
 import { useSubscription } from '@vueuse/rxjs';
 import { settingsApi } from '@api';
-import { useOpenControlDialog } from '#imports';
+import { DialogType } from '@enums';
+import { useDialogStore, useRouter } from '#imports';
 
 const router = useRouter();
-const confirmationDialogName = 'reset-database-confirmation-dialog';
+
+const dialogStore = useDialogStore();
 
 const resetDatabaseCommand = (): void => {
 	useSubscription(

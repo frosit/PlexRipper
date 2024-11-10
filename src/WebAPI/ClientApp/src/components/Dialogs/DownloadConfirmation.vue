@@ -1,7 +1,7 @@
 <template>
 	<!-- The "Are you sure" dialog -->
 	<QCardDialog
-		:name="name"
+		:name="DialogType.MediaDownloadConfirmationDialog"
 		max-width="1200px"
 		content-height="80"
 		:loading="loading"
@@ -42,15 +42,14 @@
 </template>
 
 <script setup lang="ts">
-import { useSubscription } from '@vueuse/rxjs';
 import { set } from '@vueuse/core';
+import { useSubscription } from '@vueuse/rxjs';
 import type { DownloadMediaDTO, DownloadPreviewDTO } from '@dto';
-import { getDownloadPreviewTableColumns } from '#imports';
+import { DialogType } from '@enums';
+import { useI18n, useDownloadStore } from '#imports';
 
 const { t } = useI18n();
 const downloadStore = useDownloadStore();
-
-defineProps<{ name: string }>();
 
 defineEmits<{
 	(e: 'download', downloadCommand: DownloadMediaDTO[]): void;

@@ -247,9 +247,9 @@
 								cols="auto">
 								<NavigationSkipSetupButton
 									:disabled="isNextDisabled"
-									@click="useOpenControlDialog(confirmationDialogName)" />
+									@click="dialogStore.openDialog(DialogType.SetupSkipConfirmationDialog)" />
 								<ConfirmationDialog
-									:name="confirmationDialogName"
+									:name="DialogType.SetupSkipConfirmationDialog"
 									:text="$t('confirmation.skip-setup.text')"
 									:title="$t('confirmation.skip-setup.title')"
 									@confirm="finishSetup" />
@@ -264,17 +264,17 @@
 
 <script lang="ts" setup>
 import Log from 'consola';
-import { useRouter, useOpenControlDialog } from '#imports';
-import { useSettingsStore } from '~/store';
+import { DialogType } from '@enums';
+import { useSettingsStore, useDialogStore, useRouter, useI18n } from '#imports';
 
-const router = useRouter();
 const { t } = useI18n();
+const router = useRouter();
 const settingsStore = useSettingsStore();
+const dialogStore = useDialogStore();
 
 const stepIndex = ref(1);
 const stepPagesCount = ref(5);
 
-const confirmationDialogName = 'skip-setup-confirmation';
 const headers = ref([{ name: t(`pages.setup.intro.header`) },
 	{ name: t(`pages.setup.future-plans.header`) },
 	{ name: t(`pages.setup.paths.header`) },
@@ -333,25 +333,25 @@ const finishSetup = () => {
 @import '@/assets/scss/mixins.scss';
 
 .setup-card {
-	@extend .default-border;
-	@extend .default-border-radius;
+  @extend .default-border;
+  @extend .default-border-radius;
 }
 
 .setup-tab {
-	height: 12vh;
+  height: 12vh;
 }
 
 body {
-	&.body--dark {
-		.setup-card {
-			background-color: $dark-xl-background-color;
-		}
-	}
+  &.body--dark {
+    .setup-card {
+      background-color: $dark-xl-background-color;
+    }
+  }
 
-	&.body--light {
-		.setup-card {
-			background-color: $light-xl-background-color;
-		}
-	}
+  &.body--light {
+    .setup-card {
+      background-color: $light-xl-background-color;
+    }
+  }
 }
 </style>

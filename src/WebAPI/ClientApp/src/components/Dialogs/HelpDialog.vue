@@ -1,8 +1,9 @@
 <template>
 	<QCardDialog
 		max-width="500px"
-		:name="name"
+		:name="DialogType.HelpInfoDialog"
 		:loading="false"
+		:type="{} as IHelp"
 		@opened="onOpen"
 		@closed="onClose">
 		<template #title>
@@ -28,9 +29,8 @@
 <script setup lang="ts">
 import { get, set } from '@vueuse/core';
 import type { IHelp } from '@interfaces';
+import { DialogType } from '@enums';
 import { useI18n } from '#imports';
-
-defineProps<{ name: string }>();
 
 const { t } = useI18n();
 const helpTitle = ref('');
@@ -39,10 +39,9 @@ const helpText = ref('');
 const missingHelpTitle = ref(t('help.default.title'));
 const missingHelpText = ref(t('help.default.text'));
 
-function onOpen(event: unknown): void {
-	const value = event as IHelp;
-	set(helpTitle, value.title ? value.title : get(missingHelpTitle));
-	set(helpText, value.text ? value.text : get(missingHelpText));
+function onOpen(event: IHelp): void {
+	set(helpTitle, event.title ? event.title : get(missingHelpTitle));
+	set(helpText, event.text ? event.text : get(missingHelpText));
 }
 
 function onClose() {

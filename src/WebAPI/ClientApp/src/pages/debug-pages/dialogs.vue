@@ -9,7 +9,7 @@
 					<q-td>
 						<DebugButton
 							:label="t('pages.debug.dialogs.buttons.server-dialog')"
-							@click="openServerDialog" />
+							@click="dialogStore.openServerSettingsDialog(1)" />
 					</q-td>
 				</q-tr>
 				<q-tr>
@@ -58,32 +58,25 @@
 					</q-td>
 				</q-tr>
 			</q-markup-table>
-			<ServerDialog :name="serverDialogName" />
-			<DownloadConfirmation :name="downloadConfirmationName" />
-			<AccountVerificationCodeDialog
-				:name="verificationCodeDialogName"
-				:account="account" />
-			<DirectoryBrowser :name="directoryBrowserName" />
+			<ServerDialog />
+			<DownloadConfirmation />
+			<AccountVerificationCodeDialog :account="account" />
+			<DirectoryBrowser />
 		</QSection>
 	</QPage>
 </template>
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
-import { useOpenControlDialog } from '@composables/event-bus';
-import type { PlexAccountDTO } from '@dto';
+import { type DownloadMediaDTO, type PlexAccountDTO, PlexMediaType } from '@dto';
 import { generateDefaultFolderPaths, generatePlexAccount } from '@factories';
-import { useAlertStore, useHelpStore } from '~/store';
+import { DialogType } from '@enums';
+import { useAlertStore, useHelpStore, useDialogStore } from '#imports';
 
 const { t } = useI18n();
 const helpStore = useHelpStore();
 const alertStore = useAlertStore();
-
-const serverDialogName = 'debugServerDialog';
-const downloadConfirmationName = 'debugDownloadConfirmation';
-const checkServerConnectionDialogName = 'checkServerConnectionDialogName';
-const verificationCodeDialogName = 'verificationCodeDialogName';
-const directoryBrowserName = 'TestDirectoryBrowser';
+const dialogStore = useDialogStore();
 
 const account = ref<PlexAccountDTO>(
 	generatePlexAccount({
@@ -95,43 +88,43 @@ const account = ref<PlexAccountDTO>(
 
 const folderPath = generateDefaultFolderPaths({})[0];
 
-function openServerDialog(): void {
-	useOpenControlDialog(serverDialogName, 1);
-}
-
 function openDownloadConfirmationDialog(): void {
-	const demo = [
+	const demo: DownloadMediaDTO[] = [
 		{
 			plexServerId: 1,
 			plexLibraryId: 9,
 			mediaIds: [24, 25, 26, 27, 28],
-			type: 'TvShow',
+			type: PlexMediaType.TvShow,
 		},
 	];
-	useOpenControlDialog(downloadConfirmationName, demo);
+	dialogStore.openMediaConfirmationDownloadDialog(demo);
 }
 
 function openHelpDialog(): void {
-	helpStore.openHelpDialog({ label: t('help.settings.ui.language.language-selection.label'),
+	helpStore.openHelpDialog({
+		label: t('help.settings.ui.language.language-selection.label'),
 		title: t('help.settings.ui.language.language-selection.title'),
 		text: t('help.settings.ui.language.language-selection.text'),
 	});
 }
 
 function openCheckServerConnectionsDialog(): void {
-	useOpenControlDialog(checkServerConnectionDialogName);
+	dialogStore.openDialog(DialogType.CheckServerConnectionDialogName);
 }
 
 function openVerificationDialog(): void {
-	useOpenControlDialog(verificationCodeDialogName);
+	dialogStore.openDialog(DialogType.AccountVerificationCodeDialog);
 }
 
 function openDirectoryBrowserDialog(): void {
-	useOpenControlDialog(directoryBrowserName, folderPath);
+	dialogStore.openDirectoryBrowserDialog(folderPath);
 }
 
 function addAlert(): void {
 	alertStore.showAlert({ id: 0, title: 'Alert Title 1', text: 'random alert' });
 	alertStore.showAlert({ id: 0, title: 'Alert Title 2', text: 'random alert' });
+	alertStore.showAlert({ id: 0, title: 'Alert Title 3', text: 'random alert' });
+	alertStore.showAlert({ id: 0, title: 'Alert Title 4', text: 'random alert' });
+	alertStore.showAlert({ id: 0, title: 'Alert Title 5', text: 'random alert' });
 }
 </script>

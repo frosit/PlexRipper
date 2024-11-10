@@ -1,7 +1,8 @@
 <template>
 	<QCardDialog
 		max-width="1000px"
-		:name="name"
+		:name="`${DialogType.AlertInfoDialog}-${alert.id}`"
+		:type="{} as IAlert"
 		@closed="alertStore.removeAlert(alert.id)">
 		<template #title>
 			{{ alert.title }}
@@ -33,12 +34,13 @@
 </template>
 
 <script setup lang="ts">
-import type IAlert from '@interfaces/IAlert';
-import { useAlertStore } from '~/store';
+import type { IAlert } from '@interfaces';
+import { DialogType } from '@enums';
+import { useAlertStore } from '#imports';
 
 const alertStore = useAlertStore();
 
-const props = defineProps<{ name: string; alert: IAlert }>();
+const props = defineProps<{ alert: IAlert }>();
 
 const errors = computed(() => {
 	if (props.alert?.result?.errors) {

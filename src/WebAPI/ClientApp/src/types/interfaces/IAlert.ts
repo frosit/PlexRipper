@@ -1,6 +1,6 @@
 import type { ResultDTO } from '@interfaces';
 
-export default interface IAlert {
+export interface IAlert {
 	id: number;
 	title: string;
 	text: string;
