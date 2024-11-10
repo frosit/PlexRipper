@@ -2,7 +2,7 @@
 	<QCardDialog
 		max-width="1000px"
 		content-height="80"
-		:name="name"
+		:name="DialogType.CheckServerConnectionDialogName"
 		cy="check-server-connection-dialog"
 		@closed="onClosed">
 		<template #top-row>
@@ -119,6 +119,7 @@
 import { useSubscription } from '@vueuse/rxjs';
 import { get, set } from '@vueuse/core';
 import { JobStatus, type ServerConnectionCheckStatusProgressDTO } from '@dto';
+import { DialogType } from '@enums';
 import {
 	useBackgroundJobsStore,
 	useI18n,
@@ -132,7 +133,6 @@ const { t } = useI18n();
 const serverStore = useServerStore();
 const connectionStore = useServerConnectionStore();
 const backgroundJobStore = useBackgroundJobsStore();
-const name = 'checkServerConnectionDialogName';
 const connectionProgress = ref<ServerConnectionCheckStatusProgressDTO[]>([]);
 
 const expanded = ref<number[]>([]);
@@ -249,18 +249,10 @@ onMounted(() => {
 	);
 
 	useSubscription(
-		backgroundJobStore.getCheckPlexServerConnectionsJobUpdate(JobStatus.Started)
-			.subscribe(({ data }) => {
-				get(plexServerIds).push(data.plexServerId);
-				useOpenControlDialog(name);
-			}),
-	);
-
-	useSubscription(
 		backgroundJobStore.getInspectPlexServerJobUpdate(JobStatus.Started)
 			.subscribe(({ data }) => {
 				get(plexServerIds).push(...data);
-				useOpenControlDialog(name);
+				useOpenControlDialog(DialogType.CheckServerConnectionDialogName);
 			}),
 	);
 });
@@ -281,14 +273,14 @@ interface IPlexServerNode {
 
 <style lang="scss">
 .server-progress-list {
-	.v-list-item__content {
-		padding: 0;
-	}
+  .v-list-item__content {
+    padding: 0;
+  }
 
-	&.theme--dark {
-		.server-title {
-			color: white;
-		}
-	}
+  &.theme--dark {
+    .server-title {
+      color: white;
+    }
+  }
 }
 </style>

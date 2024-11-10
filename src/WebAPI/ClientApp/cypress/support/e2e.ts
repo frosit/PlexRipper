@@ -2,13 +2,14 @@ import './commands';
 import Log from 'consola';
 import { basePageSetup, route, type IBasePageSetupResult } from '@fixtures/baseE2E';
 import { generateJobStatusUpdate, type MockConfig } from '@mock';
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import {
-	type PlexServerConnectionDTO,
-	type CheckAllConnectionStatusUpdateDTO,
-	type PlexServerDTO,
 	JobStatus,
 	JobTypes,
 	MessageTypes,
+	type PlexServerConnectionDTO,
+	type CheckAllConnectionStatusUpdateDTO,
+	type PlexServerDTO,
 } from '@dto';
 
 Cypress.Commands.add('basePageSetup', (config: Partial<MockConfig> = {}) => basePageSetup(config).as('pageData'));
@@ -41,17 +42,13 @@ Cypress.Commands.add('hubPublishJobStatusUpdate', <T>(type: JobTypes, status: Jo
 Cypress.Commands.add(
 	'hubPublishCheckPlexServerConnectionsJob',
 	(status: JobStatus, servers: PlexServerDTO[], connections: PlexServerConnectionDTO[]) =>
-		cy.hubPublishJobStatusUpdate<CheckAllConnectionStatusUpdateDTO>(
-			JobTypes.CheckAllConnectionsStatusByPlexServerJob,
-			JobStatus.Started,
-			{
-				plexServersWithConnectionIds: servers.reduce(
-					(acc, server) => {
-						acc[server.id] = connections.filter((x) => x.plexServerId === server.id).map((x) => x.id);
-						return acc;
-					},
-					{} as Record<string, number[]>,
-				),
-			},
-		),
+		cy.hubPublishJobStatusUpdate<CheckAllConnectionStatusUpdateDTO>(JobTypes.CheckAllConnectionsStatusByPlexServerJob, status, {
+			plexServersWithConnectionIds: servers.reduce(
+				(acc, server) => {
+					acc[server.id] = connections.filter((x) => x.plexServerId === server.id).map((x) => x.id);
+					return acc;
+				},
+				{} as Record<string, number[]>,
+			),
+		}),
 );

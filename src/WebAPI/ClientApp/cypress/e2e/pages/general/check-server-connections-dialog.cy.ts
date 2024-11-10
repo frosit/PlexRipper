@@ -1,5 +1,5 @@
 import { route } from '@fixtures/baseE2E';
-import { MessageTypes, type ServerConnectionCheckStatusProgressDTO } from '@dto';
+import { JobStatus, MessageTypes, type ServerConnectionCheckStatusProgressDTO } from '@dto';
 
 describe('Check server connections dialog', () => {
 	before(() => {
@@ -13,10 +13,12 @@ describe('Check server connections dialog', () => {
 
 	it('Should display the check server connections dialog when given the back-end signal', function () {
 		cy.getPageData().then((data) => {
-			cy.hubPublishCheckPlexServerConnectionsJob(data.plexServers);
+			cy.hubPublishCheckPlexServerConnectionsJob(JobStatus.Started, data.plexServers, data.plexServerConnections);
 		});
 
 		cy.log('Should display the servers when the account has access to those Plex servers');
+
+		cy.getCy('check-server-connection-dialog').should('exist').and('be.visible');
 
 		cy.get('.q-card-dialog-content')
 			.getPageData()

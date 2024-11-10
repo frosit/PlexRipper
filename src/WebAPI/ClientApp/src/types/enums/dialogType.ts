@@ -1,3 +1,3 @@
 export enum DialogType {
-	CheckServerConnectionDialogName = 'checkServerConnectionDialogName',
+	CheckServerConnectionDialogName = 'check-server-connection-dialog',
 }
