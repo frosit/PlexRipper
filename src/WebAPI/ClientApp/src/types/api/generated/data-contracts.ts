@@ -10,9 +10,7 @@
  */
 
 export interface CheckAllConnectionStatusUpdateDTO {
-  plexServerConnectionIds: number[];
-  /** @format int32 */
-  plexServerId: number;
+  plexServersWithConnectionIds: Record<string, number[]>;
 }
 
 export interface ConfirmationSettingsDTO {
