@@ -31,6 +31,8 @@ declare global {
 				servers: PlexServerDTO[],
 				connections: PlexServerConnectionDTO[],
 			): Chainable;
+
+			hubPublishInspectPlexServerJob(status: JobStatus, plexServerIds: number[]): Chainable;
 		}
 	}
 }

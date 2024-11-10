@@ -52,3 +52,7 @@ Cypress.Commands.add(
 			),
 		}),
 );
+
+Cypress.Commands.add('hubPublishInspectPlexServerJob', (status: JobStatus, plexServerIds: number[]) =>
+	cy.hubPublishJobStatusUpdate<number[]>(JobTypes.InspectPlexServerJob, status, plexServerIds),
+);

@@ -27,7 +27,8 @@
 						<QRow
 							justify="between"
 							align="center">
-							<QCol cols="8">
+							<QCol
+								cols="8">
 								<div :class="{ 'text-weight-bold': isServer(node) }">
 									<!--	Plex Server Connection Icon -->
 									<q-icon
