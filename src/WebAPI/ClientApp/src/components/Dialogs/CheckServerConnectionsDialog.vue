@@ -176,34 +176,31 @@ const plexServerNodes = computed((): IPlexServerNode[] => {
 	let uniqueIndex = 0;
 	return get(plexServers).map((server) => {
 		const connections = connectionStore.getServerConnectionsByServerId(server.id);
-		const serverResult: IPlexServerNode = {
+		const mappedConnections = connections.map((connection) => {
+			const progress = getConnectionProgress(connection.id, server.id);
+			return {
+				id: connection.id,
+				index: uniqueIndex++,
+				type: 'connection',
+				title: connection.url,
+				local: connection.local,
+				completed: progress.completed,
+				connectionSuccessful: progress.connectionSuccessful,
+				progress,
+				children: [],
+			};
+		});
+		const hasConnections = mappedConnections.length > 0;
+		return {
 			id: server.id,
+			index: uniqueIndex++,
 			type: 'server',
 			title: serverStore.getServerName(server.id),
-			completed: false,
-			index: uniqueIndex++,
-			connectionSuccessful: false,
-			noConnections: connections.length === 0,
-			children: connections.map((connection) => {
-				const progress = getConnectionProgress(connection.id, server.id);
-				return {
-					id: connection.id,
-					type: 'connection',
-					title: connection.url,
-					local: connection.local,
-					completed: progress.completed,
-					index: uniqueIndex++,
-					connectionSuccessful: progress.connectionSuccessful,
-					progress,
-					children: [],
-				};
-			}),
+			completed: hasConnections ? mappedConnections.some((x) => x.completed) : true,
+			connectionSuccessful: hasConnections ? mappedConnections.some((connection) => connection.connectionSuccessful) : false,
+			noConnections: !hasConnections,
+			children: mappedConnections,
 		};
-
-		serverResult.completed = serverResult.children?.some((x) => x.completed) ?? true;
-		serverResult.connectionSuccessful = serverResult.children?.some((connection) => connection.connectionSuccessful) ?? false;
-
-		return serverResult;
 	});
 });
 
