@@ -5,6 +5,9 @@ using Quartz;
 
 namespace PlexRipper.Application;
 
+/// <summary>
+/// Executed on a new Plex Account to check all connections and refresh libraries.
+/// </summary>
 public class InspectPlexServerJob : IJob
 {
     public static string PlexServerIdsParameter => "plexServerIds";
@@ -47,11 +50,13 @@ public class InspectPlexServerJob : IJob
             var serverTasks = plexServerIds.Select(async plexServerId =>
             {
                 // Check all Plex Server Connections
-                await _mediator.Send(new CheckAllConnectionsStatusByPlexServerCommand(plexServerId), cancellationToken);
+                var checkResult = await _mediator.Send(
+                    new CheckAllConnectionsStatusByPlexServerCommand(plexServerId),
+                    cancellationToken
+                );
                 await _signalRService.SendRefreshNotificationAsync([DataType.PlexServerConnection], cancellationToken);
-
-                // Refresh and sync libraries
-                await RefreshAndSyncLibraries(plexServerId, cancellationToken);
+                if (checkResult.IsSuccess)
+                    await RefreshAndSyncLibraries(plexServerId, cancellationToken);
             });
 
             await Task.WhenAll(serverTasks);
