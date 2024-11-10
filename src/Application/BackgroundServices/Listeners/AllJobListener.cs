@@ -62,7 +62,8 @@ public class AllJobListener : IAllJobListener
         switch (jobType)
         {
             case JobTypes.CheckAllConnectionsStatusByPlexServerJob:
-                break;
+                // Job status is updated in the CheckAllConnectionsStatusByPlexServerJob
+                return;
             case JobTypes.DownloadJob:
                 await _signalRService.SendJobStatusUpdateAsync(
                     new JobStatusUpdate<DownloadTaskKey>(

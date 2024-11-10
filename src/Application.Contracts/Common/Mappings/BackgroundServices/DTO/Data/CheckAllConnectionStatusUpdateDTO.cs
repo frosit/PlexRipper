@@ -2,7 +2,5 @@ namespace Application.Contracts;
 
 public record CheckAllConnectionStatusUpdateDTO
 {
-    public int PlexServerId { get; init; }
-
-    public List<int> PlexServerConnectionIds { get; init; } = [];
+    public required Dictionary<int, List<int>> PlexServersWithConnectionIds { get; init; } = new();
 }

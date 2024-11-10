@@ -167,8 +167,8 @@ public class CheckAllConnectionsStatusByPlexServerCommandUnitTests
                 x.SendJobStatusUpdateAsync(
                     It.Is<JobStatusUpdate<CheckAllConnectionStatusUpdateDTO>>(update =>
                         update.Status == JobStatus.Started
-                        && update.Data!.PlexServerId == plexServer.Id
-                        && update.Data!.PlexServerConnectionIds.All(y => connectionIds.Contains(y))
+                        && update.Data.PlexServersWithConnectionIds.ContainsKey(plexServer.Id)
+                        && update.Data.PlexServersWithConnectionIds[plexServer.Id].All(y => connectionIds.Contains(y))
                     )
                 )
             )
@@ -180,8 +180,8 @@ public class CheckAllConnectionsStatusByPlexServerCommandUnitTests
                 x.SendJobStatusUpdateAsync(
                     It.Is<JobStatusUpdate<CheckAllConnectionStatusUpdateDTO>>(update =>
                         update.Status == JobStatus.Completed
-                        && update.Data!.PlexServerId == plexServer.Id
-                        && update.Data!.PlexServerConnectionIds.All(y => connectionIds.Contains(y))
+                        && update.Data.PlexServersWithConnectionIds.ContainsKey(plexServer.Id)
+                        && update.Data.PlexServersWithConnectionIds[plexServer.Id].All(y => connectionIds.Contains(y))
                     )
                 )
             )
