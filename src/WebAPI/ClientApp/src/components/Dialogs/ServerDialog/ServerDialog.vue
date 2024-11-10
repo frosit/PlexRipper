@@ -1,6 +1,6 @@
 <template>
 	<QCardDialog
-		:name="name"
+		:name="DialogType.ServerSettingsDialog"
 		max-width="1200px"
 		content-height="80"
 		:scroll="false"
@@ -125,7 +125,7 @@
 		<template #actions>
 			<QRow justify="between">
 				<QCol cols="auto">
-					<HideButton @click="useOpenControlDialog(confirmationServerDialogName)" />
+					<HideButton @click="dialogStore.openDialog(DialogType.ServerHideConfirmationDialog)" />
 				</QCol>
 				<QCol cols="auto">
 					<BaseButton
@@ -139,7 +139,7 @@
 			<!-- Hide Server Confirm Dialog -->
 			<ConfirmationDialog
 				:confirm-loading="confirmHideDialog"
-				:name="confirmationServerDialogName"
+				:name="DialogType.ServerHideConfirmationDialog"
 				:title="$t('confirmation.hide-server.title')"
 				:text="$t('confirmation.hide-server.text')"
 				class="q-mr-md"
@@ -149,17 +149,16 @@
 </template>
 
 <script setup lang="ts">
-import { set, get } from '@vueuse/core';
+import { get, set } from '@vueuse/core';
 import { tap } from 'rxjs/operators';
 import type { PlexServerDTO } from '@dto';
-import { ref, computed, useCloseControlDialog, useOpenControlDialog } from '#imports';
-
-const props = defineProps<{ name: string }>();
+import { DialogType } from '@enums';
+import { useServerStore, useLibraryStore, useDialogStore } from '#imports';
 
 const serverStore = useServerStore();
 const libraryStore = useLibraryStore();
+const dialogStore = useDialogStore();
 
-const confirmationServerDialogName = 'confirmationServerDialogName';
 const confirmHideDialog = ref(false);
 
 const loading = ref(false);
@@ -179,7 +178,7 @@ function open(event: unknown): void {
 }
 
 function close(): void {
-	useCloseControlDialog(props.name);
+	dialogStore.closeDialog(DialogType.ServerSettingsDialog);
 	set(plexServerId, 0);
 	set(tabIndex, 'server-data');
 }
@@ -203,13 +202,13 @@ function onServerHiddenSave(): void {
 @import 'quasar/src/css/core/typography.sass';
 
 .tab-content {
-	max-height: calc(80vh - $q-card-dialog-title-height - $q-card-dialog-actions-height) !important;
+  max-height: calc(80vh - $q-card-dialog-title-height - $q-card-dialog-actions-height) !important;
 }
 
 .editable-text {
-	&-item {
-		padding-top: 0;
-		padding-bottom: 0;
-	}
+  &-item {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
 }
 </style>

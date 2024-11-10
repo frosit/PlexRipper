@@ -8,7 +8,7 @@
 		:maximized="maximized"
 		:transition-show="transitionShow"
 		:transition-hide="transitionHide"
-		@before-show="$emit('opened', dataValue)"
+		@before-show="$emit('opened', dataValue!)"
 		@before-hide="$emit('closed')">
 		<QRow
 			column
@@ -69,9 +69,8 @@
 
 <script setup lang="ts" generic="T">
 import { get, set } from '@vueuse/core';
-import { useControlDialog, useDialogStore } from '#imports';
+import { useDialogStore } from '#imports';
 
-const controlDialog = useControlDialog();
 const dialogStore = useDialogStore();
 
 const showDialog = ref(false);
@@ -160,18 +159,6 @@ const styles = computed(() => {
 		props.minWidth !== '' ? { minWidth: props.minWidth } : null,
 		props.maxWidth !== '' ? { maxWidth: props.maxWidth } : null,
 	);
-});
-
-// Dialog control listener
-controlDialog.on((data) => {
-	if (data.name !== props.name) {
-		return;
-	}
-	if (data.state) {
-		openDialog(get(data));
-	} else {
-		closeDialog();
-	}
 });
 
 onMounted(() => {

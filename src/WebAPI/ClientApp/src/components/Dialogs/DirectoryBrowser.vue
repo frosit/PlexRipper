@@ -1,6 +1,6 @@
 <template>
 	<QCardDialog
-		:name="name"
+		:name="DialogType.DirectoryBrowserDialog"
 		min-width="70vw"
 		max-width="70vw"
 		content-height="80"
@@ -102,7 +102,7 @@
 			</q-markup-table>
 		</template>
 		<template #actions>
-			<CancelButton @click="cancel()" />
+			<CancelButton @click="cancel" />
 			<ConfirmButton
 				:disabled="!isCurrentWritable"
 				:tooltip-text="!isCurrentWritable ? $t('components.directory-browser.current-folder-has-no-write-permission') : ''"
@@ -118,9 +118,12 @@ import { get, set } from '@vueuse/core';
 import type { FileSystemModelDTO, FolderPathDTO } from '@dto';
 import { FileSystemEntityType } from '@dto';
 import { folderPathApi } from '@api';
-import { useCloseControlDialog } from '~/composables/event-bus';
+import { DialogType } from '@enums';
+import { useDialogStore } from '@store';
 
 const { t } = useI18n();
+const dialogStore = useDialogStore();
+
 const path = ref<FolderPathDTO | null>(null);
 const currentPath = ref('');
 const currentPathModel = ref<FileSystemModelDTO | null>(null);
@@ -137,10 +140,6 @@ const returnRow = ref<FileSystemModelDTO>({
 	hasReadPermission: true,
 	hasWritePermission: false,
 });
-
-const props = defineProps<{
-	name: string;
-}>();
 
 const emit = defineEmits<{
 	(e: 'confirm', path: FolderPathDTO): void;
@@ -187,7 +186,7 @@ function open(event: unknown): void {
 
 function cancel(): void {
 	emit('cancel');
-	useCloseControlDialog(props.name);
+	dialogStore.closeDialog(DialogType.DirectoryBrowserDialog);
 }
 
 function confirm(): void {
@@ -197,7 +196,7 @@ function confirm(): void {
 	}
 
 	emit('confirm', get(path) as FolderPathDTO);
-	useCloseControlDialog(props.name);
+	dialogStore.closeDialog(DialogType.DirectoryBrowserDialog);
 }
 
 function requestDirectories(newPath: string): void {

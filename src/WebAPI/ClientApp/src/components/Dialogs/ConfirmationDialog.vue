@@ -42,7 +42,7 @@ const dialogStore = useDialogStore();
 const loading = ref(false);
 
 const props = withDefaults(defineProps<{
-	name: DialogType.AccountConfirmationDialog;
+	name: DialogType;
 	title: string;
 	text: string;
 	warning?: string;

@@ -91,7 +91,7 @@ const menuItems = computed(() => {
 			label: 'Checking Plex server connections',
 			icon: 'mdi-server-network',
 			cy: JobTypes.CheckAllConnectionsStatusByPlexServerJob + 'activity-button',
-			action: () => dialogStore.openCheckServerConnectionsDialog(true, { plexServersWithConnectionIds: get(checkPlexServerConnections) }),
+			action: () => dialogStore.openCheckServerConnectionsDialog({ plexServersWithConnectionIds: get(checkPlexServerConnections) }),
 		});
 	}
 

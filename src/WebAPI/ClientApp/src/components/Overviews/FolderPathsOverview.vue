@@ -45,7 +45,7 @@
 							readonly>
 							<IconSquareButton
 								icon="mdi-folder-open-outline"
-								@click="openDirectoryBrowser(folderPath)" />
+								@click="dialogStore.openDirectoryBrowserDialog(folderPath)" />
 						</q-input>
 					</QCol>
 					<!--	Is Valid Icon -->
@@ -94,9 +94,7 @@
 	</template>
 
 	<!--	Directory Browser	-->
-	<DirectoryBrowser
-		:name="directoryBrowserName"
-		@confirm="confirmDirectoryBrowser" />
+	<DirectoryBrowser @confirm="confirmDirectoryBrowser" />
 </template>
 
 <script lang="ts" setup>
@@ -105,23 +103,20 @@ import type IFolderPathGroup from '@interfaces/IFolderPathGroup';
 import type { IHelp } from '@interfaces';
 import {
 	useI18n,
-	useOpenControlDialog,
 	useFolderPathStore,
 	useSubscription,
 	showErrorNotification,
+	useDialogStore,
 } from '#imports';
 
 const { t } = useI18n();
+
+const dialogStore = useDialogStore();
 const folderPathStore = useFolderPathStore();
+
 withDefaults(defineProps<{ onlyDefaults?: boolean }>(), {
 	onlyDefaults: false,
 });
-
-const directoryBrowserName = 'customDirectoryBrowser';
-
-const openDirectoryBrowser = (path: FolderPathDTO): void => {
-	useOpenControlDialog(directoryBrowserName, path);
-};
 
 const allowEditing = computed(() => {
 	return true;
@@ -206,9 +201,9 @@ const saveDisplayName = (id: number, value: string): void => {
 
 <style lang="scss">
 .folder-path-input {
-	.q-field__control {
-		// Ensures the folder button is outlined to the right border
-		padding: 0 0 0 12px;
-	}
+  .q-field__control {
+    // Ensures the folder button is outlined to the right border
+    padding: 0 0 0 12px;
+  }
 }
 </style>

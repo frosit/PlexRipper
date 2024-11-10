@@ -123,7 +123,7 @@ import { DialogType } from '@enums';
 import {
 	useBackgroundJobsStore,
 	useI18n,
-	useOpenControlDialog,
+	useDialogStore,
 	useServerConnectionStore,
 	useServerStore,
 	useSignalrStore,
@@ -132,6 +132,7 @@ import {
 const { t } = useI18n();
 const serverStore = useServerStore();
 const connectionStore = useServerConnectionStore();
+const dialogStore = useDialogStore();
 const backgroundJobStore = useBackgroundJobsStore();
 const connectionProgress = ref<ServerConnectionCheckStatusProgressDTO[]>([]);
 
@@ -248,11 +249,21 @@ onMounted(() => {
 			}),
 	);
 
+	// TODO this might be better moved to the dialog store
 	useSubscription(
 		backgroundJobStore.getInspectPlexServerJobUpdate(JobStatus.Started)
 			.subscribe(({ data }) => {
 				get(plexServerIds).push(...data);
-				useOpenControlDialog(DialogType.CheckServerConnectionDialogName);
+
+				dialogStore.openCheckServerConnectionsDialog({
+					plexServersWithConnectionIds: data.reduce(
+						(acc, serverId) => {
+							acc[serverId] = [];
+							return acc;
+						},
+						{} as Record<string, number[]>,
+					),
+				});
 			}),
 	);
 });

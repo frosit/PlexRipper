@@ -28,7 +28,7 @@
 						icon="mdi-cog"
 						flat
 						:data-cy="`server-dialog-${index}`"
-						@click.stop="openServerSettings(server.id)" />
+						@click.stop="dialogStore.openServerSettingsDialog(server.id)" />
 				</q-item-section>
 			</template>
 			<!-- Render libraries -->
@@ -57,7 +57,7 @@
 			</template>
 		</q-expansion-item>
 
-		<ServerDialog :name="serverDialogName" />
+		<ServerDialog />
 	</template>
 	<!-- With valid server available -->
 
@@ -78,10 +78,11 @@ import { type LibraryProgress, type PlexLibraryDTO, PlexMediaType } from '@dto';
 import { useSubscription } from '@vueuse/rxjs';
 import { get, set } from '@vueuse/core';
 import {
-	useOpenControlDialog,
 	useLibraryStore,
 	useServerStore,
 	useSignalrStore,
+	useDialogStore,
+	useServerConnectionStore,
 	useI18n,
 } from '#imports';
 
@@ -89,18 +90,14 @@ const { t } = useI18n();
 const router = useRouter();
 const serverStore = useServerStore();
 const libraryStore = useLibraryStore();
+const dialogStore = useDialogStore();
 const serverConnectionStore = useServerConnectionStore();
 const signalRStore = useSignalrStore();
 
-const serverDialogName = 'serverDialog';
 const libraryProgress = ref<LibraryProgress[]>([]);
 
 function filterLibraries(plexServerId: number): PlexLibraryDTO[] {
 	return libraryStore.getLibraries.filter((x) => x.plexServerId === plexServerId);
-}
-
-function openServerSettings(serverId: number): void {
-	useOpenControlDialog(serverDialogName, serverId);
 }
 
 function isLibrarySyncing(plexLibraryId: number): boolean {
@@ -140,31 +137,31 @@ onMounted(() => {
 
 <style lang="scss">
 .server-name {
-	width: 190px;
-	display: flex;
-	line-height: 24px;
-	align-content: center;
-	text-overflow: ellipsis;
+  width: 190px;
+  display: flex;
+  line-height: 24px;
+  align-content: center;
+  text-overflow: ellipsis;
 }
 
 .server-panels {
-	z-index: 0;
+  z-index: 0;
 
-	&.theme--dark {
-		.v-expansion-panel {
-			background: rgba(0, 0, 0, 0.3);
-		}
-	}
+  &.theme--dark {
+    .v-expansion-panel {
+      background: rgba(0, 0, 0, 0.3);
+    }
+  }
 
-	&.theme--light {
-		.v-expansion-panel {
-			background: rgba(255, 255, 255, 0.3);
-		}
-	}
+  &.theme--light {
+    .v-expansion-panel {
+      background: rgba(255, 255, 255, 0.3);
+    }
+  }
 }
 
 .ps {
-	height: 100%;
-	width: 100%;
+  height: 100%;
+  width: 100%;
 }
 </style>

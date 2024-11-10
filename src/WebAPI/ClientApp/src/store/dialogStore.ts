@@ -2,7 +2,7 @@ import { acceptHMRUpdate, defineStore } from 'pinia';
 import { type Observable, of, Subject } from 'rxjs';
 import type { IAccountDialog, ISetupResult } from '@interfaces';
 import { DialogType } from '@enums';
-import type { CheckAllConnectionStatusUpdateDTO } from '@dto';
+import type { CheckAllConnectionStatusUpdateDTO, FolderPathDTO } from '@dto';
 
 interface DialogState {
 	name: string;
@@ -24,11 +24,17 @@ export const useDialogStore = defineStore('DialogStore', () => {
 		openDialog(name: DialogType): void {
 			state.dialogUpdate.next({ name, state: true, data: {} as unknown });
 		},
-		openCheckServerConnectionsDialog(visible: boolean, data: CheckAllConnectionStatusUpdateDTO): void {
-			state.dialogUpdate.next({ name: DialogType.CheckServerConnectionDialogName, state: visible, data });
+		openCheckServerConnectionsDialog(data: CheckAllConnectionStatusUpdateDTO): void {
+			state.dialogUpdate.next({ name: DialogType.CheckServerConnectionDialogName, state: true, data });
 		},
-		openAccountDialog(visible: boolean, data: IAccountDialog): void {
-			state.dialogUpdate.next({ name: DialogType.AccountDialog, state: visible, data });
+		openAccountDialog(data: IAccountDialog): void {
+			state.dialogUpdate.next({ name: DialogType.AccountDialog, state: true, data });
+		},
+		openDirectoryBrowserDialog(data: FolderPathDTO): void {
+			state.dialogUpdate.next({ name: DialogType.DirectoryBrowserDialog, state: true, data });
+		},
+		openServerSettingsDialog(plexServerId: number): void {
+			state.dialogUpdate.next({ name: DialogType.ServerSettingsDialog, state: true, data: plexServerId });
 		},
 	};
 	const getters = {
