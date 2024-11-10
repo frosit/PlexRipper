@@ -1,4 +1,12 @@
-import type { PlexMediaType } from '@dto';
+import type {
+	PlexAccountDTO,
+	PlexLibraryDTO,
+	PlexMediaType,
+	PlexServerConnectionDTO,
+	PlexServerDTO,
+	ServerDownloadProgressDTO,
+	SettingsModelDTO,
+} from '@dto';
 
 export interface MockConfig {
 	seed: number;
@@ -29,4 +37,12 @@ export interface MockConfig {
 	// endregion
 	maxServerConnections: number;
 	folderPathCount: number;
+	override: {
+		plexServer: (plexServers: PlexServerDTO[]) => PlexServerDTO[];
+		plexServerConnections: (plexServerConnections: PlexServerConnectionDTO[]) => PlexServerConnectionDTO[];
+		plexLibraries: (plexLibraries: PlexLibraryDTO[]) => PlexLibraryDTO[];
+		plexAccounts: (plexAccounts: PlexAccountDTO[]) => PlexAccountDTO[];
+		downloadTasks: (downloadTasks: ServerDownloadProgressDTO[]) => ServerDownloadProgressDTO[];
+		settings: (settings: SettingsModelDTO) => SettingsModelDTO;
+	};
 }

@@ -1,6 +1,16 @@
 import { seed as falsoSeed } from '@ngneat/falso';
 import type { MockConfig } from '@mock';
-import { PlexMediaType } from '@dto';
+import {
+	type DownloadTaskDTO,
+	type PlexAccountDTO,
+	type PlexLibraryDTO,
+	PlexMediaType,
+	type PlexServerConnectionDTO,
+	type PlexServerDTO,
+	type SettingsModelDTO,
+} from '@dto';
+import is from '@sindresorhus/is';
+import object = is.object;
 
 let currentSeed = 0;
 
@@ -31,11 +41,21 @@ export function checkConfig(config: Partial<MockConfig> = {}): MockConfig {
 		seasonCount: 0,
 		episodeCount: 0,
 		folderPathCount: 0,
+		override: {
+			plexServer: (plexServers) => plexServers,
+			plexServerConnections: (plexServerConnections) => plexServerConnections,
+			plexLibraries: (plexLibraries) => plexLibraries,
+			plexAccounts: (plexAccounts) => plexAccounts,
+			downloadTasks: (downloadTasks) => downloadTasks,
+			settings: (settings) => settings,
+		},
 	};
 
-	for (const configKey in defaultConfig) {
-		if (!Object.hasOwn(config, configKey)) {
-			config[configKey] = defaultConfig[configKey];
+	for (const key in defaultConfig) {
+		if (!Object.hasOwn(config, key)) {
+			config[key] = defaultConfig[key];
+		} else if (typeof defaultConfig[key] === 'object' && defaultConfig[key] !== null) {
+			config[key] = { ...defaultConfig[key], ...config[key] };
 		}
 	}
 
