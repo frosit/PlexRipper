@@ -1,7 +1,8 @@
 import { acceptHMRUpdate, defineStore } from 'pinia';
 import { type Observable, of, Subject } from 'rxjs';
-import type { ISetupResult } from '@interfaces';
+import type { IAccountDialog, ISetupResult } from '@interfaces';
 import { DialogType } from '@enums';
+import type { CheckAllConnectionStatusUpdateDTO } from '@dto';
 
 interface DialogState {
 	name: string;
@@ -15,10 +16,19 @@ export const useDialogStore = defineStore('DialogStore', () => {
 	});
 	const actions = {
 		setup(): Observable<ISetupResult> {
-			return of({ name: useAlertStore.name, isSuccess: true });
+			return of({ name: useDialogStore.name, isSuccess: true });
 		},
-		setCheckServerConnectionsDialogState(visible: boolean, data: unknown): void {
+		closeDialog(name: DialogType): void {
+			state.dialogUpdate.next({ name, state: false, data: {} as unknown });
+		},
+		openDialog(name: DialogType): void {
+			state.dialogUpdate.next({ name, state: true, data: {} as unknown });
+		},
+		openCheckServerConnectionsDialog(visible: boolean, data: CheckAllConnectionStatusUpdateDTO): void {
 			state.dialogUpdate.next({ name: DialogType.CheckServerConnectionDialogName, state: visible, data });
+		},
+		openAccountDialog(visible: boolean, data: IAccountDialog): void {
+			state.dialogUpdate.next({ name: DialogType.AccountDialog, state: visible, data });
 		},
 	};
 	const getters = {

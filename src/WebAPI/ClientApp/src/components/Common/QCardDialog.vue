@@ -67,17 +67,19 @@
 	</q-dialog>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="T">
 import { get, set } from '@vueuse/core';
-import { useControlDialog } from '#imports';
+import { useControlDialog, useDialogStore } from '#imports';
 
 const controlDialog = useControlDialog();
+const dialogStore = useDialogStore();
 
 const showDialog = ref(false);
-const dataValue = ref<unknown>(null);
+const dataValue = ref<T>();
 const props = withDefaults(
 	defineProps<{
 		name: string;
+		type?: T;
 		width?: string;
 		minWidth?: string;
 		maxWidth?: string;
@@ -98,6 +100,7 @@ const props = withDefaults(
 	}>(),
 	{
 		name: '',
+		type: undefined,
 		width: '',
 		minWidth: '',
 		maxWidth: '',
@@ -119,7 +122,7 @@ const props = withDefaults(
 );
 
 defineEmits<{
-	(e: 'opened', value: unknown): void;
+	(e: 'opened', value: T): void;
 	(e: 'closed'): void;
 }>();
 
@@ -131,7 +134,7 @@ const contentClasses = computed(() => {
 	return ['q-card-dialog-content', `q-card-dialog-content-${props.contentHeight}`, props.scroll ? 'scroll' : ''];
 });
 
-function openDialog(value: unknown) {
+function openDialog(value: T) {
 	// Data value should always be set first before opening, since that value is emitted on open
 	set(dataValue, value);
 	set(showDialog, true);
@@ -165,10 +168,27 @@ controlDialog.on((data) => {
 		return;
 	}
 	if (data.state) {
-		openDialog(data.value ?? null);
+		openDialog(get(data));
 	} else {
 		closeDialog();
 	}
+});
+
+onMounted(() => {
+	useSubscription(
+		dialogStore.getDialogState()
+			.subscribe(({ name, state, data }) => {
+				if (name !== props.name) {
+					return;
+				}
+
+				if (state) {
+					openDialog(data as T);
+				} else {
+					closeDialog();
+				}
+			}),
+	);
 });
 </script>
 
@@ -178,95 +198,97 @@ controlDialog.on((data) => {
 @import 'quasar/src/css/core/size.sass';
 
 body {
-	.q-card-dialog {
-		// Scrollbar is hidden because otherwise the header and footer are also scrolling
-		overflow-y: hidden;
+  .q-card-dialog {
+    // Scrollbar is hidden because otherwise the header and footer are also scrolling
+    overflow-y: hidden;
 
-		&-background {
-			@extend .default-border;
-			@extend .default-border-radius;
-			@extend .default-shadow;
-			max-width: none;
-			max-height: none;
-		}
+    &-background {
+      @extend .default-border;
+      @extend .default-border-radius;
+      @extend .default-shadow;
+      max-width: none;
+      max-height: none;
+    }
 
-		&-top-row {
-			@extend .q-pt-none;
-			@extend .q-px-md;
-			width: 100% !important;
-		}
+    &-top-row {
+      @extend .q-pt-none;
+      @extend .q-px-md;
+      width: 100% !important;
+    }
 
-		&-content {
-			@extend .q-pt-none;
-			@extend .q-px-md;
+    &-content {
+      @extend .q-pt-none;
+      @extend .q-px-md;
       display: flex;
+
       > div {
         flex-grow: 1;
       }
-			&-0 {
-				min-height: inherit;
-				height: inherit;
-				max-height: inherit;
-			}
 
-			&-20 {
-				min-height: calc(20vh - $q-card-dialog-title-height - $q-card-dialog-actions-height) !important;
-				height: calc(20vh - $q-card-dialog-title-height - $q-card-dialog-actions-height) !important;
-				max-height: calc(20vh - $q-card-dialog-title-height - $q-card-dialog-actions-height) !important;
-			}
+      &-0 {
+        min-height: inherit;
+        height: inherit;
+        max-height: inherit;
+      }
 
-			&-40 {
-				min-height: calc(40vh - $q-card-dialog-title-height - $q-card-dialog-actions-height) !important;
-				height: calc(40vh - $q-card-dialog-title-height - $q-card-dialog-actions-height) !important;
-				max-height: calc(40vh - $q-card-dialog-title-height - $q-card-dialog-actions-height) !important;
-			}
+      &-20 {
+        min-height: calc(20vh - $q-card-dialog-title-height - $q-card-dialog-actions-height) !important;
+        height: calc(20vh - $q-card-dialog-title-height - $q-card-dialog-actions-height) !important;
+        max-height: calc(20vh - $q-card-dialog-title-height - $q-card-dialog-actions-height) !important;
+      }
 
-			&-60 {
-				min-height: calc(60vh - $q-card-dialog-title-height - $q-card-dialog-actions-height) !important;
-				height: calc(60vh - $q-card-dialog-title-height - $q-card-dialog-actions-height) !important;
-				max-height: calc(60vh - $q-card-dialog-title-height - $q-card-dialog-actions-height) !important;
-			}
+      &-40 {
+        min-height: calc(40vh - $q-card-dialog-title-height - $q-card-dialog-actions-height) !important;
+        height: calc(40vh - $q-card-dialog-title-height - $q-card-dialog-actions-height) !important;
+        max-height: calc(40vh - $q-card-dialog-title-height - $q-card-dialog-actions-height) !important;
+      }
 
-			&-80 {
-				min-height: calc(80vh - $q-card-dialog-title-height - $q-card-dialog-actions-height) !important;
-				height: calc(80vh - $q-card-dialog-title-height - $q-card-dialog-actions-height) !important;
-				max-height: calc(80vh - $q-card-dialog-title-height - $q-card-dialog-actions-height) !important;
-			}
+      &-60 {
+        min-height: calc(60vh - $q-card-dialog-title-height - $q-card-dialog-actions-height) !important;
+        height: calc(60vh - $q-card-dialog-title-height - $q-card-dialog-actions-height) !important;
+        max-height: calc(60vh - $q-card-dialog-title-height - $q-card-dialog-actions-height) !important;
+      }
 
-			&-100 {
-				min-height: calc(100vh - $q-card-dialog-title-height - $q-card-dialog-actions-height) !important;
-				height: calc(100vh - $q-card-dialog-title-height - $q-card-dialog-actions-height) !important;
-				max-height: calc(100vh - $q-card-dialog-title-height - $q-card-dialog-actions-height) !important;
-			}
-		}
+      &-80 {
+        min-height: calc(80vh - $q-card-dialog-title-height - $q-card-dialog-actions-height) !important;
+        height: calc(80vh - $q-card-dialog-title-height - $q-card-dialog-actions-height) !important;
+        max-height: calc(80vh - $q-card-dialog-title-height - $q-card-dialog-actions-height) !important;
+      }
 
-		&-title,
-		&-actions {
-			height: auto;
-			width: 100% !important;
-		}
+      &-100 {
+        min-height: calc(100vh - $q-card-dialog-title-height - $q-card-dialog-actions-height) !important;
+        height: calc(100vh - $q-card-dialog-title-height - $q-card-dialog-actions-height) !important;
+        max-height: calc(100vh - $q-card-dialog-title-height - $q-card-dialog-actions-height) !important;
+      }
+    }
 
-		&-title {
-			max-height: $q-card-dialog-title-height;
-		}
+    &-title,
+    &-actions {
+      height: auto;
+      width: 100% !important;
+    }
 
-		&-actions {
-			max-height: $q-card-dialog-actions-height;
-		}
-	}
+    &-title {
+      max-height: $q-card-dialog-title-height;
+    }
 
-	&.body--dark {
-		.q-card-dialog-background {
-			@extend .blur;
-			background-color: $dark-sm-background-color;
-		}
-	}
+    &-actions {
+      max-height: $q-card-dialog-actions-height;
+    }
+  }
 
-	&.body--light {
-		.q-card-dialog-background {
-			@extend .blur;
-			background-color: $light-sm-background-color;
-		}
-	}
+  &.body--dark {
+    .q-card-dialog-background {
+      @extend .blur;
+      background-color: $dark-sm-background-color;
+    }
+  }
+
+  &.body--light {
+    .q-card-dialog-background {
+      @extend .blur;
+      background-color: $light-sm-background-color;
+    }
+  }
 }
 </style>

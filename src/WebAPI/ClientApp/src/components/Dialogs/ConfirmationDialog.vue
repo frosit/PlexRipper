@@ -32,17 +32,20 @@
 
 <script setup lang="ts">
 import { set } from '@vueuse/core';
-import { useI18n, useCloseControlDialog } from '#imports';
+import type { DialogType } from '@enums';
+import { useI18n, useDialogStore } from '#imports';
 
 const { t } = useI18n();
+
+const dialogStore = useDialogStore();
 
 const loading = ref(false);
 
 const props = withDefaults(defineProps<{
+	name: DialogType.AccountConfirmationDialog;
 	title: string;
 	text: string;
 	warning?: string;
-	name: string;
 	confirmLoading?: boolean;
 }>(), {
 	warning: '',
@@ -60,7 +63,7 @@ const confirmationText = computed(() => ({
 
 function cancel() {
 	emit('cancel');
-	useCloseControlDialog(props.name);
+	dialogStore.closeDialog(props.name);
 	set(loading, false);
 }
 

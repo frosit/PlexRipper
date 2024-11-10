@@ -1,6 +1,6 @@
 <template>
 	<QCardDialog
-		:name="name"
+		:name="DialogType.AccountTokenValidateDialog"
 		persistent
 		max-width="700px"
 		cy="auth-token-validation-dialog">
@@ -68,9 +68,9 @@
 
 <script setup lang="ts">
 import type { PlexAccountDTO } from '@dto';
+import { DialogType } from '@enums';
 
 defineProps<{
-	name: string;
 	account: PlexAccountDTO;
 }>();
 

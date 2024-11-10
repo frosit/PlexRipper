@@ -1,6 +1,6 @@
 <template>
 	<QCardDialog
-		:name="name"
+		:name="DialogType.AccountVerificationCodeDialog"
 		persistent
 		max-width="700px"
 		cy="2fa-code-verification-dialog">
@@ -64,14 +64,16 @@ import { get, set } from '@vueuse/core';
 import { useSubscription } from '@vueuse/rxjs';
 import type { IError, PlexAccountDTO } from '@dto';
 import { plexAccountApi } from '@api';
-import { useCloseControlDialog } from '#imports';
+import { DialogType } from '@enums';
+import { useDialogStore } from '@store';
 
 const { t } = useI18n();
 
 const props = defineProps<{
-	name: string;
 	account: PlexAccountDTO;
 }>();
+
+const dialogStore = useDialogStore();
 
 const codeValue = ref('0');
 const loading = ref(false);
@@ -93,7 +95,7 @@ function onComplete() {
 			next: (data) => {
 				if (data && data.isSuccess && data.value) {
 					emit('confirm', get(data.value));
-					useCloseControlDialog(props.name);
+					dialogStore.closeDialog(DialogType.AccountVerificationCodeDialog);
 				} else {
 					Log.error('Validate Error', data);
 				}
@@ -110,31 +112,31 @@ function onComplete() {
 @import '@/assets/scss/mixins.scss';
 
 .otp-input {
-	@extend .default-border;
-	@extend .background-sm;
-	width: 80px;
-	height: 80px;
-	padding: 5px;
-	margin: 10px;
-	font-size: 40px;
-	border-radius: 4px;
-	text-align: center;
-	/* Background colour of an input field with value */
-	&.is-complete {
-		@extend .success-border;
-		background-color: #ff0000;
-	}
+  @extend .default-border;
+  @extend .background-sm;
+  width: 80px;
+  height: 80px;
+  padding: 5px;
+  margin: 10px;
+  font-size: 40px;
+  border-radius: 4px;
+  text-align: center;
+  /* Background colour of an input field with value */
+  &.is-complete {
+    @extend .success-border;
+    background-color: #ff0000;
+  }
 }
 
 .otp-input::-webkit-inner-spin-button,
 .otp-input::-webkit-outer-spin-button {
-	-webkit-appearance: none;
-	margin: 0;
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 input::placeholder {
-	font-size: 35px;
-	text-align: center;
-	font-weight: 600;
+  font-size: 35px;
+  text-align: center;
+  font-weight: 600;
 }
 </style>
