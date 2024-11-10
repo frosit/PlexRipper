@@ -17,11 +17,6 @@ public class AddOrUpdatePlexServersCommandValidator : AbstractValidator<AddOrUpd
             .ChildRules(server =>
             {
                 server
-                    .RuleFor(s => s.PlexServerConnections)
-                    .NotEmpty()
-                    .WithMessage("PlexServerConnections list cannot be empty.");
-
-                server
                     .RuleForEach(s => s.PlexServerConnections)
                     .ChildRules(connection =>
                     {
