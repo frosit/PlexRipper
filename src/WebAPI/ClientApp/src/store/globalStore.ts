@@ -20,6 +20,7 @@ import {
 	useLocalizationStore,
 	useMediaStore,
 	useSignalrStore,
+	useDialogStore,
 } from '#imports';
 
 export const useGlobalStore = defineStore('GlobalStore', () => {
@@ -51,6 +52,7 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
 						useLocalizationStore().setup(i18n),
 						useMediaStore().setup(),
 						useSignalrStore().setup(config),
+						useDialogStore().setup(),
 					]),
 				),
 				tap((results) => {
