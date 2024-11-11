@@ -34,14 +34,6 @@ public class PlexServerConnection : BaseEntity
     [Column(Order = 8)]
     public required bool IPv6 { get; init; }
 
-    /// <summary>
-    /// The port fix is when we don't use the port when Address is a domain name.
-    /// This seems to work in most cases where a domain name with the port appended will result in failed network requests.
-    /// <remarks> This is set in the "PlexApiMappingProfile" when the data is received from the Plex API.</remarks>
-    /// </summary>
-    [Column(Order = 9)]
-    public required bool PortFix { get; init; }
-
     #endregion
 
     #region Relationships
@@ -61,9 +53,6 @@ public class PlexServerConnection : BaseEntity
     {
         get
         {
-            if (!PortFix)
-                return Uri.TrimEnd('/');
-
             var urlBuilder = new UriBuilder(Protocol, Address) { Port = Port };
             return urlBuilder.ToString().TrimEnd('/');
         }
@@ -130,5 +119,5 @@ public class PlexServerConnection : BaseEntity
 
     /// <inheritdoc/>
     public override string ToString() =>
-        $"[ServerId: {PlexServerId} - Url: {Url} - {nameof(PortFix)}: {PortFix} - Local: {Local} - Relay: {Relay} - IPv6: {IPv6}]";
+        $"[ServerId: {PlexServerId} - Url: {Url} - Local: {Local} - Relay: {Relay} - IPv6: {IPv6}]";
 }

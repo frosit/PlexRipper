@@ -63,7 +63,6 @@ public class AddOrUpdatePlexServerCommand_UnitTests : BaseUnitTest
                     Relay = updatedConnections[i].Relay,
                     IPv4 = updatedConnections[i].IPv4,
                     IPv6 = updatedConnections[i].IPv6,
-                    PortFix = updatedConnections[i].PortFix,
                     PlexServer = updatedConnections[i].PlexServer,
                     PlexServerId = updatedConnections[i].PlexServerId,
                     PlexServerStatus = updatedConnections[i].PlexServerStatus,
