@@ -15,12 +15,6 @@ export function apiCheckPipe<T>(source$: Observable<AxiosResponse<T>>): Observab
 				value: res.value,
 			};
 		}),
-		map((value: ResultDTO<T>) => {
-			if (value.isFailed) {
-				throw new Error('API Call failed:', { cause: value.errors });
-			}
-			return value;
-		}),
 		// Ensure we complete any API calls after the response has been received
 		take(1),
 	);
