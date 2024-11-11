@@ -20,7 +20,10 @@ export const useServerConnectionStore = defineStore('ServerConnection', () => {
 	const actions = {
 		setup(): Observable<ISetupResult> {
 			// Listen for refresh notifications
-			signalRStore.getRefreshNotification(DataType.PlexServerConnection).pipe(switchMap(() => actions.refreshPlexServerConnections())).subscribe();
+			signalRStore
+				.getRefreshNotification(DataType.PlexServerConnection)
+				.pipe(switchMap(() => actions.refreshPlexServerConnections()))
+				.subscribe();
 
 			return actions
 				.refreshPlexServerConnections()
@@ -64,18 +67,20 @@ export const useServerConnectionStore = defineStore('ServerConnection', () => {
 				switchMap(() => actions.refreshPlexServerConnections()),
 			);
 		},
-		setPreferredPlexServerConnection(serverId: number, connectionId: number) {
-			return plexServerApi
+		checkServerConnectionUrl: (connectionUrl: string) =>
+			plexServerConnectionApi.validatePlexServerConnectionEndpoint({
+				url: connectionUrl,
+			}),
+		setPreferredPlexServerConnection: (serverId: number, connectionId: number) =>
+			plexServerApi
 				.setPreferredPlexServerConnectionEndpoint(serverId, connectionId)
-				.pipe(switchMap(() => useServerStore().refreshPlexServer(serverId)));
-		},
+				.pipe(switchMap(() => useServerStore().refreshPlexServer(serverId))),
 	};
 	const getters = {
-		getServerConnectionsByServerId: (plexServerId = 0): PlexServerConnectionDTO[] => {
-			return sortPlexServerConnections(state.serverConnections.filter((connection) =>
-				plexServerId > 0 ? connection.plexServerId === plexServerId : false,
-			));
-		},
+		getServerConnectionsByServerId: (plexServerId = 0): PlexServerConnectionDTO[] =>
+			sortPlexServerConnections(
+				state.serverConnections.filter((connection) => (plexServerId > 0 ? connection.plexServerId === plexServerId : false)),
+			),
 		getServerConnections: computed((): PlexServerConnectionDTO[] => state.serverConnections),
 		isServerConnected: (plexServerId = 0) => {
 			return state.serverConnections

@@ -3,6 +3,7 @@
 		{{ $t('components.server-dialog.tabs.server-connections.section-header') }}
 	</QText>
 	<q-list>
+		<!-- Connections -->
 		<template
 			v-for="(connection, index) in serverConnectionStore.getServerConnectionsByServerId(plexServer?.id)"
 			:key="index">
@@ -44,6 +45,17 @@
 				:plex-server="plexServer"
 				:progress="getProgress(connection.id)" />
 		</template>
+		<!-- Add Connection -->
+		<q-item>
+			<!-- Connection Url -->
+			<q-item-section tag="label">
+				<BaseButton
+					:label="$t('components.server-dialog.tabs.server-connections.add-connection-button')"
+					@click="dialogStore.openAddConnectionDialog(plexServerId)" />
+			</q-item-section>
+			<q-space />
+		</q-item>
+		<AddConnectionDialog />
 	</q-list>
 </template>
 
@@ -51,10 +63,11 @@
 import { useSubscription } from '@vueuse/rxjs';
 import { get, set } from '@vueuse/core';
 import type { PlexServerDTO, ServerConnectionCheckStatusProgressDTO } from '@dto';
-import { useServerConnectionStore, useSignalrStore } from '~/store';
+import { useServerConnectionStore, useSignalrStore, useServerStore, useDialogStore } from '#imports';
 
 const serverStore = useServerStore();
 const signalrStore = useSignalrStore();
+const dialogStore = useDialogStore();
 const serverConnectionStore = useServerConnectionStore();
 
 const loading = ref<number[]>([]);
@@ -108,11 +121,7 @@ function setup() {
 	);
 }
 
-onMounted(() => {
-	setup();
-});
+onMounted(() => setup());
 
-onUnmounted(() => {
-	set(progressList, []);
-});
+onUnmounted(() => set(progressList, []));
 </script>

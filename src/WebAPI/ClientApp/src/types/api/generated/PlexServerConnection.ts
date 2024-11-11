@@ -10,8 +10,16 @@
  */
 
 import type { RequestParams } from "./http-client";
+import { ContentType } from "./http-client";
 
-import type { PlexServerConnectionDTO, PlexServerStatusDTO } from "./data-contracts";
+import type {
+  CreatePlexServerConnectionEndpointRequest,
+  PlexServerConnectionDTO,
+  PlexServerStatusDTO,
+  ResultDTO,
+  ServerIdentityDTO,
+  ValidatePlexServerConnectionEndpointRequest,
+} from "./data-contracts";
 
 import { apiCheckPipe } from "@api/base";
 import Axios from "axios";
@@ -59,6 +67,26 @@ export class PlexServerConnection {
  * No description
  *
  * @tags Plexserverconnection
+ * @name CreatePlexServerConnectionEndpoint
+ * @request POST:/api/PlexServerConnection
+
+ */
+  createPlexServerConnectionEndpoint = (data: CreatePlexServerConnectionEndpointRequest, params: RequestParams = {}) =>
+    from(
+      Axios.request<ResultDTO>({
+        url: `/api/PlexServerConnection`,
+        method: "POST",
+        data: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+    ).pipe(apiCheckPipe<ResultDTO>);
+
+  /**
+ * No description
+ *
+ * @tags Plexserverconnection
  * @name GetPlexServerConnectionByIdEndpoint
  * @request GET:/api/PlexServerConnection/{plexServerConnectionId}
 
@@ -90,6 +118,29 @@ export class PlexServerConnection {
         ...params,
       }),
     ).pipe(apiCheckPipe<PlexServerConnectionDTO[]>);
+
+  /**
+ * No description
+ *
+ * @tags Plexserverconnection
+ * @name ValidatePlexServerConnectionEndpoint
+ * @request POST:/api/PlexServerConnection/validate
+
+ */
+  validatePlexServerConnectionEndpoint = (
+    data: ValidatePlexServerConnectionEndpointRequest,
+    params: RequestParams = {},
+  ) =>
+    from(
+      Axios.request<ServerIdentityDTO>({
+        url: `/api/PlexServerConnection/validate`,
+        method: "POST",
+        data: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+    ).pipe(apiCheckPipe<ServerIdentityDTO>);
 }
 
 export class PlexServerConnectionPaths {
@@ -99,8 +150,13 @@ export class PlexServerConnectionPaths {
   static checkConnectionStatusByIdEndpoint = (plexServerConnectionId: number) =>
     queryString.stringifyUrl({ url: `/api/PlexServerConnection/check/${plexServerConnectionId}` });
 
+  static createPlexServerConnectionEndpoint = () => queryString.stringifyUrl({ url: `/api/PlexServerConnection` });
+
   static getPlexServerConnectionByIdEndpoint = (plexServerConnectionId: number) =>
     queryString.stringifyUrl({ url: `/api/PlexServerConnection/${plexServerConnectionId}` });
 
   static getAllPlexServerConnectionsEndpoint = () => queryString.stringifyUrl({ url: `/api/PlexServerConnection/` });
+
+  static validatePlexServerConnectionEndpoint = () =>
+    queryString.stringifyUrl({ url: `/api/PlexServerConnection/validate` });
 }

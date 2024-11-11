@@ -57,11 +57,20 @@
 							@click="openDirectoryBrowserDialog" />
 					</q-td>
 				</q-tr>
+				<q-tr>
+					<q-td>
+						<DebugButton
+							data-cy="add-connection-dialog-button"
+							:label="$t('components.server-dialog.tabs.server-connections.add-connection-button')"
+							@click="dialogStore.openAddConnectionDialog(1)" />
+					</q-td>
+				</q-tr>
 			</q-markup-table>
 			<ServerDialog />
 			<DownloadConfirmation />
 			<AccountVerificationCodeDialog :account="account" />
 			<DirectoryBrowser />
+			<AddConnectionDialog />
 		</QSection>
 	</QPage>
 </template>

@@ -1,4 +1,5 @@
 export enum DialogType {
+	AddConnectionDialog = 'add-connection-dialog',
 	AccountConfirmationDialog = 'account-confirmation-dialog',
 	AccountDialog = 'account-dialog',
 	AccountTokenValidateDialog = 'account-token-validate-dialog',

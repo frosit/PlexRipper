@@ -120,7 +120,8 @@
                 },
                 "server-connections": {
                     "header": "Połączenia serwera",
-                    "section-header": "Wybierz preferowane połączenie z serwerem:"
+                    "section-header": "Wybierz preferowane połączenie z serwerem:",
+                    "add-connection-button": "Dodaj połączenie"
                 },
                 "server-data": {
                     "headers": {
@@ -220,6 +221,19 @@
             "hours-minute-seconds": "Pozostało{hours} godzin, {minutes} minut i {seconds} sekund",
             "minutes-seconds": "Pozostało{minutes} minut i {seconds} sekund",
             "seconds": "Pozostało{seconds} sekund"
+        },
+        "add-connection-dialog": {
+            "header": "Dodaj niestandardowe połączenie z serwerem do {serverName}",
+            "add-connection-button": "Utwórz połączenie",
+            "input": {
+                "connection-url": "Adres URL połączenia",
+                "host-name": "Nazwa hosta",
+                "port": "Port",
+                "protocol": "Protokół"
+            },
+            "test-connection-button": "Test połączenia",
+            "url-has-invalid-format": "Adres URL ma nieprawidłowy format!",
+            "url-has-valid-format": "Adres URL ma prawidłowy format!"
         }
     },
     "confirmation": {

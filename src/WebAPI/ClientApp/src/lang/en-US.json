@@ -120,7 +120,8 @@
                 },
                 "server-connections": {
                     "header": "Server Connections",
-                    "section-header": "Select the preferred server connection:"
+                    "section-header": "Select the preferred server connection:",
+                    "add-connection-button": "Add connection"
                 },
                 "server-data": {
                     "headers": {
@@ -220,6 +221,19 @@
             "hours-minute-seconds": "{hours} hours, {minutes} minutes and {seconds} seconds remaining",
             "minutes-seconds": "{minutes} minutes and {seconds} seconds remaining",
             "seconds": "{seconds} seconds remaining"
+        },
+        "add-connection-dialog": {
+            "header": "Add custom server connection to {serverName}",
+            "add-connection-button": "Create Connection",
+            "input": {
+                "connection-url": "Connection URL",
+                "host-name": "Host name",
+                "port": "Port",
+                "protocol": "Protocol"
+            },
+            "test-connection-button": "Test Connection",
+            "url-has-invalid-format": "URL has invalid format!",
+            "url-has-valid-format": "Url is of a valid format!"
         }
     },
     "confirmation": {

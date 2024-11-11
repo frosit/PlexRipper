@@ -42,6 +42,9 @@ export const useDialogStore = defineStore('DialogStore', () => {
 		openMediaConfirmationDownloadDialog(data: DownloadMediaDTO[]): void {
 			state.dialogUpdate.next({ name: DialogType.MediaDownloadConfirmationDialog, state: true, data });
 		},
+		openAddConnectionDialog(plexServerId: number): void {
+			state.dialogUpdate.next({ name: DialogType.AddConnectionDialog, state: true, data: plexServerId });
+		},
 		openHelpInfoDialog(data: IHelp): void {
 			state.dialogUpdate.next({ name: DialogType.HelpInfoDialog, state: true, data });
 		},

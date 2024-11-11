@@ -1,0 +1,213 @@
+<template>
+	<QCardDialog
+		min-width="50vw"
+		max-width="50vw"
+		:type="0"
+		:name="DialogType.AddConnectionDialog"
+		:loading="false"
+		persistent
+		@opened="value => plexServerId = value"
+		@closed="onClose">
+		<template #title>
+			{{
+				$t('components.add-connection-dialog.header', {
+					serverName: plexServerName,
+				})
+			}}
+		</template>
+		<!--	Help text	-->
+		<template #default>
+			<div>
+				<QRow wrap>
+					<QCol cols="auto">
+						<QConnectionIcon :local="isLocalIp" />
+					</QCol>
+					<QCol class="q-mx-md">
+						<q-input
+							v-model:model-value="url"
+							:label="$t('components.add-connection-dialog.input.connection-url')" />
+					</QCol>
+					<QCol cols="auto">
+						<ValidIcon
+							:invalid-text="$t('components.add-connection-dialog.url-has-invalid-format')"
+							:valid="parsedUrl !== null"
+							:valid-text="$t('components.add-connection-dialog.url-has-valid-format')" />
+					</QCol>
+				</QRow>
+				<!-- Property Preview -->
+				<QRow
+					class="q-my-md"
+					justify="between">
+					<QCol cols="3">
+						<q-input
+							:outlined="false"
+							:model-value="connection.protocol"
+							readonly
+							:label="$t('components.add-connection-dialog.input.protocol')" />
+					</QCol>
+					<QCol class="q-mx-lg">
+						<q-input
+							:outlined="false"
+							:model-value="connection.address"
+							readonly
+							:label="$t('components.add-connection-dialog.input.host-name')" />
+					</QCol>
+					<QCol cols="3">
+						<q-input
+							:outlined="false"
+							:model-value="connection.port > 0 ? connection.port : ''"
+							readonly
+							:label="$t('components.add-connection-dialog.input.port')" />
+					</QCol>
+				</QRow>
+				<!-- Validation Response -->
+				<QRow
+					v-if="response"
+					justify="around">
+					<QCol cols="4">
+						<q-input
+							:outlined="false"
+							:model-value="response.version"
+							readonly
+							:label="$t('components.server-dialog.tabs.server-data.headers.plex-version')" />
+					</QCol>
+					<QCol cols="6">
+						<q-input
+							:outlined="false"
+							:model-value="response.machineIdentifier"
+							readonly
+							:label="$t('components.server-dialog.tabs.server-data.headers.machine-id')" />
+					</QCol>
+				</QRow>
+			</div>
+		</template>
+		<!--	Close action	-->
+		<template #actions="{ close }">
+			<QRow justify="between">
+				<QCol>
+					<BaseButton
+						:label="$t('general.commands.close')"
+						block
+						@click="close" />
+				</QCol>
+				<QCol
+					class="q-mx-lg">
+					<ValidationButton
+						:label="$t('components.add-connection-dialog.test-connection-button')"
+						:loading="loadingTestConnection"
+						:is-validated="isValidTestConnection"
+						:disabled="parsedUrl === null"
+						block
+						@click="checkConnection" />
+				</QCol>
+				<QCol>
+					<BaseButton
+						:label="$t('components.add-connection-dialog.add-connection-button')"
+						color="positive"
+						:disabled="parsedUrl === null"
+						block />
+				</QCol>
+			</QRow>
+		</template>
+	</QCardDialog>
+</template>
+
+<script setup lang="ts">
+import { get, set } from '@vueuse/core';
+import { DialogType } from '@enums';
+import type { CreatePlexServerConnectionEndpointRequest, ServerIdentityDTO } from '@dto';
+import { useServerStore, useServerConnectionStore } from '#imports';
+
+const serverStore = useServerStore();
+const connectionStore = useServerConnectionStore();
+
+const url = ref<string>('http://213.239.200.222:42408');
+
+const plexServerId = ref<number>(0);
+const loadingTestConnection = ref(false);
+const isValidTestConnection = ref(false);
+
+const plexServerName = computed((): string => serverStore.getServerName(get(plexServerId)));
+
+const response = ref<ServerIdentityDTO | null>(null);
+
+const parsedUrl = computed((): URL | null => {
+	try {
+		return new URL(get(url));
+	} catch (_) {
+		return null;
+	}
+});
+
+const connection = computed((): CreatePlexServerConnectionEndpointRequest => {
+	const url = get(parsedUrl);
+	if (url === null) {
+		return {
+			protocol: '',
+			address: '',
+			port: 0,
+			url: '',
+		};
+	}
+
+	const protocol = url.protocol.startsWith('https') ? 'https' : 'http';
+	let port = url.port ? parseInt(url.port) : 0;
+	if (port === 0) {
+		port = protocol === 'https' ? 443 : 80;
+	}
+
+	return {
+		protocol,
+		address: url.hostname ?? '',
+		port,
+		url: url.origin ?? '',
+	};
+});
+
+const isLocalIp = computed(() => {
+	// Check for IPv4 local ranges
+	const ipv4LocalRanges = [
+		/^10\.\d{1,3}\.\d{1,3}\.\d{1,3}$/,
+		/^172\.(1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3}$/,
+		/^192\.168\.\d{1,3}\.\d{1,3}$/,
+		/^127\.\d{1,3}\.\d{1,3}\.\d{1,3}$/,
+	];
+
+	// Check if IP matches any of the IPv4 local ranges
+	if (ipv4LocalRanges.some((range) => range.test(get(connection).address))) {
+		return true;
+	}
+
+	// Check for IPv6 local addresses
+	const ipv6LocalPrefixes = [
+		/^fc[0-9a-f]{2}:/, // Unique local address (ULA) range
+		/^::1$/, // Loopback address
+	];
+
+	// Check if IP matches any of the IPv6 local prefixes
+	return ipv6LocalPrefixes.some((prefix) => prefix.test(get(connection).address));
+});
+
+function checkConnection() {
+	set(loadingTestConnection, true);
+	set(response, null);
+	useSubscription(connectionStore.checkServerConnectionUrl(get(connection).url).subscribe({
+		next: (result) => {
+			set(isValidTestConnection, result.isSuccess);
+			if (result.isSuccess) {
+				set(response, result.value);
+			}
+		},
+		complete: () => {
+			set(loadingTestConnection, false);
+		},
+	}));
+}
+
+function onClose() {
+	set(url, '');
+	set(plexServerId, 0);
+	set(loadingTestConnection, false);
+	set(isValidTestConnection, false);
+}
+</script>

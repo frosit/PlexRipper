@@ -120,7 +120,8 @@
                 },
                 "server-connections": {
                     "header": "Connexions au serveur",
-                    "section-header": "Sélectionnez la connexion serveur préférée :"
+                    "section-header": "Sélectionnez la connexion serveur préférée :",
+                    "add-connection-button": "Ajouter une connexion"
                 },
                 "server-data": {
                     "headers": {
@@ -220,6 +221,19 @@
             "hours-minute-seconds": "{hours} heures, {minutes} minutes et {seconds} secondes restantes",
             "minutes-seconds": "{minutes} minutes et {seconds} secondes restantes",
             "seconds": "{seconds} secondes restantes"
+        },
+        "add-connection-dialog": {
+            "header": "Ajouter une connexion au serveur personnalisée à {serverName}",
+            "add-connection-button": "Créer une connexion",
+            "input": {
+                "connection-url": "Url de connexion",
+                "host-name": "Nom d'hôte",
+                "port": "Port",
+                "protocol": "Protocole"
+            },
+            "test-connection-button": "Tester la connexion",
+            "url-has-invalid-format": "L'URL a un format invalide !",
+            "url-has-valid-format": "L'URL est d'un format valide !"
         }
     },
     "confirmation": {
