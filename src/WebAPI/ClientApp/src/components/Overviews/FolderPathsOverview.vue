@@ -8,7 +8,7 @@
 					colored-border
 					elevation="2"
 					type="warning">
-					{{ t('general.alerts.disabled-paths') }}
+					{{ $t('general.alerts.disabled-paths') }}
 				</q-alert>
 			</QCol>
 		</QRow>
@@ -53,9 +53,9 @@
 						align-self="center"
 						cols="auto">
 						<ValidIcon
-							:invalid-text="t('general.alerts.invalid-directory')"
+							:invalid-text="$t('general.alerts.invalid-directory')"
 							:valid="folderPath.isValid"
-							:valid-text="t('general.alerts.valid-directory')" />
+							:valid-text="$t('general.alerts.valid-directory')" />
 					</QCol>
 					<!--	Delete Button -->
 					<QCol
