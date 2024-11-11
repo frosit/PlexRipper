@@ -34,6 +34,12 @@ public class PlexServerConnection : BaseEntity
     [Column(Order = 8)]
     public required bool IPv6 { get; init; }
 
+    /// <summary>
+    /// Is this a custom connection created by the user.
+    /// </summary>
+    [Column(Order = 9)]
+    public required bool IsCustom { get; init; }
+
     #endregion
 
     #region Relationships

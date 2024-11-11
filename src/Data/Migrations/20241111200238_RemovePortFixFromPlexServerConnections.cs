@@ -10,20 +10,20 @@ namespace PlexRipper.Data.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "PortFix",
-                table: "PlexServerConnections");
+            migrationBuilder.DropColumn(name: "PortFix", table: "PlexServerConnections");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<bool>(
-                name: "PortFix",
-                table: "PlexServerConnections",
-                type: "INTEGER",
-                nullable: false,
-                defaultValue: false)
+            migrationBuilder
+                .AddColumn<bool>(
+                    name: "PortFix",
+                    table: "PlexServerConnections",
+                    type: "INTEGER",
+                    nullable: false,
+                    defaultValue: false
+                )
                 .Annotation("Relational:ColumnOrder", 9);
         }
     }
