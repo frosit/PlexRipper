@@ -10,21 +10,21 @@ namespace PlexRipper.Data.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<bool>(
-                name: "IsCustom",
-                table: "PlexServerConnections",
-                type: "INTEGER",
-                nullable: false,
-                defaultValue: false)
+            migrationBuilder
+                .AddColumn<bool>(
+                    name: "IsCustom",
+                    table: "PlexServerConnections",
+                    type: "INTEGER",
+                    nullable: false,
+                    defaultValue: false
+                )
                 .Annotation("Relational:ColumnOrder", 9);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "IsCustom",
-                table: "PlexServerConnections");
+            migrationBuilder.DropColumn(name: "IsCustom", table: "PlexServerConnections");
         }
     }
 }

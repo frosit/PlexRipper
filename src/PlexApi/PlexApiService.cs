@@ -230,7 +230,7 @@ public class PlexApiService : IPlexApiService
                         .Connections.Select(y => new PlexServerConnection
                         {
                             Id = 0,
-                            Protocol = y.Protocol.ToString(),
+                            Protocol = y.Protocol.ToString().ToLower(),
                             Address = y.Address,
                             Port = y.Port,
                             Local = y.Local,
@@ -241,6 +241,7 @@ public class PlexApiService : IPlexApiService
                             PlexServer = null,
                             PlexServerId = 0,
                             PlexServerStatus = [],
+                            IsCustom = false,
                         })
                         .ToList(),
                 },

@@ -10,6 +10,8 @@ public class PlexServerConnectionDTO
 
     public required int Port { get; set; }
 
+    public required bool IsCustom { get; set; }
+
     public required bool Local { get; set; }
 
     public required bool Relay { get; set; }

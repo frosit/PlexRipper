@@ -138,6 +138,7 @@ public class ChoosePlexServerConnection_UnitTests : BaseUnitTest
             PlexServer = plexServerConnections[2].PlexServer,
             PlexServerId = plexServerConnections[2].PlexServerId,
             PlexServerStatus = plexServerConnections[2].PlexServerStatus,
+            IsCustom = plexServerConnections[2].IsCustom,
         };
 
         foreach (var plexServerConnection in plexServerConnections)

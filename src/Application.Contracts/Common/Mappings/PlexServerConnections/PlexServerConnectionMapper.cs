@@ -18,6 +18,7 @@ public static class PlexServerConnectionMapper
             Uri = source.Uri,
             PlexServerId = source.PlexServerId,
             Url = source.Url,
+            IsCustom = source.IsCustom,
             IsPlexTvConnection = source.IsPlexTvConnection,
             ServerStatusList = source.PlexServerStatus.ToDTO(),
             LatestConnectionStatus = source.LatestConnectionStatus?.ToDTO(),
