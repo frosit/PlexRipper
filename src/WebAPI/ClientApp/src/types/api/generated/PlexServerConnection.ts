@@ -16,7 +16,6 @@ import type {
   CreatePlexServerConnectionEndpointRequest,
   PlexServerConnectionDTO,
   PlexServerStatusDTO,
-  ResultDTO,
   ServerIdentityDTO,
   ValidatePlexServerConnectionEndpointRequest,
 } from "./data-contracts";
@@ -73,7 +72,7 @@ export class PlexServerConnection {
  */
   createPlexServerConnectionEndpoint = (data: CreatePlexServerConnectionEndpointRequest, params: RequestParams = {}) =>
     from(
-      Axios.request<ResultDTO>({
+      Axios.request<PlexServerConnectionDTO>({
         url: `/api/PlexServerConnection`,
         method: "POST",
         data: data,
@@ -81,7 +80,7 @@ export class PlexServerConnection {
         format: "json",
         ...params,
       }),
-    ).pipe(apiCheckPipe<ResultDTO>);
+    ).pipe(apiCheckPipe<PlexServerConnectionDTO>);
 
   /**
  * No description

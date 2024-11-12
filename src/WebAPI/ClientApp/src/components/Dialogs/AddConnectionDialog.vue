@@ -104,8 +104,10 @@
 					<BaseButton
 						:label="$t('components.add-connection-dialog.add-connection-button')"
 						color="positive"
+						:loading="loadingCreateConnection"
 						:disabled="parsedUrl === null"
-						block />
+						block
+						@click="createConnection(close)" />
 				</QCol>
 			</QRow>
 		</template>
@@ -127,6 +129,8 @@ const plexServerId = ref<number>(0);
 const loadingTestConnection = ref(false);
 const isValidTestConnection = ref(false);
 
+const loadingCreateConnection = ref(false);
+
 const plexServerName = computed((): string => serverStore.getServerName(get(plexServerId)));
 
 const response = ref<ServerIdentityDTO | null>(null);
@@ -147,6 +151,7 @@ const connection = computed((): CreatePlexServerConnectionEndpointRequest => {
 			address: '',
 			port: 0,
 			url: '',
+			plexServerId: get(plexServerId),
 		};
 	}
 
@@ -161,6 +166,7 @@ const connection = computed((): CreatePlexServerConnectionEndpointRequest => {
 		address: url.hostname ?? '',
 		port,
 		url: url.origin ?? '',
+		plexServerId: get(plexServerId),
 	};
 });
 
@@ -204,10 +210,22 @@ function checkConnection() {
 	}));
 }
 
+function createConnection(close: () => void) {
+	set(loadingCreateConnection, true);
+	set(response, null);
+	useSubscription(connectionStore.createServerConnection(get(connection)).subscribe({
+		complete: () => {
+			close();
+		},
+	}));
+}
+
 function onClose() {
 	set(url, '');
 	set(plexServerId, 0);
 	set(loadingTestConnection, false);
 	set(isValidTestConnection, false);
+	set(loadingCreateConnection, false);
+	set(response, null);
 }
 </script>

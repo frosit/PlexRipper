@@ -3,7 +3,7 @@ import type { Observable } from 'rxjs';
 import { of } from 'rxjs';
 import { map, switchMap, tap } from 'rxjs/operators';
 import { get } from '@vueuse/core';
-import type { PlexServerConnectionDTO, PlexServerStatusDTO } from '@dto';
+import type { CreatePlexServerConnectionEndpointRequest, PlexServerConnectionDTO, PlexServerStatusDTO } from '@dto';
 import type { ISetupResult } from '@interfaces';
 import { plexServerApi, plexServerConnectionApi } from '@api';
 import { DataType } from '@dto';
@@ -71,6 +71,14 @@ export const useServerConnectionStore = defineStore('ServerConnection', () => {
 			plexServerConnectionApi.validatePlexServerConnectionEndpoint({
 				url: connectionUrl,
 			}),
+		createServerConnection: (data: CreatePlexServerConnectionEndpointRequest) =>
+			plexServerConnectionApi.createPlexServerConnectionEndpoint(data).pipe(
+				tap(({ isSuccess, value }) => {
+					if (isSuccess && value) {
+						state.serverConnections.push(value);
+					}
+				}),
+			),
 		setPreferredPlexServerConnection: (serverId: number, connectionId: number) =>
 			plexServerApi
 				.setPreferredPlexServerConnectionEndpoint(serverId, connectionId)

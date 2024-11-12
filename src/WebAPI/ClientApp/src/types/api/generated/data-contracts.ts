@@ -36,6 +36,8 @@ export interface CreatePlexAccountEndpointRequest {
 export interface CreatePlexServerConnectionEndpointRequest {
   /** @minLength 1 */
   address: string;
+  /** @format int32 */
+  plexServerId: number;
   /**
    * @format int32
    * @min 0
@@ -599,6 +601,7 @@ export interface PlexServerConnectionDTO {
   address: string;
   /** @format int32 */
   id: number;
+  isCustom: boolean;
   isPlexTvConnection: boolean;
   latestConnectionStatus?: PlexServerStatusDTO | null;
   local: boolean;
@@ -606,7 +609,6 @@ export interface PlexServerConnectionDTO {
   plexServerId: number;
   /** @format int32 */
   port: number;
-  portFix: boolean;
   protocol: string;
   relay: boolean;
   serverStatusList: PlexServerStatusDTO[];
