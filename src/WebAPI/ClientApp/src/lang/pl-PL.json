@@ -223,7 +223,7 @@
             "seconds": "Pozostało{seconds} sekund"
         },
         "add-connection-dialog": {
-            "header": "Dodaj niestandardowe połączenie z serwerem do {serverName}",
+            "header": "Dodaj połączenie do {serverName}",
             "add-connection-button": "Utwórz połączenie",
             "input": {
                 "connection-url": "Adres URL połączenia",
@@ -233,7 +233,8 @@
             },
             "test-connection-button": "Test połączenia",
             "url-has-invalid-format": "Adres URL ma nieprawidłowy format!",
-            "url-has-valid-format": "Adres URL ma prawidłowy format!"
+            "url-has-valid-format": "Adres URL ma prawidłowy format!",
+            "update-connection": "Aktualizuj połączenie"
         }
     },
     "confirmation": {

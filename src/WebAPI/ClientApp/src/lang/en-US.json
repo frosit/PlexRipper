@@ -223,7 +223,7 @@
             "seconds": "{seconds} seconds remaining"
         },
         "add-connection-dialog": {
-            "header": "Add custom server connection to {serverName}",
+            "header": "Add connection to {serverName}",
             "add-connection-button": "Create Connection",
             "input": {
                 "connection-url": "Connection URL",
@@ -233,7 +233,8 @@
             },
             "test-connection-button": "Test Connection",
             "url-has-invalid-format": "URL has invalid format!",
-            "url-has-valid-format": "Url is of a valid format!"
+            "url-has-valid-format": "Url is of a valid format!",
+            "update-connection": "Update Connection"
         }
     },
     "confirmation": {

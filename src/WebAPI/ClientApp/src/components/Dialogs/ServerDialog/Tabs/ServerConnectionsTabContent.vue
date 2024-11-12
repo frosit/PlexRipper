@@ -21,7 +21,7 @@
 			<q-item-section tag="label">
 				<BaseButton
 					:label="$t('components.server-dialog.tabs.server-connections.add-connection-button')"
-					@click.stop="dialogStore.openAddConnectionDialog(plexServerId)" />
+					@click="dialogStore.openAddConnectionDialog({ plexServerId, plexServerConnectionId: 0 })" />
 			</q-item-section>
 			<q-space />
 		</q-item>

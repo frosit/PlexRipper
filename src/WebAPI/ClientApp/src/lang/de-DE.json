@@ -223,7 +223,7 @@
             "seconds": "{seconds} Sekunden verbleiben"
         },
         "add-connection-dialog": {
-            "header": "Benutzerdefinierte Serververbindung zu {serverName}hinzufügen",
+            "header": "Verbindung zu {serverName}hinzufügen",
             "add-connection-button": "Verbindung erstellen",
             "input": {
                 "connection-url": "Verbindungs-URL",
@@ -233,7 +233,8 @@
             },
             "test-connection-button": "Testverbindung",
             "url-has-invalid-format": "URL hat ungültiges Format!",
-            "url-has-valid-format": "Die URL hat ein gültiges Format!"
+            "url-has-valid-format": "Die URL hat ein gültiges Format!",
+            "update-connection": "Verbindung aktualisieren"
         }
     },
     "confirmation": {

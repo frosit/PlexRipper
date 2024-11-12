@@ -16,7 +16,9 @@ import type {
   CreatePlexServerConnectionEndpointRequest,
   PlexServerConnectionDTO,
   PlexServerStatusDTO,
+  ResultDTO,
   ServerIdentityDTO,
+  UpdatePlexServerConnectionEndpointRequest,
   ValidatePlexServerConnectionEndpointRequest,
 } from "./data-contracts";
 
@@ -86,6 +88,44 @@ export class PlexServerConnection {
  * No description
  *
  * @tags Plexserverconnection
+ * @name UpdatePlexServerConnectionEndpoint
+ * @request PATCH:/api/PlexServerConnection
+
+ */
+  updatePlexServerConnectionEndpoint = (data: UpdatePlexServerConnectionEndpointRequest, params: RequestParams = {}) =>
+    from(
+      Axios.request<PlexServerConnectionDTO>({
+        url: `/api/PlexServerConnection`,
+        method: "PATCH",
+        data: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+    ).pipe(apiCheckPipe<PlexServerConnectionDTO>);
+
+  /**
+ * No description
+ *
+ * @tags Plexserverconnection
+ * @name DeletePlexServerConnectionById
+ * @request DELETE:/api/PlexServerConnection/{plexServerConnectionId}
+
+ */
+  deletePlexServerConnectionById = (plexServerConnectionId: number, params: RequestParams = {}) =>
+    from(
+      Axios.request<ResultDTO>({
+        url: `/api/PlexServerConnection/${plexServerConnectionId}`,
+        method: "DELETE",
+        format: "json",
+        ...params,
+      }),
+    ).pipe(apiCheckPipe<ResultDTO>);
+
+  /**
+ * No description
+ *
+ * @tags Plexserverconnection
  * @name GetPlexServerConnectionByIdEndpoint
  * @request GET:/api/PlexServerConnection/{plexServerConnectionId}
 
@@ -150,6 +190,11 @@ export class PlexServerConnectionPaths {
     queryString.stringifyUrl({ url: `/api/PlexServerConnection/check/${plexServerConnectionId}` });
 
   static createPlexServerConnectionEndpoint = () => queryString.stringifyUrl({ url: `/api/PlexServerConnection` });
+
+  static updatePlexServerConnectionEndpoint = () => queryString.stringifyUrl({ url: `/api/PlexServerConnection` });
+
+  static deletePlexServerConnectionById = (plexServerConnectionId: number) =>
+    queryString.stringifyUrl({ url: `/api/PlexServerConnection/${plexServerConnectionId}` });
 
   static getPlexServerConnectionByIdEndpoint = (plexServerConnectionId: number) =>
     queryString.stringifyUrl({ url: `/api/PlexServerConnection/${plexServerConnectionId}` });

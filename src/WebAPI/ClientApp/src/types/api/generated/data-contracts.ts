@@ -36,7 +36,11 @@ export interface CreatePlexAccountEndpointRequest {
 export interface CreatePlexServerConnectionEndpointRequest {
   /** @minLength 1 */
   address: string;
-  /** @format int32 */
+  /**
+   * @format int32
+   * @min 0
+   * @exclusiveMin true
+   */
   plexServerId: number;
   /**
    * @format int32
@@ -985,6 +989,33 @@ export interface UpdateFolderPathEndpointRequest {
 
 export interface UpdatePlexAccountByIdEndpointRequest {
   plexAccountDTO: PlexAccountDTO;
+}
+
+export interface UpdatePlexServerConnectionEndpointRequest {
+  /** @minLength 1 */
+  address: string;
+  /**
+   * @format int32
+   * @min 0
+   * @exclusiveMin true
+   */
+  id: number;
+  /**
+   * @format int32
+   * @min 0
+   * @exclusiveMin true
+   */
+  plexServerId: number;
+  /**
+   * @format int32
+   * @min 0
+   * @exclusiveMin true
+   */
+  port: number;
+  /** @minLength 1 */
+  protocol: string;
+  /** @minLength 1 */
+  url: string;
 }
 
 export interface UpdateUserSettingsEndpointRequest {

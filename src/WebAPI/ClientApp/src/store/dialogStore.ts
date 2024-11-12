@@ -1,18 +1,12 @@
 import { acceptHMRUpdate, defineStore } from 'pinia';
 import { type Observable, of, Subject } from 'rxjs';
 import { DialogType } from '@enums';
-import type { IAccountDialog, IAlert, IHelp, ISetupResult } from '@interfaces';
+import type { IAccountDialog, IAlert, IConnectionDialog, IDialogState, IHelp, ISetupResult } from '@interfaces';
 import type { CheckAllConnectionStatusUpdateDTO, DownloadMediaDTO, FolderPathDTO } from '@dto';
 
-interface DialogState {
-	name: string;
-	state: boolean;
-	data: unknown;
-}
-
 export const useDialogStore = defineStore('DialogStore', () => {
-	const state = reactive<{ dialogUpdate: Subject<DialogState> }>({
-		dialogUpdate: new Subject<DialogState>(),
+	const state = reactive<{ dialogUpdate: Subject<IDialogState> }>({
+		dialogUpdate: new Subject<IDialogState>(),
 	});
 	const actions = {
 		setup(): Observable<ISetupResult> {
@@ -42,8 +36,8 @@ export const useDialogStore = defineStore('DialogStore', () => {
 		openMediaConfirmationDownloadDialog(data: DownloadMediaDTO[]): void {
 			state.dialogUpdate.next({ name: DialogType.MediaDownloadConfirmationDialog, state: true, data });
 		},
-		openAddConnectionDialog(plexServerId: number): void {
-			state.dialogUpdate.next({ name: DialogType.AddConnectionDialog, state: true, data: plexServerId });
+		openAddConnectionDialog(data: IConnectionDialog): void {
+			state.dialogUpdate.next({ name: DialogType.AddConnectionDialog, state: true, data });
 		},
 		openHelpInfoDialog(data: IHelp): void {
 			state.dialogUpdate.next({ name: DialogType.HelpInfoDialog, state: true, data });
@@ -53,7 +47,7 @@ export const useDialogStore = defineStore('DialogStore', () => {
 		},
 	};
 	const getters = {
-		getDialogState: (): Observable<DialogState> => {
+		getDialogState: (): Observable<IDialogState> => {
 			return state.dialogUpdate.asObservable();
 		},
 	};

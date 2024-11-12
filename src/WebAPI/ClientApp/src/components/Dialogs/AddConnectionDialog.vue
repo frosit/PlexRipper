@@ -1,12 +1,13 @@
 <template>
 	<QCardDialog
-		min-width="50vw"
-		max-width="50vw"
-		:type="0"
+		min-width="40vw"
+		max-width="40vw"
+		:type="{} as IConnectionDialog"
 		:name="DialogType.AddConnectionDialog"
 		:loading="false"
 		persistent
-		@opened="value => plexServerId = value"
+		close-button
+		@opened="onOpen"
 		@closed="onClose">
 		<template #title>
 			{{
@@ -37,7 +38,8 @@
 				<!-- Property Preview -->
 				<QRow
 					class="q-my-md"
-					justify="between">
+					gutter="md"
+					justify="around">
 					<QCol cols="3">
 						<q-input
 							:outlined="false"
@@ -45,7 +47,7 @@
 							readonly
 							:label="$t('components.add-connection-dialog.input.protocol')" />
 					</QCol>
-					<QCol class="q-mx-lg">
+					<QCol>
 						<q-input
 							:outlined="false"
 							:model-value="connection.address"
@@ -81,33 +83,37 @@
 				</QRow>
 			</div>
 		</template>
-		<!--	Close action	-->
+		<!--  Actions	-->
 		<template #actions="{ close }">
-			<QRow justify="between">
-				<QCol>
-					<BaseButton
-						:label="$t('general.commands.close')"
-						block
-						@click="close" />
-				</QCol>
+			<QRow
+				justify="between"
+				gutter="md">
 				<QCol
-					class="q-mx-lg">
+					v-if="plexServerConnectionId > 0"
+					cols="auto">
+					<DeleteButton
+						@click="deleteConnection(close)" />
+				</QCol>
+				<QSpace v-if="plexServerConnectionId > 0" />
+				<QCol cols="auto">
 					<ValidationButton
 						:label="$t('components.add-connection-dialog.test-connection-button')"
 						:loading="loadingTestConnection"
 						:is-validated="isValidTestConnection"
 						:disabled="parsedUrl === null"
-						block
 						@click="checkConnection" />
 				</QCol>
-				<QCol>
+				<QCol cols="auto">
 					<BaseButton
-						:label="$t('components.add-connection-dialog.add-connection-button')"
+						:label="plexServerConnectionId > 0
+							? $t('components.add-connection-dialog.update-connection')
+							: $t('components.add-connection-dialog.add-connection-button')"
 						color="positive"
 						:loading="loadingCreateConnection"
 						:disabled="parsedUrl === null"
-						block
-						@click="createConnection(close)" />
+						@click="plexServerConnectionId > 0
+							? updateConnection(close)
+							: createConnection(close) " />
 				</QCol>
 			</QRow>
 		</template>
@@ -117,15 +123,19 @@
 <script setup lang="ts">
 import { get, set } from '@vueuse/core';
 import { DialogType } from '@enums';
+import type { IConnectionDialog } from '@interfaces';
 import type { CreatePlexServerConnectionEndpointRequest, ServerIdentityDTO } from '@dto';
-import { useServerStore, useServerConnectionStore } from '#imports';
+import DeleteButton from '@components/Buttons/DeleteButton.vue';
+import { useSubscription, useServerStore, useServerConnectionStore } from '#imports';
 
 const serverStore = useServerStore();
 const connectionStore = useServerConnectionStore();
 
-const url = ref<string>('http://213.239.200.222:42408');
+const url = ref<string>('');
 
 const plexServerId = ref<number>(0);
+const plexServerConnectionId = ref<number>(0);
+
 const loadingTestConnection = ref(false);
 const isValidTestConnection = ref(false);
 
@@ -220,9 +230,38 @@ function createConnection(close: () => void) {
 	}));
 }
 
+function updateConnection(close: () => void) {
+	set(loadingCreateConnection, true);
+	set(response, null);
+	useSubscription(connectionStore.updateServerConnection({
+		...get(connection),
+		id: get(plexServerConnectionId),
+	}).subscribe({
+		complete: () => {
+			close();
+		},
+	}));
+}
+
+function deleteConnection(close: () => void) {
+	set(response, null);
+	useSubscription(connectionStore.deleteServerConnection(get(plexServerConnectionId)).subscribe({
+		complete: () => {
+			close();
+		},
+	}));
+}
+
+function onOpen(data: IConnectionDialog) {
+	set(plexServerId, data.plexServerId);
+	set(plexServerConnectionId, data.plexServerConnectionId);
+	set(url, connectionStore.getServerConnection(data.plexServerConnectionId)?.url ?? '');
+}
+
 function onClose() {
 	set(url, '');
 	set(plexServerId, 0);
+	set(plexServerConnectionId, 0);
 	set(loadingTestConnection, false);
 	set(isValidTestConnection, false);
 	set(loadingCreateConnection, false);

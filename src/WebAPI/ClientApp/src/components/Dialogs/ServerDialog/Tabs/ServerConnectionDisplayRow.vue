@@ -27,7 +27,8 @@
 		<q-item-section
 			v-if="connection.isCustom"
 			side>
-			<EditIconButton />
+			<EditIconButton
+				@click="dialogStore.openAddConnectionDialog({ plexServerId, plexServerConnectionId: connection.id })" />
 		</q-item-section>
 
 		<q-item-section side>
@@ -49,10 +50,11 @@ import { get, set } from '@vueuse/core';
 import { useSubscription } from '@vueuse/rxjs';
 import { computed, defineProps, onMounted, ref } from 'vue';
 import { map } from 'rxjs/operators';
-import { useServerConnectionStore, useServerStore, useSignalrStore } from '@store';
+import { useDialogStore, useServerConnectionStore, useServerStore, useSignalrStore } from '@store';
 
 const serverStore = useServerStore();
 const signalrStore = useSignalrStore();
+const dialogStore = useDialogStore();
 const serverConnectionStore = useServerConnectionStore();
 
 const loading = ref<boolean>(false);
@@ -85,6 +87,12 @@ onMounted(() => useSubscription(
 	signalrStore
 		.getServerConnectionProgressByPlexServerId(get(plexServerId))
 		.pipe(map((x) => x.find((y) => y.plexServerConnectionId === props.connection.id)))
-		.subscribe((data) => set(progressData, data ?? null)),
+		.subscribe((data) => {
+			if (get(loading)) {
+				set(progressData, data ?? null);
+			} else {
+				set(progressData, null);
+			}
+		}),
 ));
 </script>
