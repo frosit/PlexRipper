@@ -25,6 +25,11 @@
 						<slot
 							name="title"
 							:value="parentValue" />
+						<div
+							v-if="closeButton"
+							class="dialog-close-button">
+							<CloseIconButton @click="closeDialog" />
+						</div>
 					</QCardTitle>
 				</div>
 			</QCol>
@@ -89,6 +94,7 @@ const props = withDefaults(
 		persistent?: boolean;
 		seamless?: boolean;
 		maximized?: boolean;
+		closeButton?: boolean;
 		noBackdropDismiss?: boolean;
 		noBackground?: boolean;
 		noRouteDismiss?: boolean;
@@ -110,6 +116,7 @@ const props = withDefaults(
 		persistent: false,
 		seamless: false,
 		maximized: false,
+		closeButton: false,
 		noBackground: false,
 		noBackdropDismiss: false,
 		noRouteDismiss: false,
@@ -188,6 +195,12 @@ body {
   .q-card-dialog {
     // Scrollbar is hidden because otherwise the header and footer are also scrolling
     overflow-y: hidden;
+
+    .dialog-close-button {
+      position: absolute;
+      right: 0.5rem;
+      top: 0.5rem;
+    }
 
     &-background {
       @extend .default-border;
