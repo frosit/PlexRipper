@@ -1,15 +1,17 @@
-using System.Net;
-using System.Net.Sockets;
 using Application.Contracts;
 using Data.Contracts;
 using FastEndpoints;
 using FluentValidation;
+using Logging.Interface;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 
 namespace PlexRipper.Application;
 
-public record CreatePlexServerConnectionEndpointRequest()
+public record UpdatePlexServerConnectionEndpointRequest()
 {
+    public int Id { get; init; }
+
     public string Url { get; init; }
 
     public string Protocol { get; init; }
@@ -21,47 +23,50 @@ public record CreatePlexServerConnectionEndpointRequest()
     public int PlexServerId { get; set; }
 };
 
-public class CreatePlexServerConnectionEndpointRequestValidator : Validator<CreatePlexServerConnectionEndpointRequest>
+public class UpdatePlexServerConnectionEndpointRequestValidator : Validator<UpdatePlexServerConnectionEndpointRequest>
 {
-    public CreatePlexServerConnectionEndpointRequestValidator()
+    public UpdatePlexServerConnectionEndpointRequestValidator()
     {
+        RuleFor(x => x.Id).GreaterThan(0);
+        RuleFor(x => x.PlexServerId).GreaterThan(0);
         RuleFor(x => x.Url).NotEmpty();
         RuleFor(x => x.Protocol).NotEmpty();
         RuleFor(x => x.Address).NotEmpty();
         RuleFor(x => x.Port).GreaterThan(0);
-        RuleFor(x => x.PlexServerId).GreaterThan(0);
     }
 }
 
-public class CreatePlexServerConnectionEndpoint
-    : BaseEndpoint<CreatePlexServerConnectionEndpointRequest, ResultDTO<PlexServerConnectionDTO>>
+public class UpdatePlexServerConnectionEndpoint
+    : BaseEndpoint<UpdatePlexServerConnectionEndpointRequest, ResultDTO<PlexServerConnectionDTO>>
 {
+    private readonly ILog _log;
     private readonly IPlexRipperDbContext _dbContext;
 
     public override string EndpointPath => ApiRoutes.PlexServerConnectionController;
 
-    public CreatePlexServerConnectionEndpoint(IPlexRipperDbContext dbContext)
+    public UpdatePlexServerConnectionEndpoint(ILog log, IPlexRipperDbContext dbContext)
     {
+        _log = log;
         _dbContext = dbContext;
     }
 
     public override void Configure()
     {
-        Post(EndpointPath);
+        Patch(EndpointPath);
         AllowAnonymous();
         Description(x =>
-            x.ClearDefaultProduces()
-                .Produces(StatusCodes.Status201Created, typeof(ResultDTO<PlexServerConnectionDTO>))
+            x.Produces(StatusCodes.Status200OK, typeof(ResultDTO<PlexServerConnectionDTO>))
                 .Produces(StatusCodes.Status400BadRequest, typeof(ResultDTO))
+                .Produces(StatusCodes.Status404NotFound, typeof(ResultDTO))
                 .Produces(StatusCodes.Status500InternalServerError, typeof(ResultDTO))
         );
     }
 
-    public override async Task HandleAsync(CreatePlexServerConnectionEndpointRequest req, CancellationToken ct)
+    public override async Task HandleAsync(UpdatePlexServerConnectionEndpointRequest req, CancellationToken ct)
     {
         var connection = new PlexServerConnection
         {
-            Id = 0,
+            Id = req.Id,
             Protocol = req.Protocol.ToLower(),
             Address = req.Address,
             Port = req.Port,
@@ -73,11 +78,14 @@ public class CreatePlexServerConnectionEndpoint
             PlexServerId = req.PlexServerId,
             IsCustom = true,
         };
-        _dbContext.PlexServerConnections.Add(connection);
+
+        _dbContext.PlexServerConnections.Update(connection);
 
         await _dbContext.SaveChangesAsync(ct);
 
-        var result = ResultExtensions.Create201CreatedResult(connection.ToDTO());
+        var connectionDb = await _dbContext.PlexServerConnections.GetAsync(req.Id, ct);
+
+        var result = ResultExtensions.Create200OkResult(connectionDb!.ToDTO());
         await SendFluentResult(result, ct);
     }
 }
