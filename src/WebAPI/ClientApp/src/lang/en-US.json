@@ -234,7 +234,8 @@
             "test-connection-button": "Test Connection",
             "url-has-invalid-format": "URL has invalid format!",
             "url-has-valid-format": "Url is of a valid format!",
-            "update-connection": "Update Connection"
+            "update-connection": "Update Connection",
+            "url-already-exists": "This URL is already used for server: {serverName}"
         }
     },
     "confirmation": {

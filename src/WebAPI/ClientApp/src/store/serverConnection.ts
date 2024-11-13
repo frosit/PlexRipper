@@ -118,10 +118,23 @@ export const useServerConnectionStore = defineStore('ServerConnection', () => {
 			),
 		getServerConnection: (connectionId: number) => state.serverConnections.find((x) => x.id === connectionId),
 		getServerConnections: computed((): PlexServerConnectionDTO[] => state.serverConnections),
-		isServerConnected: (plexServerId = 0) => {
-			return state.serverConnections
+		isServerConnected: (plexServerId = 0) =>
+			state.serverConnections
 				.filter((x) => x.plexServerId === plexServerId)
-				.some((x) => x.latestConnectionStatus?.isSuccessful ?? false);
+				.some((x) => x.latestConnectionStatus?.isSuccessful ?? false),
+		IsUrlExisting: (
+			url: string,
+		): {
+			plexServerId: number;
+			connectionId: number;
+		} => {
+			const connection = state.serverConnections.find((x) => x.url === url);
+			return connection
+				? { plexServerId: connection.plexServerId, connectionId: connection.id }
+				: {
+						plexServerId: 0,
+						connectionId: 0,
+					};
 		},
 	};
 	return {

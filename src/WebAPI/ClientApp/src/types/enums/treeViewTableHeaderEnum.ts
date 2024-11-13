@@ -1,4 +1,4 @@
-enum TreeViewTableHeaderEnum {
+export enum TreeViewTableHeaderEnum {
 	None = 'none',
 	Date = 'date',
 	Duration = 'duration',
@@ -7,5 +7,3 @@ enum TreeViewTableHeaderEnum {
 	Percentage = 'percentage',
 	Actions = 'actions',
 }
-
-export default TreeViewTableHeaderEnum;

@@ -30,9 +30,8 @@
 					</QCol>
 					<QCol cols="auto">
 						<ValidIcon
-							:invalid-text="$t('components.add-connection-dialog.url-has-invalid-format')"
-							:valid="parsedUrl !== null"
-							:valid-text="$t('components.add-connection-dialog.url-has-valid-format')" />
+							:valid="urlValidation.valid"
+							:text="urlValidation.text" />
 					</QCol>
 				</QRow>
 				<!-- Property Preview -->
@@ -100,7 +99,7 @@
 						:label="$t('components.add-connection-dialog.test-connection-button')"
 						:loading="loadingTestConnection"
 						:is-validated="isValidTestConnection"
-						:disabled="parsedUrl === null"
+						:disabled="urlValidation.valid !== ValidationLevel.Valid"
 						@click="checkConnection" />
 				</QCol>
 				<QCol cols="auto">
@@ -110,7 +109,7 @@
 							: $t('components.add-connection-dialog.add-connection-button')"
 						color="positive"
 						:loading="loadingCreateConnection"
-						:disabled="parsedUrl === null"
+						:disabled="urlValidation.valid !== ValidationLevel.Valid"
 						@click="plexServerConnectionId > 0
 							? updateConnection(close)
 							: createConnection(close) " />
@@ -122,17 +121,17 @@
 
 <script setup lang="ts">
 import { get, set } from '@vueuse/core';
-import { DialogType } from '@enums';
+import { DialogType, ValidationLevel } from '@enums';
 import type { IConnectionDialog } from '@interfaces';
 import type { CreatePlexServerConnectionEndpointRequest, ServerIdentityDTO } from '@dto';
 import DeleteButton from '@components/Buttons/DeleteButton.vue';
-import { useSubscription, useServerStore, useServerConnectionStore } from '#imports';
+import { useServerConnectionStore, useServerStore, useSubscription } from '#imports';
 
 const serverStore = useServerStore();
 const connectionStore = useServerConnectionStore();
 
 const url = ref<string>('');
-
+const { t } = useI18n();
 const plexServerId = ref<number>(0);
 const plexServerConnectionId = ref<number>(0);
 
@@ -177,6 +176,31 @@ const connection = computed((): CreatePlexServerConnectionEndpointRequest => {
 		port,
 		url: url.origin ?? '',
 		plexServerId: get(plexServerId),
+	};
+});
+
+const urlValidation = computed((): { valid: ValidationLevel; text: string } => {
+	const url = get(parsedUrl);
+	if (url === null) {
+		return {
+			valid: ValidationLevel.Invalid,
+			text: t('components.add-connection-dialog.url-has-invalid-format'),
+		};
+	}
+
+	const urlExist = connectionStore.IsUrlExisting(get(connection).url);
+	if (urlExist.plexServerId > 0) {
+		return {
+			valid: ValidationLevel.Warning,
+			text: t('components.add-connection-dialog.url-already-exists', {
+				serverName: serverStore.getServerName(urlExist.plexServerId),
+			}),
+		};
+	}
+
+	return {
+		valid: ValidationLevel.Valid,
+		text: t('components.add-connection-dialog.url-has-valid-format'),
 	};
 });
 

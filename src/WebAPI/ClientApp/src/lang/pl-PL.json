@@ -234,7 +234,8 @@
             "test-connection-button": "Test połączenia",
             "url-has-invalid-format": "Adres URL ma nieprawidłowy format!",
             "url-has-valid-format": "Adres URL ma prawidłowy format!",
-            "update-connection": "Aktualizuj połączenie"
+            "update-connection": "Aktualizuj połączenie",
+            "url-already-exists": "Ten adres URL jest już używany dla serwera: {serverName}"
         }
     },
     "confirmation": {
