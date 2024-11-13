@@ -1,4 +1,5 @@
 export * from './service/index';
+export * from './dialog/index';
 export * from './IText';
 export * from './IAlert';
 export * from './IObjectUrl';

@@ -6,7 +6,8 @@ import {
 	generateServerDownloadProgress,
 	generatePlexMedias,
 	generateDownloadTask,
-	generatePlexLibrariesFromPlexServers, generatePlexServerConnections,
+	generatePlexLibrariesFromPlexServers,
+	generatePlexServerConnections,
 } from '@mock';
 import { generateSettingsModel } from '@factories/settings-factory';
 import { generatePlexAccounts } from '@factories/plex-account-factory';
@@ -63,8 +64,20 @@ export function basePageSetup(config: Partial<MockConfig> = {}): Cypress.Chainab
 		detailDownloadTasks: [],
 	};
 
+	if (
+		config.override === undefined
+		|| !config.override.plexServer
+		|| !config.override.plexServerConnections
+		|| !config.override.plexLibraries
+		|| !config.override.plexAccounts
+		|| !config.override.downloadTasks
+		|| !config.override.settings
+	) {
+		throw new Error('All override properties must be defined.');
+	}
+
 	// PlexServers call
-	result.plexServers = generatePlexServers({ config });
+	result.plexServers = config.override.plexServer(generatePlexServers({ config }));
 	cy.intercept('GET', PlexServerPaths.getAllPlexServersEndpoint(), {
 		statusCode: 200,
 		body: generateResultDTO(result.plexServers),
@@ -78,6 +91,7 @@ export function basePageSetup(config: Partial<MockConfig> = {}): Cypress.Chainab
 	for (const plexServer of result.plexServers) {
 		result.plexServerConnections.push(...generatePlexServerConnections({ plexServerId: plexServer.id, config }));
 	}
+	result.plexServerConnections = config.override.plexServerConnections(result.plexServerConnections);
 	cy.intercept('GET', PlexServerConnectionPaths.getAllPlexServerConnectionsEndpoint(), {
 		statusCode: 200,
 		body: generateResultDTO(result.plexServerConnections),
@@ -89,7 +103,7 @@ export function basePageSetup(config: Partial<MockConfig> = {}): Cypress.Chainab
 
 	// PlexLibraries call
 	result.plexLibraries = generatePlexLibrariesFromPlexServers({ plexServers: result.plexServers, config });
-
+	result.plexLibraries = config.override.plexLibraries(result.plexLibraries);
 	cy.intercept('GET', PlexLibraryPaths.getAllPlexLibrariesEndpoint(), {
 		statusCode: 200,
 		body: generateResultDTO(result.plexLibraries),
@@ -108,7 +122,12 @@ export function basePageSetup(config: Partial<MockConfig> = {}): Cypress.Chainab
 	}
 
 	// PlexAccount call
-	result.plexAccounts = generatePlexAccounts({ config, plexServers: result.plexServers, plexLibraries: result.plexLibraries });
+	result.plexAccounts = generatePlexAccounts({
+		config,
+		plexServers: result.plexServers,
+		plexLibraries: result.plexLibraries,
+	});
+	result.plexAccounts = config.override.plexAccounts(result.plexAccounts);
 	cy.intercept('GET', PlexAccountPaths.getAllPlexAccountsEndpoint(), {
 		statusCode: 200,
 		body: generateResultDTO(result.plexAccounts),
@@ -128,6 +147,7 @@ export function basePageSetup(config: Partial<MockConfig> = {}): Cypress.Chainab
 			}),
 		)
 		.flat();
+	result.serverDownloadProgress = config.override.downloadTasks(result.serverDownloadProgress);
 	cy.intercept('GET', DownloadPaths.getAllDownloadTasksEndpoint(), {
 		statusCode: 200,
 		body: generateResultDTO(result.serverDownloadProgress),
@@ -161,6 +181,7 @@ export function basePageSetup(config: Partial<MockConfig> = {}): Cypress.Chainab
 
 	// Settings call
 	result.settings = generateSettingsModel({ plexServers: result.plexServers, config });
+	result.settings = config.override.settings(result.settings);
 	cy.intercept('GET', SettingsPaths.getUserSettingsEndpoint(), {
 		statusCode: 200,
 		body: generateResultDTO(result.settings),

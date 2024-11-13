@@ -2,8 +2,6 @@ namespace Application.Contracts;
 
 public class PlexServerConnectionDTO
 {
-    #region Properties
-
     public required int Id { get; set; }
 
     public required string Protocol { get; set; }
@@ -11,6 +9,8 @@ public class PlexServerConnectionDTO
     public required string Address { get; set; }
 
     public required int Port { get; set; }
+
+    public required bool IsCustom { get; set; }
 
     public required bool Local { get; set; }
 
@@ -21,8 +21,6 @@ public class PlexServerConnectionDTO
 
     // ReSharper disable once InconsistentNaming
     public required bool IPv6 { get; set; }
-
-    public required bool PortFix { get; set; }
 
     public required int PlexServerId { get; set; }
 
@@ -35,11 +33,4 @@ public class PlexServerConnectionDTO
     public required List<PlexServerStatusDTO> ServerStatusList { get; set; }
 
     public required PlexServerStatusDTO? LatestConnectionStatus { get; set; }
-
-    /// <summary>
-    /// Added as a progress container for the front-end
-    /// </summary>
-    public required ServerConnectionCheckStatusProgressDTO? Progress { get; set; }
-
-    #endregion
 }

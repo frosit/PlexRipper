@@ -135,10 +135,10 @@ public class ChoosePlexServerConnection_UnitTests : BaseUnitTest
             Relay = plexServerConnections[2].Relay,
             IPv4 = plexServerConnections[2].IPv4,
             IPv6 = plexServerConnections[2].IPv6,
-            PortFix = plexServerConnections[2].PortFix,
             PlexServer = plexServerConnections[2].PlexServer,
             PlexServerId = plexServerConnections[2].PlexServerId,
             PlexServerStatus = plexServerConnections[2].PlexServerStatus,
+            IsCustom = plexServerConnections[2].IsCustom,
         };
 
         foreach (var plexServerConnection in plexServerConnections)

@@ -2,7 +2,7 @@
 	<QCardDialog
 		max-width="1000px"
 		content-height="80"
-		:name="name"
+		:name="DialogType.CheckServerConnectionDialogName"
 		cy="check-server-connection-dialog"
 		@closed="onClosed">
 		<template #top-row>
@@ -27,7 +27,8 @@
 						<QRow
 							justify="between"
 							align="center">
-							<QCol cols="8">
+							<QCol
+								cols="8">
 								<div :class="{ 'text-weight-bold': isServer(node) }">
 									<!--	Plex Server Connection Icon -->
 									<q-icon
@@ -119,10 +120,11 @@
 import { useSubscription } from '@vueuse/rxjs';
 import { get, set } from '@vueuse/core';
 import { JobStatus, type ServerConnectionCheckStatusProgressDTO } from '@dto';
+import { DialogType } from '@enums';
 import {
 	useBackgroundJobsStore,
 	useI18n,
-	useOpenControlDialog,
+	useDialogStore,
 	useServerConnectionStore,
 	useServerStore,
 	useSignalrStore,
@@ -131,8 +133,8 @@ import {
 const { t } = useI18n();
 const serverStore = useServerStore();
 const connectionStore = useServerConnectionStore();
+const dialogStore = useDialogStore();
 const backgroundJobStore = useBackgroundJobsStore();
-const name = 'checkServerConnectionDialogName';
 const connectionProgress = ref<ServerConnectionCheckStatusProgressDTO[]>([]);
 
 const expanded = ref<number[]>([]);
@@ -173,36 +175,37 @@ const getProgressText = computed(() => {
 
 const plexServerNodes = computed((): IPlexServerNode[] => {
 	let uniqueIndex = 0;
+
 	return get(plexServers).map((server) => {
 		const connections = connectionStore.getServerConnectionsByServerId(server.id);
-		const serverResult: IPlexServerNode = {
+		const mappedConnections = connections.map((connection): IPlexServerNode => {
+			const progress = getConnectionProgress(connection.id, server.id);
+
+			return {
+				id: connection.id,
+				index: uniqueIndex++,
+				type: 'connection',
+				title: connection.url,
+				local: connection.local,
+				completed: progress.completed,
+				connectionSuccessful: progress.connectionSuccessful,
+				progress,
+				children: [],
+			};
+		});
+
+		const hasConnections = mappedConnections.length > 0;
+
+		return {
 			id: server.id,
+			index: uniqueIndex++,
 			type: 'server',
 			title: serverStore.getServerName(server.id),
-			completed: false,
-			index: uniqueIndex++,
-			connectionSuccessful: false,
-			noConnections: connections.length === 0,
-			children: connections.map((connection) => {
-				const progress = getConnectionProgress(connection.id, server.id);
-				return {
-					id: connection.id,
-					type: 'connection',
-					title: connection.url,
-					local: connection.local,
-					completed: progress.completed,
-					index: uniqueIndex++,
-					connectionSuccessful: progress.connectionSuccessful,
-					progress,
-					children: [],
-				};
-			}),
+			completed: hasConnections ? mappedConnections.some((x) => x.completed) : true,
+			connectionSuccessful: hasConnections ? mappedConnections.some((connection) => connection.connectionSuccessful) : false,
+			noConnections: !hasConnections,
+			children: mappedConnections,
 		};
-
-		serverResult.completed = serverResult.children?.some((x) => x.completed) ?? true;
-		serverResult.connectionSuccessful = serverResult.children?.some((connection) => connection.connectionSuccessful) ?? false;
-
-		return serverResult;
 	});
 });
 
@@ -248,19 +251,21 @@ onMounted(() => {
 			}),
 	);
 
-	useSubscription(
-		backgroundJobStore.getCheckPlexServerConnectionsJobUpdate(JobStatus.Started)
-			.subscribe(({ data }) => {
-				get(plexServerIds).push(data.plexServerId);
-				useOpenControlDialog(name);
-			}),
-	);
-
+	// TODO this might be better moved to the dialog store
 	useSubscription(
 		backgroundJobStore.getInspectPlexServerJobUpdate(JobStatus.Started)
 			.subscribe(({ data }) => {
 				get(plexServerIds).push(...data);
-				useOpenControlDialog(name);
+
+				dialogStore.openCheckServerConnectionsDialog({
+					plexServersWithConnectionIds: data.reduce(
+						(acc, serverId) => {
+							acc[serverId] = [];
+							return acc;
+						},
+						{} as Record<string, number[]>,
+					),
+				});
 			}),
 	);
 });
@@ -281,14 +286,14 @@ interface IPlexServerNode {
 
 <style lang="scss">
 .server-progress-list {
-	.v-list-item__content {
-		padding: 0;
-	}
+  .v-list-item__content {
+    padding: 0;
+  }
 
-	&.theme--dark {
-		.server-title {
-			color: white;
-		}
-	}
+  &.theme--dark {
+    .server-title {
+      color: white;
+    }
+  }
 }
 </style>

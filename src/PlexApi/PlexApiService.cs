@@ -230,7 +230,7 @@ public class PlexApiService : IPlexApiService
                         .Connections.Select(y => new PlexServerConnection
                         {
                             Id = 0,
-                            Protocol = y.Protocol.ToString(),
+                            Protocol = y.Protocol.ToString().ToLower(),
                             Address = y.Address,
                             Port = y.Port,
                             Local = y.Local,
@@ -238,12 +238,10 @@ public class PlexApiService : IPlexApiService
                             IPv4 = y.Address.IsIpAddress() && !y.IPv6,
                             IPv6 = y.IPv6,
                             Uri = y.Uri,
-
-                            // The port fix is when we don't want to use the port when Address is a domain name
-                            PortFix = !y.Address.IsIpAddress() && !y.IPv6 && y.Address != "localhost",
                             PlexServer = null,
                             PlexServerId = 0,
                             PlexServerStatus = [],
+                            IsCustom = false,
                         })
                         .ToList(),
                 },
@@ -269,6 +267,30 @@ public class PlexApiService : IPlexApiService
         }
 
         return result;
+    }
+
+    public async Task<Result<ServerIdentityDTO>> ValidatePlexConnection(string plexServerConnection)
+    {
+        var response = await _plexApiWrapper.ValidatePlexConnectionUrl(plexServerConnection);
+        if (response.IsFailed)
+        {
+            return response.ToResult();
+        }
+
+        var mediaContainer = response.Value.Object?.MediaContainer ?? null;
+        if (mediaContainer is null)
+        {
+            return ResultExtensions.IsNull(nameof(mediaContainer));
+        }
+
+        return Result.Ok(
+            new ServerIdentityDTO
+            {
+                Claimed = mediaContainer.Claimed ?? false,
+                MachineIdentifier = mediaContainer.MachineIdentifier ?? string.Empty,
+                Version = mediaContainer.Version ?? string.Empty,
+            }
+        );
     }
 
     private async Task<Result<string>> GetPlexApiTokenAsync(PlexAccount? plexAccount)

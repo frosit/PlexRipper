@@ -18,10 +18,9 @@
 </template>
 
 <script setup lang="ts">
-import type { PlexServerDTO, ServerConnectionCheckStatusProgressDTO } from '@dto';
+import type { ServerConnectionCheckStatusProgressDTO } from '@dto';
 
 defineProps<{
-	plexServer: PlexServerDTO | null;
 	progress: ServerConnectionCheckStatusProgressDTO | null;
 }>();
 </script>

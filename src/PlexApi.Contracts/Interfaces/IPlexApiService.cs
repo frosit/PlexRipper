@@ -13,9 +13,9 @@ public interface IPlexApiService
     Task<Result<PlexAccount>> PlexSignInAsync(PlexAccount plexAccount);
 
     /// <summary>
-    /// Retrieves the accessible <see cref="PlexServer">PlexServers</see> by this <see cref="PlexAccount"/> server token.
+    /// Retrieves the accessible <see cref="PlexServer">PlexServers</see> by this <see cref="PlexAccount"/> with the <see cref="PlexServerConnection">PlexServerConnections</see> from the Plex API.
     /// </summary>
-    /// <param name="plexAccountId"></param>
+    /// <param name="plexAccountId"> The <see cref="PlexAccount"/> to use.</param>
     /// <returns>Returns the list of <see cref="PlexServer">PlexServers</see> this <see cref="PlexAccount"/> has access too
     /// and a separate list of tokens this account has to use to communicate with the <see cref="PlexServer"/></returns>
     public Task<Result<List<PlexServerAccessDTO>>> GetAccessiblePlexServersAsync(int plexAccountId);
@@ -85,4 +85,6 @@ public interface IPlexApiService
     );
 
     Task<Result<PlexAccount>> ValidatePlexToken(PlexAccount plexAccount);
+
+    Task<Result<ServerIdentityDTO>> ValidatePlexConnection(string plexServerConnection);
 }

@@ -17,11 +17,6 @@ public class AddOrUpdatePlexServersCommandValidator : AbstractValidator<AddOrUpd
             .ChildRules(server =>
             {
                 server
-                    .RuleFor(s => s.PlexServerConnections)
-                    .NotEmpty()
-                    .WithMessage("PlexServerConnections list cannot be empty.");
-
-                server
                     .RuleForEach(s => s.PlexServerConnections)
                     .ChildRules(connection =>
                     {
@@ -99,53 +94,48 @@ public class AddOrUpdatePlexServersCommandHandler : IRequestHandler<AddOrUpdateP
     private void SyncPlexServerConnections(PlexServer plexServer, PlexServer existingServer)
     {
         // Create or Update PlexServerConnections
-        foreach (var newPlexServerConnection in plexServer.PlexServerConnections)
+        foreach (var newConnection in plexServer.PlexServerConnections)
         {
-            newPlexServerConnection.PlexServerId = plexServer.Id;
+            newConnection.PlexServerId = plexServer.Id;
 
-            var connectionDb = existingServer.PlexServerConnections.FirstOrDefault(x =>
-                x.Equals(newPlexServerConnection)
-            );
-            if (connectionDb is null)
+            var existingConnection = existingServer.PlexServerConnections.FirstOrDefault(x => x.Equals(newConnection));
+
+            if (existingConnection is null)
             {
-                // Creating Connection
                 _log.Here()
                     .Debug(
                         "Creating connection {PlexServerConnection} from {PlexServerName} in the database",
-                        newPlexServerConnection.ToString(),
+                        newConnection.ToString(),
                         existingServer.Name
                     );
-                _dbContext.PlexServerConnections.Add(newPlexServerConnection);
+                _dbContext.PlexServerConnections.Add(newConnection);
             }
             else
             {
-                // Updating Connection
                 _log.Here()
                     .Debug(
                         "Updating connection {PlexServerConnection} from {PlexServerName} in the database",
-                        newPlexServerConnection.ToString(),
+                        newConnection.ToString(),
                         existingServer.Name
                     );
-                newPlexServerConnection.Id = connectionDb.Id;
-                _dbContext.Entry(connectionDb).CurrentValues.SetValues(newPlexServerConnection);
+                newConnection.Id = existingConnection.Id;
+                _dbContext.Entry(existingConnection).CurrentValues.SetValues(newConnection);
             }
         }
 
-        // Delete connections that are not given
-        for (var i = existingServer.PlexServerConnections.Count - 1; i >= 0; i--)
+        foreach (var existingConnection in existingServer.PlexServerConnections.ToList())
         {
-            var plexServerConnectionDB = existingServer.PlexServerConnections[i];
-            var connection = plexServer.PlexServerConnections.FirstOrDefault(x => x.Equals(plexServerConnectionDB));
-            if (connection is null)
+            if (
+                !existingConnection.IsCustom && !plexServer.PlexServerConnections.Any(x => x.Equals(existingConnection))
+            )
             {
                 _log.Here()
                     .Debug(
                         "Removing connection {PlexServerConnection} from {PlexServerName} in the database",
-                        plexServerConnectionDB.ToString(),
+                        existingConnection.ToString(),
                         existingServer.Name
                     );
-
-                _dbContext.Entry(plexServerConnectionDB).State = EntityState.Deleted;
+                _dbContext.Entry(existingConnection).State = EntityState.Deleted;
             }
         }
     }

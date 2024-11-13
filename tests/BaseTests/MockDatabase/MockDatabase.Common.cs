@@ -191,8 +191,7 @@ public static partial class MockDatabase
         var optionsBuilder = new DbContextOptionsBuilder<PlexRipperDbContext>();
         dbName = string.IsNullOrEmpty(dbName) ? GetMemoryDatabaseName() : dbName;
 
-        var connectionString = DatabaseConnectionString(dbName);
-        SqliteConnection databaseConnection = new(connectionString);
+        SqliteConnection databaseConnection = new(DatabaseConnectionString(dbName));
 
         databaseConnection.CreateCollation(
             OrderByNaturalExtensions.CollationName,
@@ -212,7 +211,7 @@ public static partial class MockDatabase
         // https://docs.microsoft.com/en-us/dotnet/standard/data/sqlite/in-memory-databases
         new SqliteConnectionStringBuilder
         {
-            // Real file is used for testing due to otherwise flaky tests when doing in memory
+            // TODO Should be set to in-memory for testing, flakey tests might be fixed now
             Mode = SqliteOpenMode.ReadWriteCreate,
             ForeignKeys = true,
 

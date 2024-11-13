@@ -8,7 +8,7 @@
 					colored-border
 					elevation="2"
 					type="warning">
-					{{ t('general.alerts.disabled-paths') }}
+					{{ $t('general.alerts.disabled-paths') }}
 				</q-alert>
 			</QCol>
 		</QRow>
@@ -45,7 +45,7 @@
 							readonly>
 							<IconSquareButton
 								icon="mdi-folder-open-outline"
-								@click="openDirectoryBrowser(folderPath)" />
+								@click="dialogStore.openDirectoryBrowserDialog(folderPath)" />
 						</q-input>
 					</QCol>
 					<!--	Is Valid Icon -->
@@ -53,9 +53,9 @@
 						align-self="center"
 						cols="auto">
 						<ValidIcon
-							:invalid-text="t('general.alerts.invalid-directory')"
-							:valid="folderPath.isValid"
-							:valid-text="t('general.alerts.valid-directory')" />
+							:invalid-text="$t('general.alerts.invalid-directory')"
+							:valid="folderPath.isValid ? ValidationLevel.Valid : ValidationLevel.Invalid"
+							:valid-text="$t('general.alerts.valid-directory')" />
 					</QCol>
 					<!--	Delete Button -->
 					<QCol
@@ -94,34 +94,24 @@
 	</template>
 
 	<!--	Directory Browser	-->
-	<DirectoryBrowser
-		:name="directoryBrowserName"
-		@confirm="confirmDirectoryBrowser" />
+	<DirectoryBrowser @confirm="confirmDirectoryBrowser" />
 </template>
 
 <script lang="ts" setup>
 import { type FolderPathDTO, FolderType } from '@dto';
 import type IFolderPathGroup from '@interfaces/IFolderPathGroup';
 import type { IHelp } from '@interfaces';
-import {
-	useI18n,
-	useOpenControlDialog,
-	useFolderPathStore,
-	useSubscription,
-	showErrorNotification,
-} from '#imports';
+import { ValidationLevel } from '@enums';
+import { showErrorNotification, useDialogStore, useFolderPathStore, useI18n, useSubscription } from '#imports';
 
 const { t } = useI18n();
+
+const dialogStore = useDialogStore();
 const folderPathStore = useFolderPathStore();
+
 withDefaults(defineProps<{ onlyDefaults?: boolean }>(), {
 	onlyDefaults: false,
 });
-
-const directoryBrowserName = 'customDirectoryBrowser';
-
-const openDirectoryBrowser = (path: FolderPathDTO): void => {
-	useOpenControlDialog(directoryBrowserName, path);
-};
 
 const allowEditing = computed(() => {
 	return true;
@@ -206,9 +196,9 @@ const saveDisplayName = (id: number, value: string): void => {
 
 <style lang="scss">
 .folder-path-input {
-	.q-field__control {
-		// Ensures the folder button is outlined to the right border
-		padding: 0 0 0 12px;
-	}
+  .q-field__control {
+    // Ensures the folder button is outlined to the right border
+    padding: 0 0 0 12px;
+  }
 }
 </style>

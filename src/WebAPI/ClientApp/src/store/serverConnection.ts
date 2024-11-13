@@ -3,7 +3,12 @@ import type { Observable } from 'rxjs';
 import { of } from 'rxjs';
 import { map, switchMap, tap } from 'rxjs/operators';
 import { get } from '@vueuse/core';
-import type { PlexServerConnectionDTO, PlexServerStatusDTO } from '@dto';
+import type {
+	CreatePlexServerConnectionEndpointRequest,
+	PlexServerConnectionDTO,
+	PlexServerStatusDTO,
+	UpdatePlexServerConnectionEndpointRequest,
+} from '@dto';
 import type { ISetupResult } from '@interfaces';
 import { plexServerApi, plexServerConnectionApi } from '@api';
 import { DataType } from '@dto';
@@ -20,7 +25,10 @@ export const useServerConnectionStore = defineStore('ServerConnection', () => {
 	const actions = {
 		setup(): Observable<ISetupResult> {
 			// Listen for refresh notifications
-			signalRStore.getRefreshNotification(DataType.PlexServerConnection).pipe(switchMap(() => actions.refreshPlexServerConnections())).subscribe();
+			signalRStore
+				.getRefreshNotification(DataType.PlexServerConnection)
+				.pipe(switchMap(() => actions.refreshPlexServerConnections()))
+				.subscribe();
 
 			return actions
 				.refreshPlexServerConnections()
@@ -64,23 +72,69 @@ export const useServerConnectionStore = defineStore('ServerConnection', () => {
 				switchMap(() => actions.refreshPlexServerConnections()),
 			);
 		},
-		setPreferredPlexServerConnection(serverId: number, connectionId: number) {
-			return plexServerApi
-				.setPreferredPlexServerConnectionEndpoint(serverId, connectionId)
-				.pipe(switchMap(() => useServerStore().refreshPlexServer(serverId)));
-		},
+		checkServerConnectionUrl: (connectionUrl: string) =>
+			plexServerConnectionApi.validatePlexServerConnectionEndpoint({
+				url: connectionUrl,
+			}),
+		createServerConnection: (data: CreatePlexServerConnectionEndpointRequest) =>
+			plexServerConnectionApi.createPlexServerConnectionEndpoint(data).pipe(
+				tap(({ isSuccess, value }) => {
+					if (isSuccess && value) {
+						state.serverConnections.push(value);
+					}
+				}),
+			),
+		updateServerConnection: (data: UpdatePlexServerConnectionEndpointRequest) =>
+			plexServerConnectionApi.updatePlexServerConnectionEndpoint(data).pipe(
+				tap(({ isSuccess, value }) => {
+					if (isSuccess && value) {
+						const index = state.serverConnections.findIndex((x) => x.id === value.id);
+						if (index !== -1 && value) {
+							state.serverConnections.splice(index, 1, value);
+						}
+					}
+				}),
+			),
+		deleteServerConnection: (connectionId: number) =>
+			plexServerConnectionApi.deletePlexServerConnectionById(connectionId).pipe(
+				tap(({ isSuccess }) => {
+					if (isSuccess) {
+						const index = state.serverConnections.findIndex((x) => x.id === connectionId);
+						if (index !== -1) {
+							state.serverConnections.splice(index, 1);
+						}
+					}
+				}),
+			),
+		setPreferredPlexServerConnection: (plexServerId: number, connectionId: number) =>
+			plexServerApi
+				.setPreferredPlexServerConnectionEndpoint(plexServerId, connectionId)
+				.pipe(switchMap(() => useServerStore().refreshPlexServer(plexServerId))),
 	};
 	const getters = {
-		getServerConnectionsByServerId: (plexServerId = 0): PlexServerConnectionDTO[] => {
-			return sortPlexServerConnections(state.serverConnections.filter((connection) =>
-				plexServerId > 0 ? connection.plexServerId === plexServerId : false,
-			));
-		},
+		getServerConnectionsByServerId: (plexServerId = 0): PlexServerConnectionDTO[] =>
+			sortPlexServerConnections(
+				state.serverConnections.filter((connection) => (plexServerId > 0 ? connection.plexServerId === plexServerId : false)),
+			),
+		getServerConnection: (connectionId: number) => state.serverConnections.find((x) => x.id === connectionId),
 		getServerConnections: computed((): PlexServerConnectionDTO[] => state.serverConnections),
-		isServerConnected: (plexServerId = 0) => {
-			return state.serverConnections
+		isServerConnected: (plexServerId = 0) =>
+			state.serverConnections
 				.filter((x) => x.plexServerId === plexServerId)
-				.some((x) => x.latestConnectionStatus?.isSuccessful ?? false);
+				.some((x) => x.latestConnectionStatus?.isSuccessful ?? false),
+		IsUrlExisting: (
+			url: string,
+		): {
+			plexServerId: number;
+			connectionId: number;
+		} => {
+			const connection = state.serverConnections.find((x) => x.url === url);
+			return connection
+				? { plexServerId: connection.plexServerId, connectionId: connection.id }
+				: {
+						plexServerId: 0,
+						connectionId: 0,
+					};
 		},
 	};
 	return {

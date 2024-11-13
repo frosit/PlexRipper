@@ -10,9 +10,7 @@
  */
 
 export interface CheckAllConnectionStatusUpdateDTO {
-  plexServerConnectionIds: number[];
-  /** @format int32 */
-  plexServerId: number;
+  plexServersWithConnectionIds: Record<string, number[]>;
 }
 
 export interface ConfirmationSettingsDTO {
@@ -33,6 +31,27 @@ export interface CreateFolderPathEndpointRequest {
 
 export interface CreatePlexAccountEndpointRequest {
   plexAccount: PlexAccountDTO;
+}
+
+export interface CreatePlexServerConnectionEndpointRequest {
+  /** @minLength 1 */
+  address: string;
+  /**
+   * @format int32
+   * @min 0
+   * @exclusiveMin true
+   */
+  plexServerId: number;
+  /**
+   * @format int32
+   * @min 0
+   * @exclusiveMin true
+   */
+  port: number;
+  /** @minLength 1 */
+  protocol: string;
+  /** @minLength 1 */
+  url: string;
 }
 
 export enum DataType {
@@ -586,6 +605,7 @@ export interface PlexServerConnectionDTO {
   address: string;
   /** @format int32 */
   id: number;
+  isCustom: boolean;
   isPlexTvConnection: boolean;
   latestConnectionStatus?: PlexServerStatusDTO | null;
   local: boolean;
@@ -593,8 +613,6 @@ export interface PlexServerConnectionDTO {
   plexServerId: number;
   /** @format int32 */
   port: number;
-  portFix: boolean;
-  progress?: ServerConnectionCheckStatusProgressDTO | null;
   protocol: string;
   relay: boolean;
   serverStatusList: PlexServerStatusDTO[];
@@ -871,6 +889,15 @@ export interface ResultDTOOfPlexServerStatusDTO {
   value?: PlexServerStatusDTO | null;
 }
 
+export interface ResultDTOOfServerIdentityDTO {
+  errors: ErrorDTO[];
+  isFailed: boolean;
+  isSuccess: boolean;
+  reasons: ReasonDTO[];
+  successes: SuccessDTO[];
+  value?: ServerIdentityDTO | null;
+}
+
 export interface ResultDTOOfSettingsModelDTO {
   errors: ErrorDTO[];
   isFailed: boolean;
@@ -904,6 +931,12 @@ export interface ServerDownloadProgressDTO {
   downloads: DownloadProgressDTO[];
   /** @format int32 */
   id: number;
+}
+
+export interface ServerIdentityDTO {
+  claimed: boolean;
+  machineIdentifier: string;
+  version: string;
 }
 
 export interface ServerSettingsDTO {
@@ -958,12 +991,44 @@ export interface UpdatePlexAccountByIdEndpointRequest {
   plexAccountDTO: PlexAccountDTO;
 }
 
+export interface UpdatePlexServerConnectionEndpointRequest {
+  /** @minLength 1 */
+  address: string;
+  /**
+   * @format int32
+   * @min 0
+   * @exclusiveMin true
+   */
+  id: number;
+  /**
+   * @format int32
+   * @min 0
+   * @exclusiveMin true
+   */
+  plexServerId: number;
+  /**
+   * @format int32
+   * @min 0
+   * @exclusiveMin true
+   */
+  port: number;
+  /** @minLength 1 */
+  protocol: string;
+  /** @minLength 1 */
+  url: string;
+}
+
 export interface UpdateUserSettingsEndpointRequest {
   settingsModelDto: SettingsModelDTO;
 }
 
 export interface ValidatePlexAccountEndpointRequest {
   plexAccount: PlexAccountDTO;
+}
+
+export interface ValidatePlexServerConnectionEndpointRequest {
+  /** @minLength 1 */
+  url: string;
 }
 
 export enum ViewMode {

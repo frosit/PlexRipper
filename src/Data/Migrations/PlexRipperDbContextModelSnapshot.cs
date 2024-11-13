@@ -1285,6 +1285,10 @@ namespace PlexRipper.Data.Migrations
                         .HasColumnType("INTEGER")
                         .HasColumnOrder(8);
 
+                    b.Property<bool>("IsCustom")
+                        .HasColumnType("INTEGER")
+                        .HasColumnOrder(9);
+
                     b.Property<bool>("Local")
                         .HasColumnType("INTEGER")
                         .HasColumnOrder(5);
@@ -1295,10 +1299,6 @@ namespace PlexRipper.Data.Migrations
                     b.Property<int>("Port")
                         .HasColumnType("INTEGER")
                         .HasColumnOrder(3);
-
-                    b.Property<bool>("PortFix")
-                        .HasColumnType("INTEGER")
-                        .HasColumnOrder(9);
 
                     b.Property<string>("Protocol")
                         .IsRequired()

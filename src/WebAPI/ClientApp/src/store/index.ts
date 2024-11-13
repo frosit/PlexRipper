@@ -14,3 +14,4 @@ export * from './alertStore';
 export * from './localizationStore';
 export * from './mediaStore';
 export * from './signalrStore';
+export * from './dialogStore';

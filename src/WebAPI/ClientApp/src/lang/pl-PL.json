@@ -120,7 +120,8 @@
                 },
                 "server-connections": {
                     "header": "Połączenia serwera",
-                    "section-header": "Wybierz preferowane połączenie z serwerem:"
+                    "section-header": "Wybierz preferowane połączenie z serwerem:",
+                    "add-connection-button": "Dodaj połączenie"
                 },
                 "server-data": {
                     "headers": {
@@ -220,6 +221,21 @@
             "hours-minute-seconds": "Pozostało{hours} godzin, {minutes} minut i {seconds} sekund",
             "minutes-seconds": "Pozostało{minutes} minut i {seconds} sekund",
             "seconds": "Pozostało{seconds} sekund"
+        },
+        "add-connection-dialog": {
+            "header": "Dodaj połączenie do {serverName}",
+            "add-connection-button": "Utwórz połączenie",
+            "input": {
+                "connection-url": "Adres URL połączenia",
+                "host-name": "Nazwa hosta",
+                "port": "Port",
+                "protocol": "Protokół"
+            },
+            "test-connection-button": "Test połączenia",
+            "url-has-invalid-format": "Adres URL ma nieprawidłowy format!",
+            "url-has-valid-format": "Adres URL ma prawidłowy format!",
+            "update-connection": "Aktualizuj połączenie",
+            "url-already-exists": "Ten adres URL jest już używany dla serwera: {serverName}"
         }
     },
     "confirmation": {
@@ -366,8 +382,8 @@
                     "label": "Sprawdź serwer"
                 },
                 "sync-server-libraries": {
-                    "text": "To ograniczy prędkość pobierania dla tego serwera Plex w kilobajtach na sekundę. Ustawienie tej wartości na 0 wyłączy limit.",
-                    "title": "Limit prędkości pobierania",
+                    "text": "Spowoduje to ponowną synchronizację wszystkich danych multimedialnych dla każdej biblioteki na tym serwerze Plex.",
+                    "title": "Ponowna synchronizacja multimediów bibliotecznych",
                     "label": "Ponownie zsynchronizuj media biblioteki"
                 }
             }

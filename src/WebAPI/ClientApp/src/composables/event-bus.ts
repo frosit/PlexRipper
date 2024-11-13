@@ -1,33 +1,6 @@
 import { useEventBus, type UseEventBusReturn } from '@vueuse/core';
 import type { DownloadMediaDTO, PlexMediaSlimDTO } from '@dto';
 
-// region Dialog Controls
-
-export function useControlDialog() {
-	return useEventBus<{
-		name: string;
-		state: boolean;
-		value?: unknown;
-	}>('controlDialog');
-}
-
-export function useOpenControlDialog(name: string, value?: unknown) {
-	useControlDialog().emit({
-		name,
-		state: true,
-		value,
-	});
-}
-
-export function useCloseControlDialog(name: string) {
-	useControlDialog().emit({
-		name,
-		state: false,
-	});
-}
-
-// endregion
-
 // region MediaOverview
 
 export interface IMediaOverviewSort {

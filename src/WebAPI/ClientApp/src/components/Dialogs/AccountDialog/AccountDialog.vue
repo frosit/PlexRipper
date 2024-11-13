@@ -1,8 +1,9 @@
 <template>
 	<QCardDialog
 		max-width="900px"
-		:name="name"
+		:name="DialogType.AccountDialog"
 		persistent
+		:type="{} as IAccountDialog"
 		cy="account-dialog-form"
 		@opened="openDialog"
 		@closed="closeDialog">
@@ -46,7 +47,7 @@
 						class="mx-2"
 						block
 						cy="account-dialog-delete-button"
-						@click="openConfirmationDialog" />
+						@click="dialogStore.openDialog(DialogType.AccountConfirmationDialog)" />
 				</QCol>
 				<!-- Cancel button -->
 				<QCol>
@@ -93,20 +94,17 @@
 
 	<!--	Account Verification Code Dialog	-->
 	<AccountVerificationCodeDialog
-		:name="verificationCodeDialogName"
 		:account="changedPlexAccount"
 		@close="closeVerificationDialog"
 		@confirm="validateAfterVerificationCode" />
 
-	<AccountTokenValidateDialog
-		:name="accountTokenValidateDialogName"
-		:account="changedPlexAccount" />
+	<AccountTokenValidateDialog :account="changedPlexAccount" />
 
 	<!--	Delete Confirmation Dialog	-->
 	<ConfirmationDialog
 		class="q-mr-md"
 		:confirm-loading="deleteLoading"
-		:name="confirmationDialogName"
+		:name="DialogType.AccountConfirmationDialog"
 		:title="$t('confirmation.delete-account.title')"
 		:text="$t('confirmation.delete-account.text')"
 		:warning="$t('confirmation.delete-account.warning')"
@@ -118,23 +116,20 @@ import Log from 'consola';
 import { useSubscription } from '@vueuse/rxjs';
 import { get, set } from '@vueuse/core';
 import type { PlexAccountDTO } from '@dto';
-import type { IPlexAccount } from '@interfaces';
+import type { IAccountDialog, IPlexAccount } from '@interfaces';
 import { plexAccountApi } from '@api';
 import type AccountForm from '@components/Dialogs/AccountDialog/AccountForm.vue';
 
-import { useI18n, useOpenControlDialog, useCloseControlDialog, useAccountStore } from '#imports';
+import { DialogType } from '@enums';
+import { useAccountStore, useDialogStore, useI18n } from '#imports';
 
 const { t } = useI18n();
 const accountStore = useAccountStore();
-
-const props = defineProps<{ name: string }>();
+const dialogStore = useDialogStore();
 
 const isNewAccount = ref(false);
 
 const accountForm = ref<InstanceType<typeof AccountForm> | null>(null);
-const confirmationDialogName = 'confirmationAccountDialogName';
-const verificationCodeDialogName = 'verificationCodeDialogName';
-const accountTokenValidateDialogName = 'accountTokenValidateDialogName';
 /**
  * The plexAccount as it is currently saved
  */
@@ -189,7 +184,11 @@ const hasCredentialsChanged = computed(() => {
 	return false;
 });
 
-const validationStyle = computed((): { color: 'default' | 'positive' | 'warning' | 'negative'; icon: string; text: string } => {
+const validationStyle = computed((): {
+	color: 'default' | 'positive' | 'warning' | 'negative';
+	icon: string;
+	text: string;
+} => {
 	if (get(changedPlexAccount).hasValidationErrors) {
 		return {
 			color: 'negative',
@@ -213,7 +212,7 @@ const validationStyle = computed((): { color: 'default' | 'positive' | 'warning'
 
 const getDisplayName = computed(() => {
 	const displayName = get(changedPlexAccount).displayName;
-	let title = '';
+	let title: string;
 	if (get(isNewAccount)) {
 		title = t('components.account-dialog.add-account-title', {
 			name: get(changedPlexAccount).displayName,
@@ -235,10 +234,6 @@ function formChanged<K extends keyof IPlexAccount>({ prop, value }: { prop: K; v
 	get(changedPlexAccount)[prop] = value;
 }
 
-function openConfirmationDialog() {
-	useOpenControlDialog(confirmationDialogName);
-}
-
 function validate() {
 	set(validateLoading, true);
 
@@ -254,7 +249,7 @@ function validate() {
 					if (account?.isValidated && account?.isAuthTokenMode) {
 						Log.info('Account is validated and was added by token');
 						set(changedPlexAccount, { ...get(changedPlexAccount), ...account });
-						useOpenControlDialog(accountTokenValidateDialogName);
+						dialogStore.openDialog(DialogType.AccountTokenValidateDialog);
 						return;
 					}
 
@@ -276,7 +271,7 @@ function validate() {
 					if (!account?.isValidated && account?.is2Fa) {
 						Log.info('Account has 2FA enabled');
 						set(changedPlexAccount, { ...get(changedPlexAccount), ...account });
-						useOpenControlDialog(verificationCodeDialogName);
+						dialogStore.openDialog(DialogType.AccountVerificationCodeDialog);
 						return;
 					}
 
@@ -287,7 +282,7 @@ function validate() {
 				error() {
 					get(changedPlexAccount).isValidated = false;
 					get(changedPlexAccount).hasValidationErrors = true;
-					useOpenControlDialog(accountTokenValidateDialogName);
+					dialogStore.openDialog(DialogType.AccountTokenValidateDialog);
 
 					set(validateLoading, false);
 				},
@@ -299,7 +294,7 @@ function validate() {
 }
 
 function closeVerificationDialog() {
-	useCloseControlDialog(verificationCodeDialogName);
+	dialogStore.closeDialog(DialogType.AccountVerificationCodeDialog);
 	set(validateLoading, false);
 }
 
@@ -359,8 +354,8 @@ function deleteAccount() {
 	);
 }
 
-function openDialog(event: unknown) {
-	const { isNewAccountValue, account } = event as { isNewAccountValue: boolean; account: PlexAccountDTO | null };
+function openDialog(event: IAccountDialog) {
+	const { isNewAccountValue, account } = event;
 	set(isNewAccount, isNewAccountValue);
 	// Setup values
 	if (account) {
@@ -372,10 +367,10 @@ function closeDialog() {
 	set(savingLoading, false);
 	set(deleteLoading, false);
 	closeVerificationDialog();
-	useCloseControlDialog(confirmationDialogName);
-	useCloseControlDialog(props.name);
-
+	dialogStore.closeDialog(DialogType.AccountConfirmationDialog);
+	dialogStore.closeDialog(DialogType.AccountDialog);
 	reset();
 }
+
 // endregion
 </script>

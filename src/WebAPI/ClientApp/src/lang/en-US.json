@@ -120,7 +120,8 @@
                 },
                 "server-connections": {
                     "header": "Server Connections",
-                    "section-header": "Select the preferred server connection:"
+                    "section-header": "Select the preferred server connection:",
+                    "add-connection-button": "Add connection"
                 },
                 "server-data": {
                     "headers": {
@@ -220,6 +221,21 @@
             "hours-minute-seconds": "{hours} hours, {minutes} minutes and {seconds} seconds remaining",
             "minutes-seconds": "{minutes} minutes and {seconds} seconds remaining",
             "seconds": "{seconds} seconds remaining"
+        },
+        "add-connection-dialog": {
+            "header": "Add connection to {serverName}",
+            "add-connection-button": "Create Connection",
+            "input": {
+                "connection-url": "Connection URL",
+                "host-name": "Host name",
+                "port": "Port",
+                "protocol": "Protocol"
+            },
+            "test-connection-button": "Test Connection",
+            "url-has-invalid-format": "URL has invalid format!",
+            "url-has-valid-format": "Url is of a valid format!",
+            "update-connection": "Update Connection",
+            "url-already-exists": "This URL is already used for server: {serverName}"
         }
     },
     "confirmation": {
@@ -366,8 +382,8 @@
                     "label": "Inspect Server"
                 },
                 "sync-server-libraries": {
-                    "text": "This will limit the download speed for this Plex server in kilobytes per second. Setting this value to 0 will disable the limit. ",
-                    "title": "Download Speed Limit",
+                    "text": "This will re-sync all media data for each library in this Plex server.",
+                    "title": "Re-sync Library media",
                     "label": "Re-sync Library media"
                 }
             }

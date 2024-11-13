@@ -120,7 +120,8 @@
                 },
                 "server-connections": {
                     "header": "Serververbindungen",
-                    "section-header": "Wählen Sie die bevorzugte Serververbindung aus:"
+                    "section-header": "Wählen Sie die bevorzugte Serververbindung aus:",
+                    "add-connection-button": "Verbindung hinzufügen"
                 },
                 "server-data": {
                     "headers": {
@@ -220,6 +221,21 @@
             "hours-minute-seconds": "{hours} Stunden, {minutes} Minuten und {seconds} Sekunden verbleiben",
             "minutes-seconds": "{minutes} Minuten und {seconds} Sekunden verbleiben",
             "seconds": "{seconds} Sekunden verbleiben"
+        },
+        "add-connection-dialog": {
+            "header": "Verbindung zu {serverName}hinzufügen",
+            "add-connection-button": "Verbindung erstellen",
+            "input": {
+                "connection-url": "Verbindungs-URL",
+                "host-name": "Hostname",
+                "port": "Hafen",
+                "protocol": "Protokoll"
+            },
+            "test-connection-button": "Testverbindung",
+            "url-has-invalid-format": "URL hat ungültiges Format!",
+            "url-has-valid-format": "Die URL hat ein gültiges Format!",
+            "update-connection": "Verbindung aktualisieren",
+            "url-already-exists": "Diese URL wird bereits für den Server verwendet: {serverName}"
         }
     },
     "confirmation": {
@@ -366,8 +382,8 @@
                     "label": "Server untersuchen"
                 },
                 "sync-server-libraries": {
-                    "text": "Dadurch wird die Downloadgeschwindigkeit für diesen Plex-Server in Kilobyte pro Sekunde begrenzt. Wenn Sie diesen Wert auf 0 setzen, wird die Begrenzung deaktiviert.",
-                    "title": "Download-Geschwindigkeitsbegrenzung",
+                    "text": "Dadurch werden alle Mediendaten für jede Bibliothek auf diesem Plex-Server erneut synchronisiert.",
+                    "title": "Bibliotheksmedien erneut synchronisieren",
                     "label": "Re-sync Mediathekdaten"
                 }
             }

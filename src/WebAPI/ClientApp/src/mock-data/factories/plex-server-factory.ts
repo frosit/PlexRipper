@@ -1,6 +1,6 @@
 import { randBoolean, randBrand, randIp, randNumber, randRecentDate, randSemver, randUuid } from '@ngneat/falso';
 import { times } from 'lodash-es';
-import type { PlexServerConnectionDTO, PlexServerDTO } from '@dto';
+import type { PlexServerDTO } from '@dto';
 import { checkConfig, incrementSeed, type MockConfig } from '@mock';
 
 let plexServerIdIndex = 1;
@@ -12,7 +12,7 @@ export function generatePlexServer({
 }: {
 	id: number;
 	config?: Partial<MockConfig>;
-	partialData?: Partial<PlexServerConnectionDTO>;
+	partialData?: Partial<PlexServerDTO>;
 }): PlexServerDTO {
 	checkConfig(config);
 	incrementSeed(id);
@@ -53,7 +53,7 @@ export function generatePlexServers({
 	partialData = {},
 }: {
 	config: Partial<MockConfig>;
-	partialData?: Partial<PlexServerConnectionDTO>;
+	partialData?: Partial<PlexServerDTO>;
 }): PlexServerDTO[] {
 	const validConfig = checkConfig(config);
 	return times(validConfig.plexServerCount, () => generatePlexServer({ id: plexServerIdIndex++, config, partialData }));

@@ -72,18 +72,6 @@ public class CheckAllConnectionsStatusByPlexServerHandler
             return _log.Error("No connections found for the plex server {PlexServerName}", plexServerName).ToResult();
         }
 
-        // Send start job status update
-        var update = new JobStatusUpdate<CheckAllConnectionStatusUpdateDTO>(
-            JobTypes.CheckAllConnectionsStatusByPlexServerJob,
-            JobStatus.Started,
-            new CheckAllConnectionStatusUpdateDTO
-            {
-                PlexServerId = plexServerId,
-                PlexServerConnectionIds = connections.Select(x => x.Id).ToList(),
-            }
-        );
-        await _signalRService.SendJobStatusUpdateAsync(update);
-
         var previousResult = await _dbContext.IsServerOnline(plexServerId, cancellationToken: cancellationToken);
 
         // Create connection check tasks for all connections
@@ -95,10 +83,6 @@ public class CheckAllConnectionsStatusByPlexServerHandler
         var combinedResults = Result.Merge(tasksResult);
 
         await _signalRService.SendRefreshNotificationAsync([DataType.PlexServerConnection], cancellationToken);
-
-        // Send completed job status update
-        update.Status = JobStatus.Completed;
-        await _signalRService.SendJobStatusUpdateAsync(update);
 
         // Compare previous and current online status
         var currentOnlineStatus = tasksResult.Any(statusResult => statusResult.ValueOrDefault?.IsSuccessful != null);

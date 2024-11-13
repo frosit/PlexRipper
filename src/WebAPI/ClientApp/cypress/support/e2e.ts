@@ -2,7 +2,15 @@ import './commands';
 import Log from 'consola';
 import { basePageSetup, route, type IBasePageSetupResult } from '@fixtures/baseE2E';
 import { generateJobStatusUpdate, type MockConfig } from '@mock';
-import { JobStatus, JobTypes, MessageTypes, type PlexServerDTO } from '@dto';
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import {
+	JobStatus,
+	JobTypes,
+	MessageTypes,
+	type PlexServerConnectionDTO,
+	type CheckAllConnectionStatusUpdateDTO,
+	type PlexServerDTO,
+} from '@dto';
 
 Cypress.Commands.add('basePageSetup', (config: Partial<MockConfig> = {}) => basePageSetup(config).as('pageData'));
 
@@ -22,30 +30,29 @@ Cypress.Commands.add('visitEmptyPage', () => cy.visit(route('/empty')).as('empty
 
 Cypress.Commands.add('getCy', (selector: string) => cy.get(`[data-cy="${selector}"]`));
 
+Cypress.Commands.add('hubPublishJobStatusUpdate', <T>(type: JobTypes, status: JobStatus, data: T) => {
+	const msg = generateJobStatusUpdate({
+		jobType: type,
+		jobStatus: status,
+		data,
+	});
+	cy.hubPublish('progress', MessageTypes.JobStatusUpdate, msg).log('JobStatusUpdate', type, status, msg);
+});
+
 Cypress.Commands.add(
-	'hubPublishJobStatusUpdate',
-	<T>(type: JobTypes, status: JobStatus, data: T) => {
-		const msg = generateJobStatusUpdate({
-			jobType: type,
-			jobStatus: status,
-			data,
-		});
-		cy.hubPublish(
-			'progress',
-			MessageTypes.JobStatusUpdate,
-			msg,
-		).log('JobStatusUpdate', type, status, msg);
-	},
+	'hubPublishCheckPlexServerConnectionsJob',
+	(status: JobStatus, servers: PlexServerDTO[], connections: PlexServerConnectionDTO[]) =>
+		cy.hubPublishJobStatusUpdate<CheckAllConnectionStatusUpdateDTO>(JobTypes.CheckAllConnectionsStatusByPlexServerJob, status, {
+			plexServersWithConnectionIds: servers.reduce(
+				(acc, server) => {
+					acc[server.id] = connections.filter((x) => x.plexServerId === server.id).map((x) => x.id);
+					return acc;
+				},
+				{} as Record<string, number[]>,
+			),
+		}),
 );
 
-Cypress.Commands.add('hubPublishCheckPlexServerConnectionsJob', (servers: PlexServerDTO[]) =>
-	cy
-		.hubPublishJobStatusUpdate(
-			JobTypes.InspectPlexServerJob,
-			JobStatus.Started,
-			servers.map((x) => x.id),
-		)
-		.getCy('check-server-connection-dialog')
-		.should('exist')
-		.and('be.visible'),
+Cypress.Commands.add('hubPublishInspectPlexServerJob', (status: JobStatus, plexServerIds: number[]) =>
+	cy.hubPublishJobStatusUpdate<number[]>(JobTypes.InspectPlexServerJob, status, plexServerIds),
 );

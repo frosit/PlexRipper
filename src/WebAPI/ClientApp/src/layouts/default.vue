@@ -17,11 +17,10 @@
 			<slot />
 		</q-page-container>
 		<!--	Dialogs	-->
-		<HelpDialog :name="helpDialogName" />
+		<HelpDialog />
 		<AlertDialog
-			v-for="(alertItem, i) in alerts"
-			:key="i"
-			:name="`alert-dialog-${alertItem.id}`"
+			v-for="alertItem in alerts"
+			:key="alertItem.id"
 			:alert="alertItem" />
 		<CheckServerConnectionsDialog />
 		<!--	Background	-->
@@ -33,17 +32,17 @@
 import Log from 'consola';
 import { useSubscription } from '@vueuse/rxjs';
 import { get, set } from '@vueuse/core';
-import type IAlert from '@interfaces/IAlert';
-import { useHelpStore, useAlertStore, useGlobalStore, useRoute } from '#imports';
+import type { IAlert } from '@interfaces';
+import { useHelpStore, useAlertStore, useGlobalStore, useDialogStore, useRoute, nextTick } from '#imports';
 
 const route = useRoute();
 const helpStore = useHelpStore();
 const alertStore = useAlertStore();
+const dialogStore = useDialogStore();
 
 const alerts = ref<IAlert[]>([]);
 const showNavigationDrawerState = ref(true);
 const showNotificationsDrawerState = ref(false);
-const helpDialogName = 'helpDialog';
 
 const isEmptyLayout = computed((): boolean => {
 	return route.fullPath.includes('setup');
@@ -72,7 +71,7 @@ onMounted(() => {
 	useSubscription(
 		helpStore.getHelpDialog.subscribe((newHelpObject) => {
 			if (newHelpObject) {
-				useOpenControlDialog(helpDialogName, newHelpObject);
+				dialogStore.openHelpInfoDialog(newHelpObject);
 			}
 		}),
 	);
@@ -84,7 +83,7 @@ onMounted(() => {
 				// Allow the alert dialog to render first before opening it
 				nextTick(() => {
 					for (const newAlert of get(alerts)) {
-						useOpenControlDialog(`alert-dialog-${newAlert.id}`);
+						dialogStore.openAlertInfoDialog(newAlert);
 					}
 				});
 			}

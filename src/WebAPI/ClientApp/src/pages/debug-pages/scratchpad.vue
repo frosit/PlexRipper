@@ -11,9 +11,10 @@
 <script setup lang="ts">
 import { generateDownloadProgressTvShows, generatePlexServer } from '@factories';
 import type { DownloadProgressDTO } from '@dto';
-import { useOpenControlDialog } from '@composables/event-bus';
+import { useDownloadStore, useDialogStore } from '#imports';
 
 const downloadStore = useDownloadStore();
+const dialogStore = useDialogStore();
 const dialogName = 'download-details-dialog';
 
 const plexServer = generatePlexServer({
@@ -24,7 +25,7 @@ function commandSwitch({ action, item }: { action: string; item: DownloadProgres
 	const ids: string[] = [item.id];
 
 	if (action === 'details') {
-		useOpenControlDialog(dialogName, item.id);
+		dialogStore.openDownloadTaskDetailsDialog(item.id);
 		return;
 	}
 

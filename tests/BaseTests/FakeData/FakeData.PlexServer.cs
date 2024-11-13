@@ -92,7 +92,11 @@ public static partial class FakeData
             .RuleFor(x => x.PlexLibraries, _ => []);
     }
 
-    public static Faker<PlexServerConnection> GetPlexServerConnections(Seed seed)
+    public static Faker<PlexServerConnection> GetPlexServerConnections(
+        Seed seed,
+        bool isCustom = false,
+        int plexServerId = 0
+    )
     {
         return new Faker<PlexServerConnection>()
             .StrictMode(true)
@@ -105,11 +109,11 @@ public static partial class FakeData
             .RuleFor(x => x.Relay, _ => false)
             .RuleFor(x => x.IPv4, _ => true)
             .RuleFor(x => x.IPv6, _ => false)
-            .RuleFor(x => x.PortFix, _ => false)
+            .RuleFor(x => x.IsCustom, _ => isCustom)
             .RuleFor(x => x.Uri, (_, x) => $"{x.Protocol}://{x.Address}:{x.Port}")
             .RuleFor(x => x.PlexServerStatus, _ => [])
             .RuleFor(x => x.PlexServer, _ => null)
-            .RuleFor(x => x.PlexServerId, _ => 0);
+            .RuleFor(x => x.PlexServerId, _ => plexServerId);
     }
 
     public static Faker<PlexServerStatus> GetPlexServerStatus(

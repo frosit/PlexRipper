@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
 using Environment;
@@ -187,4 +188,67 @@ public static partial class StringExtensions
 
     public static StringContent ToStringContent(this string json) =>
         new(json, Encoding.UTF8, ContentType.ApplicationJson);
+
+    public static bool IsLocalUrl(this string url)
+    {
+        if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
+        {
+            return false; // Invalid URL
+        }
+
+        // Check if the hostname is "localhost" or "127.0.0.1" (IPv4 loopback)
+        if (uri.Host.Equals("localhost", StringComparison.OrdinalIgnoreCase) || uri.Host.Equals("127.0.0.1"))
+        {
+            return true;
+        }
+
+        // Check if it's an IP address
+        if (IPAddress.TryParse(uri.Host, out var ipAddress))
+        {
+            // Check if it's an IPv4 private or loopback address
+            if (ipAddress.AddressFamily == AddressFamily.InterNetwork)
+            {
+                var bytes = ipAddress.GetAddressBytes();
+                return bytes[0] == 10
+                    || // 10.x.x.x
+                    (bytes[0] == 172 && bytes[1] >= 16 && bytes[1] <= 31)
+                    || // 172.16.x.x - 172.31.x.x
+                    (bytes[0] == 192 && bytes[1] == 168)
+                    || // 192.168.x.x
+                    ipAddress.Equals(IPAddress.Loopback); // 127.0.0.1
+            }
+
+            // Check if it's an IPv6 local or loopback address
+            if (ipAddress.AddressFamily == AddressFamily.InterNetworkV6)
+            {
+                return ipAddress.IsIPv6LinkLocal
+                    || // fe80::/10 range
+                    ipAddress.IsIPv6SiteLocal
+                    || // fec0::/10 range (deprecated but sometimes still used)
+                    ipAddress.Equals(IPAddress.IPv6Loopback); // ::1
+            }
+        }
+
+        return false;
+    }
+
+    public static bool IsIpv4(this string address)
+    {
+        if (IPAddress.TryParse(address, out var ipAddress))
+        {
+            return ipAddress.AddressFamily == AddressFamily.InterNetwork;
+        }
+
+        return false;
+    }
+
+    public static bool IsIPv6(this string address)
+    {
+        if (IPAddress.TryParse(address, out var ipAddress))
+        {
+            return ipAddress.AddressFamily == AddressFamily.InterNetworkV6;
+        }
+
+        return false;
+    }
 }

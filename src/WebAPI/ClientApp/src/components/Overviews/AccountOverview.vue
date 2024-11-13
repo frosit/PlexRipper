@@ -24,19 +24,18 @@
 		</QCol>
 	</QRow>
 	<!-- Account Dialog -->
-	<AccountDialog :name="accountDialogName" />
+	<AccountDialog />
 </template>
 
 <script setup lang="ts">
 import type { PlexAccountDTO } from '@dto';
-import { useOpenControlDialog } from '@composables/event-bus';
-import { useAccountStore } from '~/store';
+import { useAccountStore, useDialogStore } from '~/store';
 
-const accountDialogName = 'accountDialogName';
 const accountStore = useAccountStore();
+const dialogStore = useDialogStore();
 
 function openDialog(isNewAccount: boolean, account: PlexAccountDTO | null = null): void {
-	useOpenControlDialog(accountDialogName, {
+	dialogStore.openAccountDialog({
 		isNewAccountValue: isNewAccount,
 		account,
 	});

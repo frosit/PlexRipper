@@ -1,6 +1,7 @@
 import type { IBasePageSetupResult } from '@fixtures/baseE2E';
 import type { MockConfig } from '@mock';
-import type { JobStatus, JobTypes, PlexServerDTO } from '@dto';
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import { JobStatus, JobTypes, type PlexServerConnectionDTO, type PlexServerDTO } from '@dto';
 
 /* eslint-disable @typescript-eslint/no-namespace */
 declare global {
@@ -25,7 +26,13 @@ declare global {
 
 			hubPublishJobStatusUpdate<T>(type: JobTypes, status: JobStatus, data: T): Chainable;
 
-			hubPublishCheckPlexServerConnectionsJob(servers: PlexServerDTO[]): Chainable;
+			hubPublishCheckPlexServerConnectionsJob(
+				status: JobStatus,
+				servers: PlexServerDTO[],
+				connections: PlexServerConnectionDTO[],
+			): Chainable;
+
+			hubPublishInspectPlexServerJob(status: JobStatus, plexServerIds: number[]): Chainable;
 		}
 	}
 }

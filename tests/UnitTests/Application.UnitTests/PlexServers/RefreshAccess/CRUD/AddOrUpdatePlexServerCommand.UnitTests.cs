@@ -2,9 +2,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace PlexRipper.Application.UnitTests;
 
-public class AddOrUpdatePlexServerCommand_UnitTests : BaseUnitTest
+public class AddOrUpdatePlexServerCommandUnitTests : BaseUnitTest<AddOrUpdatePlexServersCommandHandler>
 {
-    public AddOrUpdatePlexServerCommand_UnitTests(ITestOutputHelper output)
+    public AddOrUpdatePlexServerCommandUnitTests(ITestOutputHelper output)
         : base(output) { }
 
     [Fact]
@@ -16,8 +16,7 @@ public class AddOrUpdatePlexServerCommand_UnitTests : BaseUnitTest
 
         // Act
         var request = new AddOrUpdatePlexServersCommand(expectedPlexServers);
-        var handler = new AddOrUpdatePlexServersCommandHandler(Log, IDbContext);
-        var result = await handler.Handle(request, CancellationToken.None);
+        var result = await _sut.Handle(request, CancellationToken.None);
 
         // Assert
         result.IsSuccess.ShouldBeTrue();
@@ -63,10 +62,10 @@ public class AddOrUpdatePlexServerCommand_UnitTests : BaseUnitTest
                     Relay = updatedConnections[i].Relay,
                     IPv4 = updatedConnections[i].IPv4,
                     IPv6 = updatedConnections[i].IPv6,
-                    PortFix = updatedConnections[i].PortFix,
                     PlexServer = updatedConnections[i].PlexServer,
                     PlexServerId = updatedConnections[i].PlexServerId,
                     PlexServerStatus = updatedConnections[i].PlexServerStatus,
+                    IsCustom = updatedConnections[i].IsCustom,
                 };
 
             updatedServer.PlexServerConnections = updatedConnections;
@@ -75,8 +74,7 @@ public class AddOrUpdatePlexServerCommand_UnitTests : BaseUnitTest
         // Act
         // Now update
         var request = new AddOrUpdatePlexServersCommand(updatedServers);
-        var handler = new AddOrUpdatePlexServersCommandHandler(Log, IDbContext);
-        var result = await handler.Handle(request, CancellationToken.None);
+        var result = await _sut.Handle(request, CancellationToken.None);
 
         // Assert
         result.IsSuccess.ShouldBeTrue();
@@ -124,13 +122,11 @@ public class AddOrUpdatePlexServerCommand_UnitTests : BaseUnitTest
         // Act
         // First add the 5 servers
         var request = new AddOrUpdatePlexServersCommand(plexServers);
-        var handler = new AddOrUpdatePlexServersCommandHandler(Log, IDbContext);
-        var addResult = await handler.Handle(request, CancellationToken.None);
+        var addResult = await _sut.Handle(request, CancellationToken.None);
 
         // Now update
         request = new AddOrUpdatePlexServersCommand(changedPlexServers);
-        handler = new AddOrUpdatePlexServersCommandHandler(Log, IDbContext);
-        var updateResult = await handler.Handle(request, CancellationToken.None);
+        var updateResult = await _sut.Handle(request, CancellationToken.None);
 
         // Assert
         addResult.IsSuccess.ShouldBeTrue();
@@ -166,10 +162,7 @@ public class AddOrUpdatePlexServerCommand_UnitTests : BaseUnitTest
         plexServer.PlexServerConnections.Count.ShouldBe(5);
 
         // Update data setup
-        plexServer.PlexServerConnections.RemoveAt(0);
-        plexServer.PlexServerConnections.RemoveAt(0);
-        plexServer.PlexServerConnections.RemoveAt(0);
-        plexServer.PlexServerConnections.RemoveAt(0);
+        plexServer.PlexServerConnections.RemoveRange(0, 4);
 
         var newConnections = FakeData.GetPlexServerConnections(seed).Generate(5);
         plexServer.PlexServerConnections.AddRange(newConnections);
@@ -177,8 +170,7 @@ public class AddOrUpdatePlexServerCommand_UnitTests : BaseUnitTest
         // Act
         // Now update
         var request = new AddOrUpdatePlexServersCommand([plexServer]);
-        var handler = new AddOrUpdatePlexServersCommandHandler(Log, IDbContext);
-        var result = await handler.Handle(request, CancellationToken.None);
+        var result = await _sut.Handle(request, CancellationToken.None);
 
         // Assert
         result.IsSuccess.ShouldBeTrue();
@@ -189,6 +181,61 @@ public class AddOrUpdatePlexServerCommand_UnitTests : BaseUnitTest
         foreach (var plexServerConnection in plexServersDb.PlexServerConnections)
         {
             var expectedConnection = plexServer.PlexServerConnections.Find(x => x.Equals(plexServerConnection));
+            expectedConnection.ShouldNotBeNull();
+            plexServerConnection.Id.ShouldBe(expectedConnection.Id);
+            plexServerConnection.ShouldBe(expectedConnection);
+        }
+    }
+
+    [Fact]
+    public async Task ShouldKeepCustomConnections_WhenSomeConnectionHaveChanged()
+    {
+        // Arrange
+        var seed = await SetupDatabase(
+            233324,
+            config =>
+            {
+                config.PlexServerCount = 1;
+                config.PlexServerConnectionPerServerCount = 5;
+            }
+        );
+
+        var dbContext = IDbContext;
+        var plexServer = IDbContext.PlexServers.Include(x => x.PlexServerConnections).FirstOrDefault();
+        plexServer.ShouldNotBeNull();
+        plexServer.PlexServerConnections.Count.ShouldBe(5);
+
+        // Add custom connections
+        var customConnections = FakeData
+            .GetPlexServerConnections(seed, isCustom: true, plexServerId: plexServer.Id)
+            .Generate(3);
+        await dbContext.PlexServerConnections.AddRangeAsync(customConnections);
+        await dbContext.SaveChangesAsync();
+
+        // Update data setup
+        plexServer.PlexServerConnections.RemoveRange(0, 4);
+
+        var newConnections = FakeData.GetPlexServerConnections(seed).Generate(5);
+        plexServer.PlexServerConnections.AddRange(newConnections);
+
+        // Act
+        // Now update
+        var request = new AddOrUpdatePlexServersCommand([plexServer]);
+        var result = await _sut.Handle(request, CancellationToken.None);
+
+        // Assert
+        var checkConnections = new List<PlexServerConnection>();
+        checkConnections.AddRange(plexServer.PlexServerConnections);
+        checkConnections.AddRange(customConnections);
+
+        result.IsSuccess.ShouldBeTrue();
+        var plexServersDb = IDbContext.PlexServers.Include(x => x.PlexServerConnections).FirstOrDefault();
+        plexServersDb.ShouldNotBeNull();
+        plexServersDb.PlexServerConnections.Count.ShouldBe(checkConnections.Count);
+
+        foreach (var plexServerConnection in plexServersDb.PlexServerConnections)
+        {
+            var expectedConnection = checkConnections.Find(x => x.Equals(plexServerConnection));
             expectedConnection.ShouldNotBeNull();
             plexServerConnection.Id.ShouldBe(expectedConnection.Id);
             plexServerConnection.ShouldBe(expectedConnection);
