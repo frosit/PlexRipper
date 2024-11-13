@@ -28,9 +28,7 @@
 		</template>
 		<template #default>
 			<div>
-				<AccountForm
-					ref="accountForm"
-					:value="accountDialogStore" />
+				<AccountForm />
 				<Print>{{ accountDialogStore.$state }}</Print>
 			</div>
 		</template>
@@ -40,7 +38,7 @@
 				justify="between"
 				gutter="md">
 				<!-- Delete account -->
-				<QCol v-if="!isNewAccount">
+				<QCol v-if="!accountDialogStore.isNewAccount">
 					<DeleteButton
 						class="mx-2"
 						block
@@ -79,8 +77,8 @@
 				<!-- Save account -->
 				<QCol>
 					<SaveButton
-						:label="isNewAccount ? $t('general.commands.save') : $t('general.commands.update')"
-						:cy="`account-dialog-${isNewAccount ? 'save' : 'update'}-button`"
+						:label="accountDialogStore.isNewAccount ? $t('general.commands.save') : $t('general.commands.update')"
+						:cy="`account-dialog-${accountDialogStore.isNewAccount ? 'save' : 'update'}-button`"
 						block
 						:loading="accountDialogStore.savingLoading"
 						class="q-mx-md"
@@ -110,17 +108,12 @@
 <script setup lang="ts">
 import { useSubscription } from '@vueuse/rxjs';
 import type { IAccountDialog } from '@interfaces';
-import type AccountForm from '@components/Dialogs/AccountDialog/AccountForm.vue';
 import { DialogType } from '@enums';
 import { useAccountDialogStore } from '@store';
 import { useDialogStore } from '#imports';
 
 const accountDialogStore = useAccountDialogStore();
 const dialogStore = useDialogStore();
-
-const isNewAccount = ref(false);
-
-const accountForm = ref<InstanceType<typeof AccountForm> | null>(null);
 
 function validatePlexAccount() {
 	useSubscription(accountDialogStore.validatePlexAccount().subscribe());

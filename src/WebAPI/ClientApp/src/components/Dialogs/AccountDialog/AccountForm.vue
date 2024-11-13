@@ -5,7 +5,6 @@
 		autofocus
 		autocapitalize="off"
 		spellcheck="false"
-		@reset="onReset"
 		@validation-success="accountDialogStore.isInputValid = true"
 		@validation-error="accountDialogStore.isInputValid = false">
 		<!-- Is account enabled -->
@@ -47,6 +46,7 @@
 				full-width
 				outlined
 				required
+				hide-bottom-space
 				data-cy="account-form-display-name-input" />
 		</HelpRow>
 
@@ -77,6 +77,7 @@
 						full-width
 						outlined
 						required
+						hide-bottom-space
 						data-cy="account-form-username-input" />
 				</HelpRow>
 
@@ -92,6 +93,7 @@
 						full-width
 						outlined
 						required
+						hide-bottom-space
 						data-cy="account-form-password-input"
 						:append-icon="accountDialogStore.showPassword ? 'mdi-eye' : 'mdi-eye-off'"
 						:type="accountDialogStore.showPassword ? 'text' : 'password'"
@@ -119,6 +121,7 @@
 						full-width
 						outlined
 						required
+						hide-bottom-space
 						data-cy="account-form-auth-token-input"
 						:append-icon="accountDialogStore.showAuthToken ? 'mdi-eye' : 'mdi-eye-off'"
 						:type="accountDialogStore.showAuthToken ? 'text' : 'password'"
@@ -137,22 +140,12 @@
 </template>
 
 <script setup lang="ts">
-import { get } from '@vueuse/core';
-import type { PlexAccountDTO } from '@dto';
-import type { QForm } from 'quasar';
-import { useAccountDialogStore } from '@store';
+import { useAccountDialogStore } from '#imports';
 
 const labelCol = ref(30);
-const accountForm = ref<InstanceType<typeof QForm> | null>(null);
 const tab = ref('credentials');
 
 const accountDialogStore = useAccountDialogStore();
-
-defineProps<{
-	value: PlexAccountDTO;
-}>();
-
-// region Validation Rules
 
 const getDisplayNameRules = computed(() => [
 	(v: string): boolean | string => !!v || 'Display name is required',
@@ -165,14 +158,4 @@ const getPasswordRules = computed(() => [
 	(v: string): boolean | string => !!v || 'Password is required',
 	(v: string): boolean | string => (v && v.length >= 8) || 'Password must be at least 8 characters',
 ]);
-
-// endregion
-
-function onReset(): void {
-	get(accountForm)?.resetValidation();
-}
-
-defineExpose({
-	onReset,
-});
 </script>

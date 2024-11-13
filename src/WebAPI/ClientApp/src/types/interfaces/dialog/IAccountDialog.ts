@@ -1,6 +1,4 @@
-import type { PlexAccountDTO } from '@dto';
-
 export interface IAccountDialog {
+	accountId: number;
 	isNewAccountValue: boolean;
-	account: PlexAccountDTO | null;
 }

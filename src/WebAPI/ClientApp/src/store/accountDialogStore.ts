@@ -1,13 +1,12 @@
 import Log from 'consola';
 import { acceptHMRUpdate, defineStore } from 'pinia';
-import { get, set } from '@vueuse/core';
+import { get } from '@vueuse/core';
 import { catchError, tap } from 'rxjs/operators';
 import { DialogType } from '@enums';
 import { plexAccountApi } from '@api';
 import type { IError, PlexAccountDTO } from '@dto';
 import type { IAccountDialog } from '@interfaces';
 import { iif } from 'rxjs';
-import { useSubscription } from '@vueuse/rxjs';
 import { cloneDeep, useAccountStore, useDialogStore, useI18n } from '#imports';
 
 interface IAccountDialogStore extends PlexAccountDTO {
@@ -62,9 +61,8 @@ export const useAccountDialogStore = defineStore('AccountDialogStore', () => {
 	const { t } = useI18n();
 
 	const actions = {
-		openDialog({ account, isNewAccountValue }: IAccountDialog): void {
-			const accountId: number = account?.id || 0;
-			state.isNewAccount = accountId === 0;
+		openDialog({ accountId, isNewAccountValue }: IAccountDialog): void {
+			state.isNewAccount = isNewAccountValue;
 			if (!state.isNewAccount) {
 				const account = accountStore.getAccount(accountId);
 				if (account) {

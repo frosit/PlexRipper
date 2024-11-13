@@ -63,7 +63,7 @@ import { set } from '@vueuse/core';
 import { useSubscription } from '@vueuse/rxjs';
 import type { IError } from '@dto';
 import { DialogType } from '@enums';
-import { useAccountDialogStore } from '@store';
+import { useAccountDialogStore, useI18n } from '#imports';
 
 const { t } = useI18n();
 

@@ -8,14 +8,16 @@
 			{{ $t('components.account-token-validate-dialog.title') }}
 		</template>
 		<template #top-row>
-			<QSubHeader v-if="account.isValidated">
-				{{ $t('components.account-token-validate-dialog.sub-header', { authToken: account.authenticationToken }) }}
+			<QSubHeader v-if="accountDialogStore.isValidated">
+				{{ $t('components.account-token-validate-dialog.sub-header',
+					{ authToken: accountDialogStore.authenticationToken })
+				}}
 			</QSubHeader>
 		</template>
 		<template #default>
 			<div>
 				<q-markup-table
-					v-if="account.isValidated"
+					v-if="accountDialogStore.isValidated"
 					wrap-cells>
 					<tbody>
 						<tr>
@@ -23,7 +25,7 @@
 								<QText :value="$t('components.account-token-validate-dialog.column.title')" />
 							</td>
 							<td>
-								<QText :value="account.title" />
+								<QText :value="accountDialogStore.title" />
 							</td>
 						</tr>
 						<tr>
@@ -31,7 +33,7 @@
 								<QText :value="$t('components.account-token-validate-dialog.column.username')" />
 							</td>
 							<td>
-								<QText :value="account.username" />
+								<QText :value="accountDialogStore.username" />
 							</td>
 						</tr>
 						<tr>
@@ -39,7 +41,7 @@
 								<QText :value="$t('components.account-token-validate-dialog.column.email')" />
 							</td>
 							<td>
-								<QText :value="account.email" />
+								<QText :value="accountDialogStore.email" />
 							</td>
 						</tr>
 					</tbody>
@@ -67,14 +69,8 @@
 </template>
 
 <script setup lang="ts">
-import type { PlexAccountDTO } from '@dto';
 import { DialogType } from '@enums';
+import { useAccountDialogStore } from '#imports';
 
-defineProps<{
-	account: PlexAccountDTO;
-}>();
-
-defineEmits<{
-	(e: 'close' | 'confirm'): void;
-}>();
+const accountDialogStore = useAccountDialogStore();
 </script>
