@@ -65,9 +65,6 @@ public class PlexServerConnection : BaseEntity
     }
 
     [NotMapped]
-    public string Name => $"Connection: ({Url})";
-
-    [NotMapped]
     public PlexServerStatus? LatestConnectionStatus => PlexServerStatus.FirstOrDefault();
 
     [NotMapped]
