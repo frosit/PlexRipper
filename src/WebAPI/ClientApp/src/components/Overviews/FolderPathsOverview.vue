@@ -54,7 +54,7 @@
 						cols="auto">
 						<ValidIcon
 							:invalid-text="$t('general.alerts.invalid-directory')"
-							:valid="folderPath.isValid"
+							:valid="folderPath.isValid ? ValidationLevel.Valid : ValidationLevel.Invalid"
 							:valid-text="$t('general.alerts.valid-directory')" />
 					</QCol>
 					<!--	Delete Button -->
@@ -101,13 +101,8 @@
 import { type FolderPathDTO, FolderType } from '@dto';
 import type IFolderPathGroup from '@interfaces/IFolderPathGroup';
 import type { IHelp } from '@interfaces';
-import {
-	useI18n,
-	useFolderPathStore,
-	useSubscription,
-	showErrorNotification,
-	useDialogStore,
-} from '#imports';
+import { ValidationLevel } from '@enums';
+import { showErrorNotification, useDialogStore, useFolderPathStore, useI18n, useSubscription } from '#imports';
 
 const { t } = useI18n();
 
