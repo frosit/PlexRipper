@@ -64,6 +64,18 @@ export function basePageSetup(config: Partial<MockConfig> = {}): Cypress.Chainab
 		detailDownloadTasks: [],
 	};
 
+	if (
+		config.override === undefined
+		|| !config.override.plexServer
+		|| !config.override.plexServerConnections
+		|| !config.override.plexLibraries
+		|| !config.override.plexAccounts
+		|| !config.override.downloadTasks
+		|| !config.override.settings
+	) {
+		throw new Error('All override properties must be defined.');
+	}
+
 	// PlexServers call
 	result.plexServers = config.override.plexServer(generatePlexServers({ config }));
 	cy.intercept('GET', PlexServerPaths.getAllPlexServersEndpoint(), {

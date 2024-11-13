@@ -37,12 +37,12 @@ export interface MockConfig {
 	// endregion
 	maxServerConnections: number;
 	folderPathCount: number;
-	override: {
+	override: Partial<{
 		plexServer: (plexServers: PlexServerDTO[]) => PlexServerDTO[];
 		plexServerConnections: (plexServerConnections: PlexServerConnectionDTO[]) => PlexServerConnectionDTO[];
 		plexLibraries: (plexLibraries: PlexLibraryDTO[]) => PlexLibraryDTO[];
 		plexAccounts: (plexAccounts: PlexAccountDTO[]) => PlexAccountDTO[];
 		downloadTasks: (downloadTasks: ServerDownloadProgressDTO[]) => ServerDownloadProgressDTO[];
 		settings: (settings: SettingsModelDTO) => SettingsModelDTO;
-	};
+	}>;
 }

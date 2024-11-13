@@ -175,10 +175,12 @@ const getProgressText = computed(() => {
 
 const plexServerNodes = computed((): IPlexServerNode[] => {
 	let uniqueIndex = 0;
+
 	return get(plexServers).map((server) => {
 		const connections = connectionStore.getServerConnectionsByServerId(server.id);
-		const mappedConnections = connections.map((connection) => {
+		const mappedConnections = connections.map((connection): IPlexServerNode => {
 			const progress = getConnectionProgress(connection.id, server.id);
+
 			return {
 				id: connection.id,
 				index: uniqueIndex++,
@@ -191,7 +193,9 @@ const plexServerNodes = computed((): IPlexServerNode[] => {
 				children: [],
 			};
 		});
+
 		const hasConnections = mappedConnections.length > 0;
+
 		return {
 			id: server.id,
 			index: uniqueIndex++,

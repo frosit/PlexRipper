@@ -1,16 +1,6 @@
 import { seed as falsoSeed } from '@ngneat/falso';
 import type { MockConfig } from '@mock';
-import {
-	type DownloadTaskDTO,
-	type PlexAccountDTO,
-	type PlexLibraryDTO,
-	PlexMediaType,
-	type PlexServerConnectionDTO,
-	type PlexServerDTO,
-	type SettingsModelDTO,
-} from '@dto';
-import is from '@sindresorhus/is';
-import object = is.object;
+import { PlexMediaType } from '@dto';
 
 let currentSeed = 0;
 
