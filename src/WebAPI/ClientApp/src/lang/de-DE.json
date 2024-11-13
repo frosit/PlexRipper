@@ -382,8 +382,8 @@
                     "label": "Server untersuchen"
                 },
                 "sync-server-libraries": {
-                    "text": "Dadurch wird die Downloadgeschwindigkeit für diesen Plex-Server in Kilobyte pro Sekunde begrenzt. Wenn Sie diesen Wert auf 0 setzen, wird die Begrenzung deaktiviert.",
-                    "title": "Download-Geschwindigkeitsbegrenzung",
+                    "text": "Dadurch werden alle Mediendaten für jede Bibliothek auf diesem Plex-Server erneut synchronisiert.",
+                    "title": "Bibliotheksmedien erneut synchronisieren",
                     "label": "Re-sync Mediathekdaten"
                 }
             }

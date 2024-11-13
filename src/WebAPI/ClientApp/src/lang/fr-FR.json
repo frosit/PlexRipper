@@ -382,8 +382,8 @@
                     "label": "Inspecter le serveur"
                 },
                 "sync-server-libraries": {
-                    "text": "Cela limitera la vitesse de téléchargement de ce serveur Plex en kilo-octets par seconde. La définition de cette valeur sur 0 désactivera la limite.",
-                    "title": "Télécharger la limite de vitesse",
+                    "text": "Cela resynchronisera toutes les données multimédias pour chaque bibliothèque de ce serveur Plex.",
+                    "title": "Resynchroniser les médias de la bibliothèque",
                     "label": "Resyncroniser les bibliothèques"
                 }
             }

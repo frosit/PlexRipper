@@ -382,8 +382,8 @@
                     "label": "Sprawdź serwer"
                 },
                 "sync-server-libraries": {
-                    "text": "To ograniczy prędkość pobierania dla tego serwera Plex w kilobajtach na sekundę. Ustawienie tej wartości na 0 wyłączy limit.",
-                    "title": "Limit prędkości pobierania",
+                    "text": "Spowoduje to ponowną synchronizację wszystkich danych multimedialnych dla każdej biblioteki na tym serwerze Plex.",
+                    "title": "Ponowna synchronizacja multimediów bibliotecznych",
                     "label": "Ponownie zsynchronizuj media biblioteki"
                 }
             }

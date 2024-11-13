@@ -382,8 +382,8 @@
                     "label": "Inspect Server"
                 },
                 "sync-server-libraries": {
-                    "text": "This will limit the download speed for this Plex server in kilobytes per second. Setting this value to 0 will disable the limit. ",
-                    "title": "Download Speed Limit",
+                    "text": "This will re-sync all media data for each library in this Plex server.",
+                    "title": "Re-sync Library media",
                     "label": "Re-sync Library media"
                 }
             }
