@@ -21,7 +21,7 @@ import { ValidationLevel } from '@enums';
 const props = withDefaults(
 	defineProps<{
 		valid: ValidationLevel;
-		text: string;
+		text?: string;
 		validText?: string;
 		warningText?: string;
 		invalidText?: string;

@@ -4,9 +4,7 @@
 		:label="$t('help.server-dialog.server-config.download-speed-limit.label')"
 		:title="$t('help.server-dialog.server-config.download-speed-limit.title')"
 		:text="$t('help.server-dialog.server-config.download-speed-limit.text')">
-		<DownloadLimitInput
-			:download-speed-limit="settingsStore.getServerSettings(plexServer.machineIdentifier)?.downloadSpeedLimit ?? 0"
-			@change="settingsStore.updateDownloadLimit(plexServer.machineIdentifier, $event)" />
+		<DownloadLimitInput :machine-identifier="plexServer.machineIdentifier" />
 	</HelpRow>
 	<QAlert
 		v-else
@@ -17,9 +15,6 @@
 
 <script setup lang="ts">
 import type { PlexServerDTO } from '@dto';
-import { useSettingsStore } from '~/store';
-
-const settingsStore = useSettingsStore();
 
 defineProps<{
 	plexServer: PlexServerDTO | null;
