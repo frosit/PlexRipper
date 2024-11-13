@@ -5,14 +5,14 @@
 	<q-list>
 		<!-- Plex Connections -->
 		<ServerConnectionDisplayRow
-			v-for="connection in serverConnectionStore.getServerConnectionsByServerId(plexServerId).filter(x => !x.isCustom)"
+			v-for="connection in connections.plexApiConnections"
 			:key="connection.id"
 			:connection="connection" />
 		<!-- Separator -->
 		<QSeparator />
 		<!-- Custom Connections -->
 		<ServerConnectionDisplayRow
-			v-for="connection in serverConnectionStore.getServerConnectionsByServerId(plexServerId).filter(x => x.isCustom)"
+			v-for="connection in connections.customConnections"
 			:key="connection.id"
 			:connection="connection" />
 		<!-- Add Connection -->
@@ -31,13 +31,25 @@
 
 <script setup lang="ts">
 import ServerConnectionDisplayRow from '@components/Dialogs/ServerDialog/Tabs/ServerConnectionDisplayRow.vue';
+import type { PlexServerConnectionDTO } from '@dto';
 import { useServerConnectionStore, useDialogStore } from '#imports';
 
 const dialogStore = useDialogStore();
 const serverConnectionStore = useServerConnectionStore();
 
-defineProps<{
+const props = defineProps<{
 	plexServerId: number;
 	isVisible: boolean;
 }>();
+
+const connections = computed((): {
+	plexApiConnections: PlexServerConnectionDTO[];
+	customConnections: PlexServerConnectionDTO[];
+} => {
+	const allConnections = serverConnectionStore.getServerConnectionsByServerId(props.plexServerId);
+	return {
+		customConnections: allConnections.filter((x) => x.isCustom),
+		plexApiConnections: allConnections.filter((x) => !x.isCustom),
+	};
+});
 </script>

@@ -1,4 +1,4 @@
-import type ButtonType from '@enums/buttonType';
+import type { ButtonType } from '@enums';
 
 export interface IBaseButtonProps extends Record<string, unknown> {
 	// PlexRipper

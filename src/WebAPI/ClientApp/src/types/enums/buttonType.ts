@@ -1,4 +1,4 @@
-enum ButtonType {
+export enum ButtonType {
 	ExternalLink = 'external-link',
 	Download = 'download',
 	Error = 'error',
@@ -12,5 +12,3 @@ enum ButtonType {
 	Details = 'details',
 	None = 'none',
 }
-
-export default ButtonType;

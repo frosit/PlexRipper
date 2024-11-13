@@ -112,7 +112,7 @@
 import type { QTreeViewTableHeader } from '@props';
 import type { PlexMediaSlimDTO } from '@dto';
 import Convert from '@class/Convert';
-import ButtonType from '@enums/buttonType';
+import { ButtonType } from '@enums';
 import {
 	type IMediaOverviewCommands,
 	sendMediaOverviewDownloadCommand,
@@ -169,45 +169,45 @@ function onRowAction(action: IMediaOverviewCommands) {
 
 .media-table-row-container,
 .media-table-row-container > div {
-	height: 42px;
+  height: 42px;
 }
 
 .media-table-row {
-	border-bottom: 1px solid;
+  border-bottom: 1px solid;
 
-	&--column {
-		text-align: center;
-		white-space: nowrap;
-		margin: auto 8px;
-	}
+  &--column {
+    text-align: center;
+    white-space: nowrap;
+    margin: auto 8px;
+  }
 
-	&--title {
-		font-weight: bold;
-		text-align: left;
-		display: inline-block;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-		overflow: hidden;
+  &--title {
+    font-weight: bold;
+    text-align: left;
+    display: inline-block;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 
-		&--hover {
-			cursor: pointer;
+    &--hover {
+      cursor: pointer;
 
-			&:hover {
-				color: $primary;
-			}
-		}
-	}
+      &:hover {
+        color: $primary;
+      }
+    }
+  }
 }
 
 .body--dark {
-	.media-table-row {
-		border-bottom-color: $separator-dark-color;
-	}
+  .media-table-row {
+    border-bottom-color: $separator-dark-color;
+  }
 }
 
 .body--light {
-	.media-table-row {
-		border-bottom-color: $separator-color;
-	}
+  .media-table-row {
+    border-bottom-color: $separator-color;
+  }
 }
 </style>

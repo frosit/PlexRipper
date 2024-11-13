@@ -1,5 +1,5 @@
 import { DownloadTaskType, FolderType, NotificationLevel, PlexMediaType } from '@dto';
-import ButtonType from '@enums/buttonType';
+import { ButtonType } from '@enums';
 
 export const Convert = {
 	buttonTypeToIcon(type: ButtonType): string {
