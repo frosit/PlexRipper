@@ -16,7 +16,7 @@
 				<QRow justify="center">
 					<QCol cols="auto">
 						<VOtpInput
-							v-model:value="codeValue"
+							v-model:value="accountDialogStore.verificationCode"
 							input-classes="otp-input"
 							separator=""
 							:num-inputs="6"
@@ -49,7 +49,7 @@
 				<QCol cols="auto">
 					<ConfirmButton
 						:loading="loading"
-						:disabled="codeValue.length < 6"
+						:disabled="accountDialogStore.verificationCode.length < 6"
 						@click="onComplete" />
 				</QCol>
 			</QRow>
@@ -58,48 +58,24 @@
 </template>
 
 <script setup lang="ts">
-import Log from 'consola';
 import VOtpInput from 'vue3-otp-input';
-import { get, set } from '@vueuse/core';
+import { set } from '@vueuse/core';
 import { useSubscription } from '@vueuse/rxjs';
-import type { IError, PlexAccountDTO } from '@dto';
-import { plexAccountApi } from '@api';
+import type { IError } from '@dto';
 import { DialogType } from '@enums';
-import { useDialogStore } from '@store';
+import { useAccountDialogStore } from '@store';
 
 const { t } = useI18n();
 
-const props = defineProps<{
-	account: PlexAccountDTO;
-}>();
+const accountDialogStore = useAccountDialogStore();
 
-const dialogStore = useDialogStore();
-
-const codeValue = ref('0');
 const loading = ref(false);
 const errors = ref<IError[]>([]);
-const emit = defineEmits<{
-	(e: 'close'): void;
-	(e: 'confirm', account: PlexAccountDTO): void;
-}>();
 
 function onComplete() {
 	set(loading, true);
-	const accountWithCode: PlexAccountDTO = {
-		...props.account,
-		verificationCode: get(codeValue),
-	};
-
 	useSubscription(
-		plexAccountApi.validatePlexAccountEndpoint(accountWithCode).subscribe({
-			next: (data) => {
-				if (data && data.isSuccess && data.value) {
-					emit('confirm', get(data.value));
-					dialogStore.closeDialog(DialogType.AccountVerificationCodeDialog);
-				} else {
-					Log.error('Validate Error', data);
-				}
-			},
+		accountDialogStore.validateVerificationToken().subscribe({
 			complete: () => {
 				set(loading, false);
 			},
