@@ -107,11 +107,6 @@ public class CheckAllConnectionsStatusByPlexServerCommandUnitTests
         await dbContext.SaveChangesAsync();
 
         mock.Mock<ISignalRService>()
-            .Setup(x => x.SendJobStatusUpdateAsync(It.IsAny<JobStatusUpdate<CheckAllConnectionStatusUpdateDTO>>()))
-            .Returns(Task.CompletedTask)
-            .Verifiable(Times.Exactly(2));
-
-        mock.Mock<ISignalRService>()
             .Setup(m => m.SendRefreshNotificationAsync(It.IsAny<List<DataType>>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask)
             .Verifiable(Times.Once);
@@ -146,85 +141,6 @@ public class CheckAllConnectionsStatusByPlexServerCommandUnitTests
     }
 
     [Fact]
-    public async Task ShouldSendJobStatusUpdateTwice_WhenJobIsStartedAndCompleted()
-    {
-        // Arrange
-        await SetupDatabase(
-            15678,
-            config =>
-            {
-                config.PlexServerCount = 1;
-            }
-        );
-
-        var dbContext = IDbContext;
-        var plexServer = dbContext.PlexServers.First();
-        var connections = dbContext.PlexServerConnections.Where(x => x.PlexServerId == plexServer.Id).ToList();
-        var connectionIds = connections.Select(x => x.Id).ToList();
-
-        mock.Mock<ISignalRService>()
-            .Setup(x =>
-                x.SendJobStatusUpdateAsync(
-                    It.Is<JobStatusUpdate<CheckAllConnectionStatusUpdateDTO>>(update =>
-                        update.Status == JobStatus.Started
-                        && update.Data.PlexServersWithConnectionIds.ContainsKey(plexServer.Id)
-                        && update.Data.PlexServersWithConnectionIds[plexServer.Id].All(y => connectionIds.Contains(y))
-                    )
-                )
-            )
-            .Returns(Task.CompletedTask)
-            .Verifiable(Times.Once);
-
-        mock.Mock<ISignalRService>()
-            .Setup(x =>
-                x.SendJobStatusUpdateAsync(
-                    It.Is<JobStatusUpdate<CheckAllConnectionStatusUpdateDTO>>(update =>
-                        update.Status == JobStatus.Completed
-                        && update.Data.PlexServersWithConnectionIds.ContainsKey(plexServer.Id)
-                        && update.Data.PlexServersWithConnectionIds[plexServer.Id].All(y => connectionIds.Contains(y))
-                    )
-                )
-            )
-            .Returns(Task.CompletedTask)
-            .Verifiable(Times.Once);
-
-        mock.Mock<ISignalRService>()
-            .Setup(m => m.SendRefreshNotificationAsync(It.IsAny<List<DataType>>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask)
-            .Verifiable(Times.Once);
-
-        mock.SetupMediator(It.IsAny<CheckConnectionStatusByIdCommand>)
-            .ReturnsAsync(
-                (CheckConnectionStatusByIdCommand req, CancellationToken _) =>
-                    Result.Ok(
-                        FakeData
-                            .GetPlexServerStatus(
-                                new Seed(req.PlexServerConnectionId),
-                                isSuccessful: true,
-                                plexServerId: plexServer.Id,
-                                plexServerConnectionId: req.PlexServerConnectionId
-                            )
-                            .Generate()
-                    )
-            )
-            .Verifiable(Times.AtLeastOnce);
-
-        var request = new CheckAllConnectionsStatusByPlexServerCommand(plexServer.Id);
-
-        // Act
-        var result = await _sut.Handle(request, CancellationToken.None);
-
-        // Assert
-        result.ShouldNotBeNull();
-        result.IsSuccess.ShouldBeTrue();
-        mock.Mock<ISignalRService>()
-            .Verify(
-                x => x.SendJobStatusUpdateAsync(It.IsAny<JobStatusUpdate<CheckAllConnectionStatusUpdateDTO>>()),
-                Times.Exactly(2)
-            );
-    }
-
-    [Fact]
     public async Task ShouldNotPublishServerOnlineStatusChangedNotification_WhenOnlineStatusHasNotChanged()
     {
         // Arrange
@@ -256,11 +172,6 @@ public class CheckAllConnectionsStatusByPlexServerCommandUnitTests
         }
 
         await dbContext.SaveChangesAsync();
-
-        mock.Mock<ISignalRService>()
-            .Setup(x => x.SendJobStatusUpdateAsync(It.IsAny<JobStatusUpdate<CheckAllConnectionStatusUpdateDTO>>()))
-            .Returns(Task.CompletedTask)
-            .Verifiable(Times.Exactly(2));
 
         mock.Mock<ISignalRService>()
             .Setup(m => m.SendRefreshNotificationAsync(It.IsAny<List<DataType>>(), It.IsAny<CancellationToken>()))
