@@ -147,6 +147,9 @@ export const useAccountDialogStore = defineStore('AccountDialogStore', () => {
 				}),
 			);
 		},
+		generateToken(verificationCode: string = '') {
+			return plexAccountApi.generatePlexTokenEndpoint(state.id, { verificationCode });
+		},
 		saveAccount() {
 			state.savingLoading = true;
 			if (state.isNewAccount) {

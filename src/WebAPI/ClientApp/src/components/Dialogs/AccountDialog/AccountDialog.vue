@@ -44,7 +44,8 @@
 							<BaseButton
 								block
 								cy="account-dialog-generate-token-button"
-								label="Generate Token" />
+								label="Generate Token"
+								@click="dialogStore.openDialog(DialogType.AccountGenerateTokenDialog)" />
 						</QCol>
 					</QRow>
 				</QCol>
@@ -82,6 +83,9 @@
 
 	<!--	Account Token Validate Dialog	-->
 	<AccountTokenValidateDialog />
+
+	<!--	Account Generate Token Dialog	-->
+	<AccountGenerateTokenDialog />
 
 	<!--	Delete Confirmation Dialog	-->
 	<ConfirmationDialog

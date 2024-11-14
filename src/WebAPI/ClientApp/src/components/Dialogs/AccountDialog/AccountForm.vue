@@ -49,24 +49,24 @@
 				hide-bottom-space
 				data-cy="account-form-display-name-input" />
 		</HelpRow>
-
 		<q-tabs
 			v-model="tab"
+			class="q-my-lg"
 			align="justify">
 			<q-tab
 				data-cy="account-dialog-credentials-mode-button"
-				name="credentials"
-				label="Username & Password" />
+				:name="credentialsTab"
+				:label="$t('components.account-form.credentials-tab')" />
 			<q-tab
 				data-cy="account-dialog-auth-token-mode-button"
-				name="token"
-				label="Token" />
+				:name="tokenTab"
+				:label="$t('components.account-form.token-tab')" />
 		</q-tabs>
 		<q-tab-panels
 			v-model="tab"
 			animated>
 			<q-tab-panel
-				name="credentials"
+				:name="credentialsTab"
 				class="account-dialog-panel">
 				<!-- Username -->
 				<HelpRow
@@ -113,7 +113,7 @@
 			</q-tab-panel>
 
 			<q-tab-panel
-				name="token"
+				:name="tokenTab"
 				class="account-dialog-panel">
 				<!-- Plex Token -->
 				<HelpRow
@@ -150,9 +150,12 @@ import { useAccountDialogStore } from '#imports';
 
 const labelCol = ref(30);
 
+const tokenTab = 'token';
+const credentialsTab = 'credentials';
+
 const tab = computed({
-	get: () => accountDialogStore.isAuthTokenMode ? 'token' : 'credentials',
-	set: (value: string) => accountDialogStore.isAuthTokenMode = value === 'token',
+	get: () => accountDialogStore.isAuthTokenMode ? tokenTab : credentialsTab,
+	set: (value: string) => accountDialogStore.isAuthTokenMode = value === tokenTab,
 });
 const accountDialogStore = useAccountDialogStore();
 

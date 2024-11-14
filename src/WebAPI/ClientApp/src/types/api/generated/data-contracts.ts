@@ -906,6 +906,15 @@ export interface ResultDTOOfSettingsModelDTO {
   value?: SettingsModelDTO | null;
 }
 
+export interface ResultDTOOfString {
+  errors: ErrorDTO[];
+  isFailed: boolean;
+  isSuccess: boolean;
+  reasons: ReasonDTO[];
+  successes: SuccessDTO[];
+  value?: string | null;
+}
+
 export interface ServerConnectionCheckStatusProgressDTO {
   completed: boolean;
   connectionSuccessful: boolean;

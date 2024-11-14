@@ -3,6 +3,7 @@ export enum DialogType {
 	AccountConfirmationDialog = 'account-confirmation-dialog',
 	AccountDialog = 'account-dialog',
 	AccountTokenValidateDialog = 'account-token-validate-dialog',
+	AccountGenerateTokenDialog = 'account-generate-token-dialog',
 	AccountVerificationCodeDialog = 'account-verification-code-dialog',
 	AlertInfoDialog = 'alert-info-dialog',
 	CheckServerConnectionDialogName = 'check-server-connection-dialog',

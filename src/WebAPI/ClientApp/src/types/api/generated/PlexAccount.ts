@@ -80,6 +80,31 @@ export class PlexAccount {
  * No description
  *
  * @tags Plexaccount
+ * @name GeneratePlexTokenEndpoint
+ * @request GET:/api/PlexAccount/generate-token/{plexAccountId}
+
+ */
+  generatePlexTokenEndpoint = (
+    plexAccountId: number,
+    query: {
+      verificationCode: string;
+    },
+    params: RequestParams = {},
+  ) =>
+    from(
+      Axios.request<String>({
+        url: `/api/PlexAccount/generate-token/${plexAccountId}`,
+        method: "GET",
+        params: query,
+        format: "json",
+        ...params,
+      }),
+    ).pipe(apiCheckPipe<String>);
+
+  /**
+ * No description
+ *
+ * @tags Plexaccount
  * @name GetAllPlexAccountsEndpoint
  * @request GET:/api/PlexAccount
 
@@ -192,6 +217,13 @@ export class PlexAccountPaths {
 
   static getPlexAccountByIdEndpoint = (plexAccountId: number) =>
     queryString.stringifyUrl({ url: `/api/PlexAccount/${plexAccountId}` });
+
+  static generatePlexTokenEndpoint = (
+    plexAccountId: number,
+    query: {
+      verificationCode: string;
+    },
+  ) => queryString.stringifyUrl({ url: `/api/PlexAccount/generate-token/${plexAccountId}`, query });
 
   static getAllPlexAccountsEndpoint = (query?: {
     /** @default false */

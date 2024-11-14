@@ -236,6 +236,10 @@
             "url-has-valid-format": "Die URL hat ein gültiges Format!",
             "update-connection": "Verbindung aktualisieren",
             "url-already-exists": "Diese URL wird bereits für den Server verwendet: {serverName}"
+        },
+        "account-form": {
+            "credentials-tab": "Benutzername und Passwort",
+            "token-tab": "Authentifizierungstoken"
         }
     },
     "confirmation": {
