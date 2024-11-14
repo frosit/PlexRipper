@@ -1,7 +1,7 @@
 import Log from 'consola';
 import { acceptHMRUpdate, defineStore } from 'pinia';
 import { get } from '@vueuse/core';
-import { catchError, tap } from 'rxjs/operators';
+import { tap } from 'rxjs/operators';
 import { DialogType } from '@enums';
 import { plexAccountApi } from '@api';
 import type { IError, PlexAccountDTO } from '@dto';
