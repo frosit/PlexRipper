@@ -10,15 +10,15 @@ namespace PlexRipper.Application;
 
 public record CreatePlexServerConnectionEndpointRequest()
 {
-    public string Url { get; init; }
+    public required string Url { get; init; }
 
-    public string Protocol { get; init; }
+    public required string Protocol { get; init; }
 
-    public string Address { get; init; }
+    public required string Address { get; init; }
 
-    public int Port { get; init; }
+    public required int Port { get; init; }
 
-    public int PlexServerId { get; set; }
+    public required int PlexServerId { get; set; }
 };
 
 public class CreatePlexServerConnectionEndpointRequestValidator : Validator<CreatePlexServerConnectionEndpointRequest>

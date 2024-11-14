@@ -24,7 +24,7 @@ public class ValidatePlexServerConnectionEndpointRequestValidator
     }
 
     private bool BeAValidUrl(string url) =>
-        Uri.TryCreate(url, UriKind.Absolute, out Uri uriResult)
+        Uri.TryCreate(url, UriKind.Absolute, out var uriResult)
         && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
 }
 

@@ -129,7 +129,7 @@ public class PlexAccount : BaseEntity
     /// The verification code given by the user if 2FA is enabled.
     /// </summary>
     [NotMapped]
-    public required string VerificationCode { get; init; }
+    public required string VerificationCode { get; set; } = string.Empty;
 
     [NotMapped]
     public bool IsAuthTokenMode => !(Username != string.Empty && Password != string.Empty);
