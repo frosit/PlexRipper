@@ -24,6 +24,9 @@ public static class PlexMediaSlimDTOMapper
             Qualities = source.Qualities.ToDTO(),
             Children = [],
             SearchTitle = string.Empty, // TODO Missing in PlexMediaSlim
+            Key = source.Key,
+            MetaDataKey = source.MetaDataKey,
+            PlexToken = string.Empty,
         };
 
     #region PlexMovie
@@ -48,6 +51,9 @@ public static class PlexMediaSlimDTOMapper
             FullThumbUrl = source.FullThumbUrl,
             Qualities = source.Qualities.ToDTO(),
             Children = [],
+            Key = source.Key,
+            MetaDataKey = source.MetaDataKey,
+            PlexToken = string.Empty,
         };
 
     public static IQueryable<PlexMediaSlimDTO> ProjectToMediaSlimDTO(this IQueryable<PlexMovie> source) =>
@@ -87,10 +93,13 @@ public static class PlexMediaSlimDTOMapper
             PlexLibraryId = source.PlexLibraryId,
             PlexServerId = source.PlexServerId,
             Type = source.Type,
+            Key = source.Key,
+            MetaDataKey = source.MetaDataKey,
             HasThumb = source.HasThumb,
             FullThumbUrl = source.FullThumbUrl,
             Qualities = source.Qualities.ToDTO(),
             Children = source.Seasons.ConvertAll(ToSlimDTO),
+            PlexToken = string.Empty,
         };
 
     #endregion
@@ -127,10 +136,13 @@ public static class PlexMediaSlimDTOMapper
             PlexLibraryId = source.PlexLibraryId,
             PlexServerId = source.PlexServerId,
             Type = source.Type,
+            Key = source.Key,
+            MetaDataKey = source.MetaDataKey,
             HasThumb = source.HasThumb,
             FullThumbUrl = source.FullThumbUrl,
             Qualities = source.Qualities.ToDTO(),
             Children = source.Episodes.ConvertAll(ToSlimDTO),
+            PlexToken = string.Empty,
         };
 
     #endregion
@@ -154,7 +166,10 @@ public static class PlexMediaSlimDTOMapper
             PlexServerId = source.PlexServerId,
             Type = source.Type,
             HasThumb = source.HasThumb,
+            Key = source.Key,
+            MetaDataKey = source.MetaDataKey,
             FullThumbUrl = source.FullThumbUrl,
+            PlexToken = string.Empty,
             Qualities = source.Qualities.ToDTO(),
             Children = new List<PlexMediaSlimDTO>(),
         };

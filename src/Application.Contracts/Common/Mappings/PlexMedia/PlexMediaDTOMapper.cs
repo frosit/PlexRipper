@@ -38,6 +38,8 @@ public static class PlexMediaDTOMapper
             Rating = source.Rating,
             OriginallyAvailableAt = source.OriginallyAvailableAt,
             Children = [],
+            MetaDataKey = source.MetaDataKey,
+            PlexToken = string.Empty,
         };
 
     #endregion
@@ -87,6 +89,8 @@ public static class PlexMediaDTOMapper
             Rating = source.Rating,
             OriginallyAvailableAt = source.OriginallyAvailableAt,
             Children = source.Seasons.ConvertAll(ToDTO),
+            MetaDataKey = source.MetaDataKey,
+            PlexToken = string.Empty,
         };
 
     #endregion
@@ -136,6 +140,8 @@ public static class PlexMediaDTOMapper
             Rating = source.Rating,
             OriginallyAvailableAt = source.OriginallyAvailableAt,
             Children = source.Episodes.ConvertAll(ToDTO),
+            MetaDataKey = source.MetaDataKey,
+            PlexToken = string.Empty,
         };
 
     #endregion
@@ -174,6 +180,8 @@ public static class PlexMediaDTOMapper
             Rating = source.Rating,
             OriginallyAvailableAt = source.OriginallyAvailableAt,
             Children = [],
+            MetaDataKey = source.MetaDataKey,
+            PlexToken = string.Empty,
         };
 
     #endregion
