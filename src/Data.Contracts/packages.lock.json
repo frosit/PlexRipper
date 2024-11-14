@@ -312,6 +312,14 @@
           "NetTopologySuite": "[2.0.0, 3.0.0-A)"
         }
       },
+      "Quartz": {
+        "type": "Transitive",
+        "resolved": "3.13.0",
+        "contentHash": "ddD1CPjWcDMbKdAhzuna3Ng23Sdv1YtuHbFMdAAFw0eBEj9jnadYkDWiKGo/c7BMnbI/ruuyd370sKVgdMCkDA==",
+        "dependencies": {
+          "Microsoft.Extensions.Logging.Abstractions": "2.1.1"
+        }
+      },
       "runtime.debian.8-x64.runtime.native.System.Security.Cryptography.OpenSsl": {
         "type": "Transitive",
         "resolved": "4.3.0",
@@ -1251,6 +1259,14 @@
           "xunit.extensibility.core": "[2.4.2]"
         }
       },
+      "application.contracts": {
+        "type": "Project",
+        "dependencies": {
+          "PlexRipper.Domain": "[1.0.0, )",
+          "Quartz": "[3.13.0, )",
+          "WebAPI.Contracts": "[1.0.0, )"
+        }
+      },
       "environment": {
         "type": "Project",
         "dependencies": {
@@ -1293,6 +1309,12 @@
           "System.ComponentModel.Annotations": "[5.0.0, )",
           "System.Reactive": "[5.0.0, )",
           "System.Text.Json": "[8.0.5, )"
+        }
+      },
+      "webapi.contracts": {
+        "type": "Project",
+        "dependencies": {
+          "PlexRipper.Domain": "[1.0.0, )"
         }
       }
     }
