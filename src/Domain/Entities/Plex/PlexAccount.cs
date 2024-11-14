@@ -95,8 +95,6 @@ public class PlexAccount : BaseEntity
     /// </summary>
     public required bool IsMain { get; init; }
 
-    public required bool IsAuthTokenMode { get; init; }
-
     #region Relationships
 
     /// <summary>
@@ -133,6 +131,9 @@ public class PlexAccount : BaseEntity
     [NotMapped]
     public required string VerificationCode { get; init; }
 
+    [NotMapped]
+    public bool IsAuthTokenMode => !(Username != string.Empty && Password == string.Empty);
+
     #endregion
 
     #endregion
@@ -159,6 +160,5 @@ public class PlexAccount : BaseEntity
             PlexAccountLibraries = [],
             Is2Fa = false,
             VerificationCode = string.Empty,
-            IsAuthTokenMode = false,
         };
 }

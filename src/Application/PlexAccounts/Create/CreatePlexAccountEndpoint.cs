@@ -24,9 +24,16 @@ public class CreatePlexAccountEndpointRequestValidator : Validator<CreatePlexAcc
     {
         RuleFor(x => x.PlexAccount).NotNull();
         RuleFor(x => x.PlexAccount!.DisplayName).NotEmpty();
-        RuleFor(x => x.PlexAccount!.Username).NotEmpty().MinimumLength(5).When(m => !m.PlexAccount!.IsAuthTokenMode);
-        RuleFor(x => x.PlexAccount!.Password).NotEmpty().MinimumLength(5).When(m => !m.PlexAccount!.IsAuthTokenMode);
-        RuleFor(x => x.PlexAccount!.AuthenticationToken).NotEmpty().When(m => m.PlexAccount!.IsAuthTokenMode);
+
+        RuleFor(x => x.PlexAccount!.Username)
+            .NotEmpty()
+            .MinimumLength(5)
+            .When(m => string.IsNullOrEmpty(m.PlexAccount!.AuthenticationToken));
+
+        RuleFor(x => x.PlexAccount!.Password)
+            .NotEmpty()
+            .MinimumLength(5)
+            .When(m => string.IsNullOrEmpty(m.PlexAccount!.AuthenticationToken));
     }
 }
 

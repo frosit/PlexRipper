@@ -23,12 +23,12 @@ public class UpdatePlexAccountByIdEndpointRequestValidator : Validator<UpdatePle
         RuleFor(x => x.PlexAccountDTO!.Username)
             .NotEmpty()
             .MinimumLength(5)
-            .When(m => !m.PlexAccountDTO!.IsAuthTokenMode);
+            .When(m => string.IsNullOrEmpty(m.PlexAccountDTO!.AuthenticationToken));
+
         RuleFor(x => x.PlexAccountDTO!.Password)
             .NotEmpty()
             .MinimumLength(5)
-            .When(m => !m.PlexAccountDTO!.IsAuthTokenMode);
-        RuleFor(x => x.PlexAccountDTO!.AuthenticationToken).NotEmpty().When(m => m.PlexAccountDTO!.IsAuthTokenMode);
+            .When(m => string.IsNullOrEmpty(m.PlexAccountDTO!.AuthenticationToken));
     }
 }
 
