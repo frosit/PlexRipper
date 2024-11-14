@@ -5,11 +5,12 @@ import { catchError, tap } from 'rxjs/operators';
 import { DialogType } from '@enums';
 import { plexAccountApi } from '@api';
 import type { IError, PlexAccountDTO } from '@dto';
-import type { IAccountDialog } from '@interfaces';
-import { iif } from 'rxjs';
-import { cloneDeep, useAccountStore, useDialogStore, useI18n } from '#imports';
+import type { IAccountDialog, ResultDTO } from '@interfaces';
+import type { Observable } from 'rxjs';
+import { cloneDeep, useAccountStore, useDialogStore } from '#imports';
 
 interface IAccountDialogStore extends PlexAccountDTO {
+	isAuthTokenMode: boolean;
 	isNewAccount: boolean;
 	isInputValid: boolean;
 	showPassword: boolean;
@@ -41,8 +42,8 @@ export const useAccountDialogStore = defineStore('AccountDialogStore', () => {
 		email: '',
 		plexServerAccess: [],
 		plexLibraryAccess: [],
-		isAuthTokenMode: false,
 		// Dialog properties
+		isAuthTokenMode: false,
 		isNewAccount: false,
 		isValidated: false,
 		showAuthToken: false,
@@ -58,11 +59,10 @@ export const useAccountDialogStore = defineStore('AccountDialogStore', () => {
 	const state = reactive<IAccountDialogStore>(cloneDeep(defaultState));
 	const dialogStore = useDialogStore();
 	const accountStore = useAccountStore();
-	const { t } = useI18n();
 
 	const actions = {
-		openDialog({ accountId, isNewAccountValue }: IAccountDialog): void {
-			state.isNewAccount = isNewAccountValue;
+		openDialog({ accountId }: IAccountDialog): void {
+			state.isNewAccount = accountId === 0;
 			if (!state.isNewAccount) {
 				const account = accountStore.getAccount(accountId);
 				if (account) {
@@ -112,6 +112,7 @@ export const useAccountDialogStore = defineStore('AccountDialogStore', () => {
 					// Account has 2FA
 					if (!account?.isValidated && account?.is2Fa) {
 						Log.info('Account has 2FA enabled');
+						dialogStore.openDialog(DialogType.AccountVerificationCodeDialog);
 						return;
 					}
 
@@ -128,7 +129,7 @@ export const useAccountDialogStore = defineStore('AccountDialogStore', () => {
 				}),
 			);
 		},
-		validateVerificationToken() {
+		validateVerificationToken(): Observable<ResultDTO<PlexAccountDTO>> {
 			return plexAccountApi.validatePlexAccountEndpoint(get(getters.getAccountData)).pipe(
 				tap(({ value, isSuccess }) => {
 					if (isSuccess && value) {
@@ -137,24 +138,34 @@ export const useAccountDialogStore = defineStore('AccountDialogStore', () => {
 						Log.error('Validate Error', value);
 					}
 				}),
-				catchError((val) => {
-					Log.error('Validate Error', val);
-					return val;
-				}),
 			);
 		},
 		saveAccount() {
 			state.savingLoading = true;
-			return iif(
-				() => state.isNewAccount,
-				accountStore.createPlexAccount(get(getters.getAccountData)),
-				accountStore.updatePlexAccount(get(getters.getAccountData)),
-			).pipe(
+			if (state.isNewAccount) {
+				return accountStore.createPlexAccount(get(getters.getAccountData)).pipe(
+					tap(() => {
+						state.savingLoading = false;
+						dialogStore.closeDialog(DialogType.AccountDialog);
+					}),
+				);
+			}
+			return accountStore.updatePlexAccount(get(getters.getAccountData)).pipe(
 				tap(() => {
 					state.savingLoading = false;
 					dialogStore.closeDialog(DialogType.AccountDialog);
 				}),
 			);
+			// return iif(
+			// 	() => state.isNewAccount,
+			// 	accountStore.createPlexAccount(get(getters.getAccountData)),
+			// 	accountStore.updatePlexAccount(get(getters.getAccountData)),
+			// ).pipe(
+			// 	tap(() => {
+			// 		state.savingLoading = false;
+			// 		dialogStore.closeDialog(DialogType.AccountDialog);
+			// 	}),
+			// );
 		},
 		deleteAccount() {
 			state.deleteLoading = true;
@@ -165,21 +176,6 @@ export const useAccountDialogStore = defineStore('AccountDialogStore', () => {
 		},
 	};
 	const getters = {
-		getDialogHeader: computed(() => {
-			const displayName = state.displayName;
-			let title: string;
-			if (state.isNewAccount) {
-				title = t('components.account-dialog.add-account-title', {
-					name: state.displayName,
-				});
-			} else {
-				title = t('components.account-dialog.edit-account-title', {
-					name: state.displayName,
-				});
-			}
-			// Remove the colon if the display name is empty
-			return displayName ? title : title.replace(':', '');
-		}),
 		hasCredentialsChanged: computed(() => {
 			if (!state.isNewAccount) {
 				const originalPlexAccount = accountStore.getAccount(state.id);
@@ -215,33 +211,6 @@ export const useAccountDialogStore = defineStore('AccountDialogStore', () => {
 				title: state.title,
 			};
 		}),
-		validationStyle: computed(
-			(): {
-				color: 'default' | 'positive' | 'warning' | 'negative';
-				icon: string;
-				text: string;
-			} => {
-				if (state.hasValidationErrors) {
-					return {
-						color: 'negative',
-						icon: 'mdi-alert-circle-outline',
-						text: t('general.commands.validate'),
-					};
-				}
-				if (state.isValidated && !state.hasValidationErrors) {
-					return {
-						color: 'positive',
-						icon: 'mdi-check-bold',
-						text: '',
-					};
-				}
-				return {
-					color: 'default',
-					icon: 'mdi-text-box-search-outline',
-					text: t('general.commands.validate'),
-				};
-			},
-		),
 	};
 	return {
 		...toRefs(state),

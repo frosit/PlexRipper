@@ -11,9 +11,7 @@
 			xs="12">
 			<AccountCard
 				:account="account"
-				@open-dialog="dialogStore.openAccountDialog({
-					isNewAccountValue: false,
-					accountId: account.id })" />
+				@open-dialog="dialogStore.openAccountDialog({ accountId: account.id })" />
 		</QCol>
 		<!-- Add new Account card -->
 		<QCol
@@ -23,9 +21,7 @@
 			style="max-width: 395px"
 			xs="12">
 			<AccountCard
-				@open-dialog="dialogStore.openAccountDialog({
-					isNewAccountValue: true,
-					accountId: 0 })" />
+				@open-dialog="dialogStore.openAccountDialog({ accountId: 0 })" />
 		</QCol>
 	</QRow>
 	<!-- Account Dialog -->
