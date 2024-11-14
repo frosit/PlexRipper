@@ -487,12 +487,15 @@ export interface PlexMediaDTO {
   mediaData: PlexMediaDataDTO[];
   /** @format int64 */
   mediaSize: number;
+  /** @format int32 */
+  metaDataKey: number;
   /** @format date-time */
   originallyAvailableAt?: string | null;
   /** @format int32 */
   plexLibraryId: number;
   /** @format int32 */
   plexServerId: number;
+  plexToken: string;
   qualities: PlexMediaQualityDTO[];
   /** @format double */
   rating: number;
@@ -565,12 +568,17 @@ export interface PlexMediaSlimDTO {
   hasThumb: boolean;
   /** @format int32 */
   id: number;
+  /** @format int32 */
+  key: number;
   /** @format int64 */
   mediaSize: number;
+  /** @format int32 */
+  metaDataKey: number;
   /** @format int32 */
   plexLibraryId: number;
   /** @format int32 */
   plexServerId: number;
+  plexToken: string;
   qualities: PlexMediaQualityDTO[];
   searchTitle: string;
   /** @format int32 */

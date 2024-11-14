@@ -116,9 +116,13 @@
 </template>
 
 <script setup lang="ts">
-import { get } from '@vueuse/core';
 import Log from 'consola';
+import { get } from '@vueuse/core';
 import { type DownloadMediaDTO, type PlexMediaSlimDTO, PlexMediaType } from '@dto';
+import { toFullThumbUrl } from '@composables/conversion';
+import { useServerConnectionStore } from '#imports';
+
+const connectionStore = useServerConnectionStore();
 
 const props = defineProps<{
 	mediaItem: PlexMediaSlimDTO;
@@ -137,11 +141,26 @@ const loading = ref(false);
 const mediaType = computed(() => props.mediaItem?.type ?? PlexMediaType.Unknown);
 const qualities = computed(() => props.mediaItem?.qualities ?? []);
 
-const imageUrl = computed(() => {
-	return props.mediaItem?.hasThumb
-		? `${props.mediaItem?.fullThumbUrl}&width=${get(thumbWidth)}&height=${get(thumbHeight)}`
-		: '';
+const imageUrl = computed((): string => {
+	if (!props.mediaItem?.hasThumb) {
+		return '';
+	}
+
+	const connection = connectionStore.chooseServerConnection(props.mediaItem.plexServerId);
+	if (!connection) {
+		return '';
+	}
+
+	return toFullThumbUrl({
+		connectionUrl: connection.url,
+		mediaKey: props.mediaItem.key,
+		MetaDataKey: props.mediaItem.metaDataKey,
+		token: props.mediaItem.plexToken,
+		width: get(thumbWidth),
+		height: get(thumbHeight),
+	});
 });
+
 const getQualityColor = (quality: string): string => {
 	switch (quality) {
 		case 'sd':
@@ -178,56 +197,56 @@ function downloadMedia() {
 @import '@/assets/scss/_mixins.scss';
 
 .media-poster {
-	@extend .background-sm;
+  @extend .background-sm;
 
-	width: 200px;
-	margin: 32px;
+  width: 200px;
+  margin: 32px;
 
-	&--card {
-		width: 200px;
-	}
+  &--card {
+    width: 200px;
+  }
 
-	&--image,
-	&--fallback {
-		width: 200px;
-		height: 300px;
-	}
+  &--image,
+  &--fallback {
+    width: 200px;
+    height: 300px;
+  }
 
-	&--fallback {
-      background-color: transparent !important;
+  &--fallback {
+    background-color: transparent !important;
 
-		& > div {
-			margin: 16px 0;
-		}
-	}
+    & > div {
+      margin: 16px 0;
+    }
+  }
 
-	&--title {
-		font-size: 1.5em;
-		font-weight: bold;
-		text-align: center;
-	}
+  &--title {
+    font-size: 1.5em;
+    font-weight: bold;
+    text-align: center;
+  }
 
-	&--overlay {
-		@extend .background-xl;
-		width: 100%;
-		height: 100%;
-		opacity: 0;
-		transition: opacity 0.2s ease-in-out;
+  &--overlay {
+    @extend .background-xl;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
 
-		&.on-hover {
-			opacity: 0.8;
+    &.on-hover {
+      opacity: 0.8;
 
-			.q-btn {
-				opacity: 1;
-			}
-		}
-	}
+      .q-btn {
+        opacity: 1;
+      }
+    }
+  }
 
-	&--quality-bar {
-		height: 40px;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-	}
+  &--quality-bar {
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 }
 </style>

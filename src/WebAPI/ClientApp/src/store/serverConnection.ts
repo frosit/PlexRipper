@@ -21,6 +21,7 @@ export const useServerConnectionStore = defineStore('ServerConnection', () => {
 	});
 
 	const signalRStore = useSignalrStore();
+	const serverStore = useServerStore();
 
 	const actions = {
 		setup(): Observable<ISetupResult> {
@@ -106,10 +107,27 @@ export const useServerConnectionStore = defineStore('ServerConnection', () => {
 					}
 				}),
 			),
+		chooseServerConnection: (plexServerId: number): PlexServerConnectionDTO | null => {
+			const server = serverStore.getServer(plexServerId);
+			const connections = state.serverConnections.filter(
+				(x) => x.plexServerId === plexServerId && x.latestConnectionStatus?.isSuccessful,
+			);
+			if (connections.length) {
+				if (server) {
+					const preferredConnection = connections.find((x) => x.id === server.preferredConnectionId);
+					if (preferredConnection) {
+						return preferredConnection;
+					}
+				}
+
+				return connections[0];
+			}
+			return null;
+		},
 		setPreferredPlexServerConnection: (plexServerId: number, connectionId: number) =>
 			plexServerApi
 				.setPreferredPlexServerConnectionEndpoint(plexServerId, connectionId)
-				.pipe(switchMap(() => useServerStore().refreshPlexServer(plexServerId))),
+				.pipe(switchMap(() => serverStore.refreshPlexServer(plexServerId))),
 	};
 	const getters = {
 		getServerConnectionsByServerId: (plexServerId = 0): PlexServerConnectionDTO[] =>
