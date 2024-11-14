@@ -18,5 +18,5 @@ jobs:
                     post-pr-comment: false
                     args: --property, qodana.net.solution=PlexRipper.sln
                 env:
-                    QODANA_TOKEN: ${{ secrets.QODANA_TOKEN_896341823 }}
+                    QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
                     QODANA_ENDPOINT: 'https://qodana.cloud'
