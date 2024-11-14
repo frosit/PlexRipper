@@ -417,7 +417,6 @@ export interface PlexAccountDTO {
    * @exclusiveMin true
    */
   id: number;
-  isAuthTokenMode: boolean;
   isEnabled: boolean;
   isMain: boolean;
   isValidated: boolean;

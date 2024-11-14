@@ -32,9 +32,11 @@
 					v-if="errors.length > 0"
 					justify="center">
 					<QCol cols="auto">
-						<span style="color: red; font-weight: bold">{{
-							t('components.account-verification-code-dialog.error')
-						}}</span>
+						<span style="color: red; font-weight: bold">
+							{{
+								$t('components.account-verification-code-dialog.error')
+							}}
+						</span>
 					</QCol>
 				</QRow>
 			</div>
@@ -75,7 +77,10 @@ const errors = ref<IError[]>([]);
 function onComplete() {
 	set(loading, true);
 	useSubscription(
-		accountDialogStore.validateVerificationToken().subscribe({
+		accountDialogStore.validateVerificationCode().subscribe({
+			error(err) {
+				set(errors, err);
+			},
 			complete: () => {
 				set(loading, false);
 			},

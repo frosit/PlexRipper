@@ -54,16 +54,20 @@
 			v-model="tab"
 			align="justify">
 			<q-tab
+				data-cy="account-dialog-credentials-mode-button"
 				name="credentials"
 				label="Username & Password" />
 			<q-tab
+				data-cy="account-dialog-auth-token-mode-button"
 				name="token"
 				label="Token" />
 		</q-tabs>
 		<q-tab-panels
 			v-model="tab"
 			animated>
-			<q-tab-panel name="credentials">
+			<q-tab-panel
+				name="credentials"
+				class="account-dialog-panel">
 				<!-- Username -->
 				<HelpRow
 					:header-width="labelCol"
@@ -108,7 +112,9 @@
 				</HelpRow>
 			</q-tab-panel>
 
-			<q-tab-panel name="token">
+			<q-tab-panel
+				name="token"
+				class="account-dialog-panel">
 				<!-- Plex Token -->
 				<HelpRow
 					:label="$t('help.account-form.auth-token.label')"
@@ -143,8 +149,11 @@
 import { useAccountDialogStore } from '#imports';
 
 const labelCol = ref(30);
-const tab = ref('credentials');
 
+const tab = computed({
+	get: () => accountDialogStore.isAuthTokenMode ? 'token' : 'credentials',
+	set: (value: string) => accountDialogStore.isAuthTokenMode = value === 'token',
+});
 const accountDialogStore = useAccountDialogStore();
 
 const getDisplayNameRules = computed(() => [
@@ -159,3 +168,9 @@ const getPasswordRules = computed(() => [
 	(v: string): boolean | string => (v && v.length >= 8) || 'Password must be at least 8 characters',
 ]);
 </script>
+
+<style lang="scss">
+.account-dialog-panel {
+  min-height: 11rem;
+}
+</style>

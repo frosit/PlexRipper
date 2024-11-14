@@ -82,58 +82,65 @@ export const useAccountDialogStore = defineStore('AccountDialogStore', () => {
 			return plexAccountApi.validatePlexAccountEndpoint(get(getters.getAccountData)).pipe(
 				tap(({ value, isSuccess }) => {
 					if (!isSuccess) {
+						state.isValidated = false;
+						state.hasValidationErrors = true;
+						state.validateLoading = false;
+						dialogStore.openDialog(DialogType.AccountTokenValidateDialog);
 						return;
 					}
-					const account = isSuccess ? value : null;
+
+					const account = value;
 
 					state.hasValidationErrors = false;
 					state.validateLoading = false;
 
-					Object.assign(state, account);
+					if (!account) {
+						state.isValidated = false;
+						state.hasValidationErrors = true;
+						state.validationErrors = [];
+						return;
+					}
 
-					if (account?.isValidated && account?.isAuthTokenMode) {
+					Object.assign(state, account);
+					console.log('Account', account);
+
+					if (account.isValidated && !(account.username != '' && account.password != '')) {
 						Log.info('Account is validated and was added by token');
 						dialogStore.openDialog(DialogType.AccountTokenValidateDialog);
 						return;
 					}
 
 					// Account has no 2FA and was valid
-					if (account?.isValidated && !account?.is2Fa) {
+					if (account.isValidated && !account.is2Fa) {
 						Log.info('Account has no 2FA and was valid');
 						return;
 					}
 
 					// Account has no 2FA and was invalid
-					if (!account?.isValidated && !account?.is2Fa) {
+					if (!account.isValidated && !account.is2Fa) {
 						Log.info('Account has no 2FA and was invalid');
 						return;
 					}
 
 					// Account has 2FA
-					if (!account?.isValidated && account?.is2Fa) {
+					if (!account.isValidated && account.is2Fa) {
 						Log.info('Account has 2FA enabled');
 						dialogStore.openDialog(DialogType.AccountVerificationCodeDialog);
 						return;
 					}
 
-					if (!account?.isValidated && account?.is2Fa) {
+					if (!account.isValidated && account.is2Fa) {
 						Log.info('Account was valid and has 2FA enabled, this makes no sense and sounds like a bug');
 					}
 				}),
-				catchError((val) => {
-					state.isValidated = false;
-					state.hasValidationErrors = true;
-					state.validateLoading = false;
-					dialogStore.openDialog(DialogType.AccountTokenValidateDialog);
-					return val;
-				}),
 			);
 		},
-		validateVerificationToken(): Observable<ResultDTO<PlexAccountDTO>> {
+		validateVerificationCode(): Observable<ResultDTO<PlexAccountDTO>> {
 			return plexAccountApi.validatePlexAccountEndpoint(get(getters.getAccountData)).pipe(
 				tap(({ value, isSuccess }) => {
 					if (isSuccess && value) {
 						dialogStore.closeDialog(DialogType.AccountVerificationCodeDialog);
+						Object.assign(state, value);
 					} else {
 						Log.error('Validate Error', value);
 					}
@@ -156,16 +163,6 @@ export const useAccountDialogStore = defineStore('AccountDialogStore', () => {
 					dialogStore.closeDialog(DialogType.AccountDialog);
 				}),
 			);
-			// return iif(
-			// 	() => state.isNewAccount,
-			// 	accountStore.createPlexAccount(get(getters.getAccountData)),
-			// 	accountStore.updatePlexAccount(get(getters.getAccountData)),
-			// ).pipe(
-			// 	tap(() => {
-			// 		state.savingLoading = false;
-			// 		dialogStore.closeDialog(DialogType.AccountDialog);
-			// 	}),
-			// );
 		},
 		deleteAccount() {
 			state.deleteLoading = true;
@@ -204,7 +201,6 @@ export const useAccountDialogStore = defineStore('AccountDialogStore', () => {
 				is2Fa: state.is2Fa,
 				isEnabled: state.isEnabled,
 				isMain: state.isMain,
-				isAuthTokenMode: state.isAuthTokenMode,
 				plexId: state.plexId,
 				plexLibraryAccess: state.plexLibraryAccess,
 				plexServerAccess: state.plexServerAccess,
