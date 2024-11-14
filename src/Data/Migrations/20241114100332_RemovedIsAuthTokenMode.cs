@@ -10,9 +10,7 @@ namespace PlexRipper.Data.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "IsAuthTokenMode",
-                table: "PlexAccounts");
+            migrationBuilder.DropColumn(name: "IsAuthTokenMode", table: "PlexAccounts");
         }
 
         /// <inheritdoc />
@@ -23,7 +21,8 @@ namespace PlexRipper.Data.Migrations
                 table: "PlexAccounts",
                 type: "INTEGER",
                 nullable: false,
-                defaultValue: false);
+                defaultValue: false
+            );
         }
     }
 }

@@ -132,7 +132,7 @@ public class PlexAccount : BaseEntity
     public required string VerificationCode { get; init; }
 
     [NotMapped]
-    public bool IsAuthTokenMode => !(Username != string.Empty && Password == string.Empty);
+    public bool IsAuthTokenMode => !(Username != string.Empty && Password != string.Empty);
 
     #endregion
 
