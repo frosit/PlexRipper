@@ -31,7 +31,10 @@ export function generatePlexAccount({
 	checkConfig(config);
 	incrementSeed(id);
 
-	return <PlexAccountDTO>{
+	const plexServerIds = plexServers.map((x) => x.id);
+	const plexLibraryIds = plexLibraries.filter((x) => plexServerIds.includes(x.plexServerId)).map((x) => x.id);
+
+	const value: PlexAccountDTO = {
 		id,
 		authenticationToken: randUuid(),
 		clientId: randUuid(),
@@ -49,15 +52,11 @@ export function generatePlexAccount({
 		uuid: randUuid(),
 		validatedAt: randRecentDate({ days: 60 }).toUTCString(),
 		verificationCode: '',
-		isAuthTokenMode: false,
-		plexServerAccess: plexServers.map((x) => {
-			return {
-				plexServerId: x.id,
-				plexLibraryIds: plexLibraries.filter((y) => y.plexServerId === x.id).map((y) => y.id),
-			};
-		}),
-		...partialData,
+		plexLibraryAccess: plexLibraryIds,
+		plexServerAccess: plexServerIds,
 	};
+
+	return Object.assign(value, partialData);
 }
 
 export function generatePlexAccounts({

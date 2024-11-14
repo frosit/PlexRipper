@@ -8,12 +8,12 @@ using PlexApi.Contracts;
 namespace PlexRipper.Application;
 
 /// <summary>
-/// Validates the <see cref="PlexAccount"/> by calling the PlexAPI and confirming the PlexAccount can be used to login.
+/// Validates the <see cref="PlexAccount"/> by calling the PlexAPI and confirming the PlexAccount can be used to log in.
 /// </summary>
 public class ValidatePlexAccountEndpointRequest
 {
     /// <summary>
-    /// Validates the <see cref="PlexAccount"/> by calling the PlexAPI and confirming the PlexAccount can be used to login.
+    /// Validates the <see cref="PlexAccount"/> by calling the PlexAPI and confirming the PlexAccount can be used to log in.
     /// </summary>
     /// <param name="plexAccount">The <see cref="PlexAccount"/> to validate.</param>
     public ValidatePlexAccountEndpointRequest(PlexAccountDTO plexAccount)
@@ -33,9 +33,15 @@ public class ValidatePlexAccountEndpointRequestValidator : Validator<ValidatePle
     public ValidatePlexAccountEndpointRequestValidator()
     {
         RuleFor(x => x.PlexAccount).NotNull();
-        RuleFor(x => x.PlexAccount.Username).NotEmpty().When(m => !m.PlexAccount.IsAuthTokenMode);
-        RuleFor(x => x.PlexAccount.Password).NotEmpty().When(m => !m.PlexAccount.IsAuthTokenMode);
-        RuleFor(x => x.PlexAccount.AuthenticationToken).NotEmpty().When(m => m.PlexAccount.IsAuthTokenMode);
+        RuleFor(x => x.PlexAccount.Username)
+            .NotEmpty()
+            .MinimumLength(5)
+            .When(m => string.IsNullOrEmpty(m.PlexAccount.AuthenticationToken));
+
+        RuleFor(x => x.PlexAccount.Password)
+            .NotEmpty()
+            .MinimumLength(5)
+            .When(m => string.IsNullOrEmpty(m.PlexAccount.AuthenticationToken));
     }
 }
 

@@ -74,7 +74,7 @@
 <script setup lang="ts">
 import type { QTableProps } from 'quasar';
 import Convert from '@class/Convert';
-import ButtonType from '@enums/buttonType';
+import { ButtonType } from '@enums';
 import type { PlexMediaSlimDTO } from '@dto';
 import type { ISelection } from '@interfaces';
 import { getMediaTableColumns } from '@composables/mediaTableColumns';

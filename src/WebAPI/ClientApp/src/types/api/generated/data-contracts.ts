@@ -417,7 +417,6 @@ export interface PlexAccountDTO {
    * @exclusiveMin true
    */
   id: number;
-  isAuthTokenMode: boolean;
   isEnabled: boolean;
   isMain: boolean;
   isValidated: boolean;
@@ -905,6 +904,15 @@ export interface ResultDTOOfSettingsModelDTO {
   reasons: ReasonDTO[];
   successes: SuccessDTO[];
   value?: SettingsModelDTO | null;
+}
+
+export interface ResultDTOOfString {
+  errors: ErrorDTO[];
+  isFailed: boolean;
+  isSuccess: boolean;
+  reasons: ReasonDTO[];
+  successes: SuccessDTO[];
+  value?: string | null;
 }
 
 export interface ServerConnectionCheckStatusProgressDTO {

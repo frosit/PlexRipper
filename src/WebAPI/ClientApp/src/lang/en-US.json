@@ -236,6 +236,10 @@
             "url-has-valid-format": "Url is of a valid format!",
             "update-connection": "Update Connection",
             "url-already-exists": "This URL is already used for server: {serverName}"
+        },
+        "account-form": {
+            "credentials-tab": "Username & Password",
+            "token-tab": "Authentication Token"
         }
     },
     "confirmation": {

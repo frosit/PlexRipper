@@ -11,7 +11,7 @@
 			xs="12">
 			<AccountCard
 				:account="account"
-				@open-dialog="openDialog(false, account)" />
+				@open-dialog="dialogStore.openAccountDialog({ accountId: account.id })" />
 		</QCol>
 		<!-- Add new Account card -->
 		<QCol
@@ -20,7 +20,8 @@
 			md="6"
 			style="max-width: 395px"
 			xs="12">
-			<AccountCard @open-dialog="openDialog(true, null)" />
+			<AccountCard
+				@open-dialog="dialogStore.openAccountDialog({ accountId: 0 })" />
 		</QCol>
 	</QRow>
 	<!-- Account Dialog -->
@@ -28,16 +29,8 @@
 </template>
 
 <script setup lang="ts">
-import type { PlexAccountDTO } from '@dto';
 import { useAccountStore, useDialogStore } from '~/store';
 
 const accountStore = useAccountStore();
 const dialogStore = useDialogStore();
-
-function openDialog(isNewAccount: boolean, account: PlexAccountDTO | null = null): void {
-	dialogStore.openAccountDialog({
-		isNewAccountValue: isNewAccount,
-		account,
-	});
-}
 </script>

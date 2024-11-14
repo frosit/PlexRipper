@@ -1,10 +1,10 @@
-import type { IError, ReasonDTO, SuccessDTO } from '@dto';
+import type { ErrorDTO, ReasonDTO, SuccessDTO } from '@dto';
 
 export interface ResultDTO<T = void> {
-	isFailed?: boolean;
-	isSuccess?: boolean;
-	reasons?: ReasonDTO[] | null;
-	errors?: IError[] | null;
-	successes?: SuccessDTO[] | null;
+	isFailed: boolean;
+	isSuccess: boolean;
+	reasons: ReasonDTO[];
+	errors: ErrorDTO[];
+	successes: SuccessDTO[];
 	value?: T;
 }

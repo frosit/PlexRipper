@@ -29,7 +29,7 @@ public partial class FakeData
             .RuleFor(x => x.Is2Fa, _ => false)
             .RuleFor(x => x.IsAuthTokenMode, _ => false)
             .RuleFor(x => x.VerificationCode, _ => "")
-            .RuleFor(x => x.PlexAccountServers, _ => new List<PlexAccountServer>())
-            .RuleFor(x => x.PlexAccountLibraries, _ => new List<PlexAccountLibrary>());
+            .RuleFor(x => x.PlexAccountServers, _ => [])
+            .RuleFor(x => x.PlexAccountLibraries, _ => []);
     }
 }

@@ -129,7 +129,7 @@ import type { QTreeViewTableHeader } from '@props';
 import type IPTreeTableSelectionKeys from '@interfaces/IPTreeTableSelectionKeys';
 import type { IDownloadTableNode } from '@interfaces';
 import Convert from '@class/Convert';
-import type ButtonType from '@enums/buttonType';
+import type { ButtonType } from '@enums';
 import { DownloadStatus } from '@dto';
 
 defineProps<{

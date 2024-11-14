@@ -10,7 +10,7 @@ describe('Add Plex account to PlexRipper', () => {
 			plexServerCount: 5,
 		});
 
-		cy.visit(route('/settings/accounts')).as('setupPage');
+		cy.visit(route('/settings/accounts'));
 	});
 
 	it('Should create an Account when input is valid and close on save', () => {
@@ -105,6 +105,8 @@ describe('Add Plex account to PlexRipper', () => {
 			const account: PlexAccountDTO = generatePlexAccount({
 				id: 99,
 				partialData: {
+					username: '',
+					password: '',
 					isValidated: false,
 					is2Fa: false,
 				},
@@ -118,7 +120,7 @@ describe('Add Plex account to PlexRipper', () => {
 			cy.getCy('account-form-display-name-input').type(account.displayName);
 			cy.getCy('account-form-auth-token-input').type(account.authenticationToken);
 
-			const accountResponse = { ...account, isValidated: true, isAuthTokenMode: true };
+			const accountResponse: PlexAccountDTO = { ...account, isValidated: true };
 			// Validate Action
 			cy.intercept('POST', PlexAccountPaths.validatePlexAccountEndpoint(), {
 				statusCode: 200,
@@ -157,6 +159,8 @@ describe('Add Plex account to PlexRipper', () => {
 			const account: PlexAccountDTO = generatePlexAccount({
 				id: 99,
 				partialData: {
+					username: '',
+					password: '',
 					isValidated: false,
 					is2Fa: false,
 				},
@@ -181,7 +185,7 @@ describe('Add Plex account to PlexRipper', () => {
 
 			cy.getCy('auth-token-validation-dialog-hide-button').click();
 
-			const accountResponse = { ...account, isValidated: true, isAuthTokenMode: true };
+			const accountResponse: PlexAccountDTO = { ...account, isValidated: true };
 			cy.intercept('POST', PlexAccountPaths.validatePlexAccountEndpoint(), {
 				statusCode: 401,
 				body: generateResultDTO(accountResponse),

@@ -13,6 +13,7 @@ export function apiCheckPipe<T>(source$: Observable<AxiosResponse<T>>): Observab
 				errors: res.errors,
 				reasons: res.reasons,
 				value: res.value,
+				successes: res.successes,
 			};
 		}),
 		// Ensure we complete any API calls after the response has been received

@@ -5,9 +5,8 @@
 		autofocus
 		autocapitalize="off"
 		spellcheck="false"
-		@reset="onReset"
-		@validation-success="$emit('is-valid', true)"
-		@validation-error="$emit('is-valid', false)">
+		@validation-success="accountDialogStore.isInputValid = true"
+		@validation-error="accountDialogStore.isInputValid = false">
 		<!-- Is account enabled -->
 		<HelpRow
 			:header-width="labelCol"
@@ -15,11 +14,10 @@
 			:title="$t('help.account-form.is-enabled.title')"
 			:text="$t('help.account-form.is-enabled.text')">
 			<q-toggle
+				v-model="accountDialogStore.isEnabled"
 				class="q-ma-sm pt-0"
-				:model-value="value.isEnabled"
 				color="red"
-				data-cy="account-form-is-enabled"
-				@update:model-value="inputChanged({ prop: 'isEnabled', value: $event })" />
+				data-cy="account-form-is-enabled" />
 		</HelpRow>
 
 		<!-- Is main account -->
@@ -29,11 +27,10 @@
 			:title="$t('help.account-form.is-main.title')"
 			:text="$t('help.account-form.is-main.text')">
 			<q-toggle
+				v-model="accountDialogStore.isMain"
 				class="q-ma-sm pt-0"
-				:model-value="value.isMain"
 				color="red"
-				data-cy="account-form-is-main"
-				@update:model-value="inputChanged({ prop: 'isMain', value: $event })" />
+				data-cy="account-form-is-main" />
 		</HelpRow>
 
 		<!-- Display Name -->
@@ -43,110 +40,124 @@
 			:title="$t('help.account-form.display-name.title')"
 			:text="$t('help.account-form.display-name.text')">
 			<q-input
-				:model-value="value.displayName"
+				v-model="accountDialogStore.displayName"
 				:rules="getDisplayNameRules"
 				color="red"
 				full-width
 				outlined
 				required
-				data-cy="account-form-display-name-input"
-				@update:model-value="inputChanged({ prop: 'displayName', value: $event })" />
+				hide-bottom-space
+				data-cy="account-form-display-name-input" />
 		</HelpRow>
-		<template v-if="!value.isAuthTokenMode">
-			<!-- Username -->
-			<HelpRow
-				:header-width="labelCol"
-				:label="$t('help.account-form.username.label')"
-				:title="$t('help.account-form.username.title')"
-				:text="$t('help.account-form.username.text')">
-				<q-input
-					:model-value="value.username"
-					:rules="getUsernameRules"
-					color="red"
-					full-width
-					outlined
-					required
-					data-cy="account-form-username-input"
-					@update:model-value="inputChanged({ prop: 'username', value: $event })" />
-			</HelpRow>
+		<q-tabs
+			v-model="tab"
+			class="q-my-lg"
+			align="justify">
+			<q-tab
+				data-cy="account-dialog-credentials-mode-button"
+				:name="credentialsTab"
+				:label="$t('components.account-form.credentials-tab')" />
+			<q-tab
+				data-cy="account-dialog-auth-token-mode-button"
+				:name="tokenTab"
+				:label="$t('components.account-form.token-tab')" />
+		</q-tabs>
+		<q-tab-panels
+			v-model="tab"
+			animated>
+			<q-tab-panel
+				:name="credentialsTab"
+				class="account-dialog-panel">
+				<!-- Username -->
+				<HelpRow
+					:header-width="labelCol"
+					:label="$t('help.account-form.username.label')"
+					:title="$t('help.account-form.username.title')"
+					:text="$t('help.account-form.username.text')">
+					<q-input
+						v-model="accountDialogStore.username"
+						:rules="getUsernameRules"
+						color="red"
+						full-width
+						outlined
+						required
+						hide-bottom-space
+						data-cy="account-form-username-input" />
+				</HelpRow>
 
-			<!-- Password -->
-			<HelpRow
-				:label="$t('help.account-form.password.label')"
-				:title="$t('help.account-form.password.title')"
-				:text="$t('help.account-form.password.text')">
-				<q-input
-					:model-value="value.password"
-					:rules="getPasswordRules"
-					color="red"
-					full-width
-					outlined
-					required
-					data-cy="account-form-password-input"
-					:append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-					:type="showPassword ? 'text' : 'password'"
-					@click:append="showPassword = !showPassword"
-					@update:model-value="inputChanged({ prop: 'password', value: $event })">
-					<template #append>
-						<q-btn
-							flat
-							:icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
-							@click="showPassword = !showPassword" />
-					</template>
-				</q-input>
-			</HelpRow>
-		</template>
-		<template v-else>
-			<!-- Plex Token -->
-			<HelpRow
-				:label="$t('help.account-form.auth-token.label')"
-				:title="$t('help.account-form.auth-token.title')"
-				:text="$t('help.account-form.auth-token.text')">
-				<q-input
-					:model-value="value.authenticationToken"
-					:rules="getPasswordRules"
-					color="red"
-					full-width
-					outlined
-					required
-					data-cy="account-form-auth-token-input"
-					:append-icon="showAuthToken ? 'mdi-eye' : 'mdi-eye-off'"
-					:type="showAuthToken ? 'text' : 'password'"
-					@click:append="showAuthToken = !showAuthToken"
-					@update:model-value="inputChanged({ prop: 'authenticationToken', value: $event })">
-					<template #append>
-						<q-btn
-							flat
-							:icon="showAuthToken ? 'mdi-eye-off' : 'mdi-eye'"
-							@click="showAuthToken = !showAuthToken" />
-					</template>
-				</q-input>
-			</HelpRow>
-		</template>
+				<!-- Password -->
+				<HelpRow
+					:label="$t('help.account-form.password.label')"
+					:title="$t('help.account-form.password.title')"
+					:text="$t('help.account-form.password.text')">
+					<q-input
+						v-model="accountDialogStore.password"
+						:rules="getPasswordRules"
+						color="red"
+						full-width
+						outlined
+						required
+						hide-bottom-space
+						data-cy="account-form-password-input"
+						:append-icon="accountDialogStore.showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+						:type="accountDialogStore.showPassword ? 'text' : 'password'"
+						@click:append="accountDialogStore.showPassword = !accountDialogStore.showPassword">
+						<template #append>
+							<q-btn
+								flat
+								:icon="accountDialogStore.showPassword ? 'mdi-eye-off' : 'mdi-eye'"
+								@click="accountDialogStore.showPassword = !accountDialogStore.showPassword" />
+						</template>
+					</q-input>
+				</HelpRow>
+			</q-tab-panel>
+
+			<q-tab-panel
+				:name="tokenTab"
+				class="account-dialog-panel">
+				<!-- Plex Token -->
+				<HelpRow
+					:label="$t('help.account-form.auth-token.label')"
+					:title="$t('help.account-form.auth-token.title')"
+					:text="$t('help.account-form.auth-token.text')">
+					<q-input
+						v-model="accountDialogStore.authenticationToken"
+						:rules="getPasswordRules"
+						color="red"
+						full-width
+						outlined
+						required
+						hide-bottom-space
+						data-cy="account-form-auth-token-input"
+						:append-icon="accountDialogStore.showAuthToken ? 'mdi-eye' : 'mdi-eye-off'"
+						:type="accountDialogStore.showAuthToken ? 'text' : 'password'"
+						@click:append="accountDialogStore.showAuthToken = !accountDialogStore.showAuthToken">
+						<template #append>
+							<q-btn
+								flat
+								:icon="accountDialogStore.showAuthToken ? 'mdi-eye-off' : 'mdi-eye'"
+								@click="accountDialogStore.showAuthToken = !accountDialogStore.showAuthToken" />
+						</template>
+					</q-input>
+				</HelpRow>
+			</q-tab-panel>
+		</q-tab-panels>
 	</q-form>
 </template>
 
 <script setup lang="ts">
-import { get, set } from '@vueuse/core';
-import type { PlexAccountDTO } from '@dto';
-import type { IPlexAccount } from '@interfaces';
-import type { QForm } from 'quasar';
+import { useAccountDialogStore } from '#imports';
 
 const labelCol = ref(30);
-const showPassword = ref(false);
-const showAuthToken = ref(false);
-const accountForm = ref<InstanceType<typeof QForm> | null>(null);
 
-defineProps<{
-	value: PlexAccountDTO;
-}>();
+const tokenTab = 'token';
+const credentialsTab = 'credentials';
 
-const emit = defineEmits<{
-	<K extends keyof IPlexAccount>(event: 'input', value: { prop: K; value: IPlexAccount[K] }): void;
-	(event: 'is-valid', valid: boolean): void;
-}>();
-
-// region Validation Rules
+const tab = computed({
+	get: () => accountDialogStore.isAuthTokenMode ? tokenTab : credentialsTab,
+	set: (value: string) => accountDialogStore.isAuthTokenMode = value === tokenTab,
+});
+const accountDialogStore = useAccountDialogStore();
 
 const getDisplayNameRules = computed(() => [
 	(v: string): boolean | string => !!v || 'Display name is required',
@@ -159,19 +170,10 @@ const getPasswordRules = computed(() => [
 	(v: string): boolean | string => !!v || 'Password is required',
 	(v: string): boolean | string => (v && v.length >= 8) || 'Password must be at least 8 characters',
 ]);
-
-// endregion
-
-function inputChanged<K extends keyof IPlexAccount>({ prop, value }: { prop: K; value: IPlexAccount[K] }) {
-	emit('input', { prop, value });
-}
-
-function onReset(): void {
-	set(showPassword, false);
-	get(accountForm)?.resetValidation();
-}
-
-defineExpose({
-	onReset,
-});
 </script>
+
+<style lang="scss">
+.account-dialog-panel {
+  min-height: 11rem;
+}
+</style>

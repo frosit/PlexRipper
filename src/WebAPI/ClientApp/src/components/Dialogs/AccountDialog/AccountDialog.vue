@@ -5,8 +5,9 @@
 		persistent
 		:type="{} as IAccountDialog"
 		cy="account-dialog-form"
-		@opened="openDialog"
-		@closed="closeDialog">
+		close-button
+		@opened="accountDialogStore.openDialog"
+		@closed="accountDialogStore.closeDialog">
 		<!-- Dialog Header -->
 		<template #title>
 			<QRow>
@@ -14,96 +15,82 @@
 					<QText
 						size="h5"
 						bold="bold">
-						{{ getDisplayName }}
+						{{ getDialogHeader }}
 					</QText>
-				</QCol>
-				<!-- Auth Token Mode -->
-				<QCol cols="auto">
-					<IconButton
-						icon="mdi-cloud-key-outline"
-						cy="account-dialog-auth-token-mode-button"
-						@click="changedPlexAccount.isAuthTokenMode = !changedPlexAccount.isAuthTokenMode" />
 				</QCol>
 			</QRow>
 		</template>
 		<template #default>
 			<div>
-				<AccountForm
-					ref="accountForm"
-					:value="changedPlexAccount"
-					@input="formChanged"
-					@is-valid="isInputValid" />
-				<Print>{{ changedPlexAccount }}</Print>
+				<AccountForm />
+				<Print>{{ accountDialogStore.$state }}</Print>
 			</div>
 		</template>
 		<!-- Dialog Actions	-->
-		<template #actions="{ close }">
+		<template #actions>
 			<QRow
 				justify="between"
 				gutter="md">
-				<!-- Delete account -->
-				<QCol v-if="!isNewAccount">
-					<DeleteButton
-						class="mx-2"
-						block
-						cy="account-dialog-delete-button"
-						@click="dialogStore.openDialog(DialogType.AccountConfirmationDialog)" />
+				<QCol cols="5">
+					<QRow gutter="sm">
+						<!-- Delete account -->
+						<QCol v-if="!accountDialogStore.isNewAccount">
+							<DeleteButton
+								block
+								cy="account-dialog-delete-button"
+								@click="dialogStore.openDialog(DialogType.AccountConfirmationDialog)" />
+						</QCol>
+						<QCol v-if="!accountDialogStore.isNewAccount && !accountDialogStore.isAuthTokenMode">
+							<BaseButton
+								block
+								cy="account-dialog-generate-token-button"
+								label="Generate Token"
+								@click="dialogStore.openDialog(DialogType.AccountGenerateTokenDialog)" />
+						</QCol>
+					</QRow>
 				</QCol>
-				<!-- Cancel button -->
-				<QCol>
-					<CancelButton
-						class="mx-2"
-						block
-						cy="account-dialog-cancel-button"
-						@click="close" />
-				</QCol>
-				<!-- Reset Form -->
-				<QCol>
-					<ResetButton
-						class="mx-2"
-						block
-						cy="account-dialog-reset-button"
-						@click="reset" />
-				</QCol>
-				<!-- Validation button -->
-				<QCol>
-					<AccountValidationButton
-						:color="validationStyle.color"
-						:disabled="validateLoading"
-						:icon="validationStyle.icon"
-						:label="validationStyle.text"
-						:loading="validateLoading"
-						block
-						cy="account-dialog-validate-button"
-						class="q-mx-md"
-						@click="validate" />
-				</QCol>
-				<!-- Save account -->
-				<QCol>
-					<SaveButton
-						:label="isNewAccount ? $t('general.commands.save') : $t('general.commands.update')"
-						:cy="`account-dialog-${isNewAccount ? 'save' : 'update'}-button`"
-						block
-						:loading="savingLoading"
-						class="q-mx-md"
-						@click="saveAccount(close)" />
+				<QCol cols="5">
+					<QRow gutter="sm">
+						<!-- Validation button -->
+						<QCol>
+							<AccountValidationButton
+								:color="validationStyle.color"
+								:icon="validationStyle.icon"
+								:label="validationStyle.text"
+								:loading="accountDialogStore.validateLoading"
+								:disabled="accountDialogStore.validateLoading"
+								cy="account-dialog-validate-button"
+								block
+								@click="validatePlexAccount" />
+						</QCol>
+						<!-- Save account -->
+						<QCol>
+							<SaveButton
+								:label="accountDialogStore.isNewAccount ? $t('general.commands.save') : $t('general.commands.update')"
+								:cy="`account-dialog-${accountDialogStore.isNewAccount ? 'save' : 'update'}-button`"
+								:loading="accountDialogStore.savingLoading"
+								block
+								@click="saveAccount" />
+						</QCol>
+					</QRow>
 				</QCol>
 			</QRow>
 		</template>
 	</QCardDialog>
 
 	<!--	Account Verification Code Dialog	-->
-	<AccountVerificationCodeDialog
-		:account="changedPlexAccount"
-		@close="closeVerificationDialog"
-		@confirm="validateAfterVerificationCode" />
+	<AccountVerificationCodeDialog />
 
-	<AccountTokenValidateDialog :account="changedPlexAccount" />
+	<!--	Account Token Validate Dialog	-->
+	<AccountTokenValidateDialog />
+
+	<!--	Account Generate Token Dialog	-->
+	<AccountGenerateTokenDialog />
 
 	<!--	Delete Confirmation Dialog	-->
 	<ConfirmationDialog
 		class="q-mr-md"
-		:confirm-loading="deleteLoading"
+		:confirm-loading="accountDialogStore.deleteLoading"
 		:name="DialogType.AccountConfirmationDialog"
 		:title="$t('confirmation.delete-account.title')"
 		:text="$t('confirmation.delete-account.text')"
@@ -112,265 +99,69 @@
 </template>
 
 <script setup lang="ts">
-import Log from 'consola';
 import { useSubscription } from '@vueuse/rxjs';
-import { get, set } from '@vueuse/core';
-import type { PlexAccountDTO } from '@dto';
-import type { IAccountDialog, IPlexAccount } from '@interfaces';
-import { plexAccountApi } from '@api';
-import type AccountForm from '@components/Dialogs/AccountDialog/AccountForm.vue';
-
+import type { IAccountDialog } from '@interfaces';
 import { DialogType } from '@enums';
-import { useAccountStore, useDialogStore, useI18n } from '#imports';
+import { useAccountDialogStore } from '@store';
+import { useDialogStore, useI18n } from '#imports';
 
 const { t } = useI18n();
-const accountStore = useAccountStore();
+const accountDialogStore = useAccountDialogStore();
 const dialogStore = useDialogStore();
 
-const isNewAccount = ref(false);
-
-const accountForm = ref<InstanceType<typeof AccountForm> | null>(null);
-/**
- * The plexAccount as it is currently saved
- */
-const originalPlexAccount = ref<PlexAccountDTO | null>(null);
-
-/**
- * The plexAccount as it is currently changed in this dialog
- */
-const changedPlexAccount = ref<IPlexAccount>(getDefaultAccount());
-
-const validateLoading = ref(false);
-const savingLoading = ref(false);
-const deleteLoading = ref(false);
-
-function getDefaultAccount(): IPlexAccount {
-	return {
-		id: 0,
-		isEnabled: true,
-		isMain: true,
-		username: '',
-		password: '',
-		displayName: '',
-		clientId: '',
-		verificationCode: '',
-		uuid: '',
-		hasPassword: false,
-		validatedAt: '0001-01-01T00:00:00Z',
-		is2Fa: false,
-		title: '',
-		plexId: 0,
-		authenticationToken: '',
-		email: '',
-		plexServerAccess: [],
-		plexLibraryAccess: [],
-		isAuthTokenMode: false,
-		// Dialog properties
-
-		isValidated: false,
-		hasValidationErrors: false,
-		isInputValid: true,
-		validationErrors: [],
-	};
-}
-
-const hasCredentialsChanged = computed(() => {
-	if (!isNewAccount.value) {
-		return (
-			originalPlexAccount.value?.username !== get(changedPlexAccount).username
-			|| originalPlexAccount.value?.password !== get(changedPlexAccount).password
-		);
-	}
-	return false;
-});
-
-const validationStyle = computed((): {
-	color: 'default' | 'positive' | 'warning' | 'negative';
-	icon: string;
-	text: string;
-} => {
-	if (get(changedPlexAccount).hasValidationErrors) {
-		return {
-			color: 'negative',
-			icon: 'mdi-alert-circle-outline',
-			text: t('general.commands.validate'),
-		};
-	}
-	if (get(changedPlexAccount).isValidated && !get(changedPlexAccount).hasValidationErrors) {
-		return {
-			color: 'positive',
-			icon: 'mdi-check-bold',
-			text: '',
-		};
-	}
-	return {
-		color: 'default',
-		icon: 'mdi-text-box-search-outline',
-		text: t('general.commands.validate'),
-	};
-});
-
-const getDisplayName = computed(() => {
-	const displayName = get(changedPlexAccount).displayName;
+const getDialogHeader = computed(() => {
+	const displayName = accountDialogStore.displayName;
 	let title: string;
-	if (get(isNewAccount)) {
+	if (accountDialogStore.isNewAccount) {
 		title = t('components.account-dialog.add-account-title', {
-			name: get(changedPlexAccount).displayName,
+			name: displayName,
 		});
 	} else {
 		title = t('components.account-dialog.edit-account-title', {
-			name: get(changedPlexAccount).displayName,
+			name: displayName,
 		});
 	}
 	// Remove the colon if the display name is empty
 	return displayName ? title : title.replace(':', '');
 });
 
-function isInputValid(value: boolean) {
-	get(changedPlexAccount).isInputValid = value;
-}
+const validationStyle = computed(
+	(): {
+		color: 'default' | 'positive' | 'warning' | 'negative';
+		icon: string;
+		text: string;
+	} => {
+		if (accountDialogStore.hasValidationErrors) {
+			return {
+				color: 'negative',
+				icon: 'mdi-alert-circle-outline',
+				text: t('general.commands.validate'),
+			};
+		}
+		if (accountDialogStore.isValidated && !accountDialogStore.hasValidationErrors) {
+			return {
+				color: 'positive',
+				icon: 'mdi-check-bold',
+				text: '',
+			};
+		}
+		return {
+			color: 'default',
+			icon: 'mdi-text-box-search-outline',
+			text: t('general.commands.validate'),
+		};
+	},
+);
 
-function formChanged<K extends keyof IPlexAccount>({ prop, value }: { prop: K; value: IPlexAccount[K] }) {
-	get(changedPlexAccount)[prop] = value;
-}
-
-function validate() {
-	set(validateLoading, true);
-
-	useSubscription(
-		plexAccountApi
-			.validatePlexAccountEndpoint(get(changedPlexAccount))
-			.subscribe({
-				next: (data) => {
-					const account = data.isSuccess ? data?.value : null;
-
-					get(changedPlexAccount).hasValidationErrors = false;
-
-					if (account?.isValidated && account?.isAuthTokenMode) {
-						Log.info('Account is validated and was added by token');
-						set(changedPlexAccount, { ...get(changedPlexAccount), ...account });
-						dialogStore.openDialog(DialogType.AccountTokenValidateDialog);
-						return;
-					}
-
-					// Account has no 2FA and was valid
-					if (account?.isValidated && !account?.is2Fa) {
-						Log.info('Account has no 2FA and was valid');
-						set(changedPlexAccount, { ...get(changedPlexAccount), ...account });
-						return;
-					}
-
-					// Account has no 2FA and was invalid
-					if (!account?.isValidated && !account?.is2Fa) {
-						Log.info('Account has no 2FA and was invalid');
-						set(changedPlexAccount, { ...get(changedPlexAccount), ...account });
-						return;
-					}
-
-					// Account has 2FA
-					if (!account?.isValidated && account?.is2Fa) {
-						Log.info('Account has 2FA enabled');
-						set(changedPlexAccount, { ...get(changedPlexAccount), ...account });
-						dialogStore.openDialog(DialogType.AccountVerificationCodeDialog);
-						return;
-					}
-
-					if (!account?.isValidated && account?.is2Fa) {
-						Log.info('Account was valid and has 2FA enabled, this makes no sense and sounds like a bug');
-					}
-				},
-				error() {
-					get(changedPlexAccount).isValidated = false;
-					get(changedPlexAccount).hasValidationErrors = true;
-					dialogStore.openDialog(DialogType.AccountTokenValidateDialog);
-
-					set(validateLoading, false);
-				},
-				complete: () => {
-					set(validateLoading, false);
-				},
-			}),
-	);
-}
-
-function closeVerificationDialog() {
-	dialogStore.closeDialog(DialogType.AccountVerificationCodeDialog);
-	set(validateLoading, false);
-}
-
-function validateAfterVerificationCode(account: PlexAccountDTO) {
-	if (account) {
-		set(changedPlexAccount, { ...get(changedPlexAccount), ...account });
-	}
-}
-
-// region Button Commands
-
-const reset = () => {
-	set(changedPlexAccount, getDefaultAccount());
-	accountForm.value?.onReset();
-};
-
-function saveAccount(close: () => void) {
-	set(savingLoading, true);
-
-	const accountData: PlexAccountDTO = omit(get(changedPlexAccount), ['isInputValid', 'hasValidationErrors', 'validationErrors']);
-
-	if (get(isNewAccount)) {
-		useSubscription(
-			accountStore.createPlexAccount(accountData).subscribe(() => {
-				set(savingLoading, false);
-				close();
-			}),
-		);
-	} else {
-		useSubscription(
-			accountStore.updatePlexAccount(accountData).subscribe((account) => {
-				if (account) {
-					set(changedPlexAccount, {
-						...get(changedPlexAccount),
-						...account,
-					});
-					if (!get(hasCredentialsChanged)) {
-						close();
-					}
-				} else {
-					Log.error('Result was invalid when saving an updated account', account);
-					set(savingLoading, false);
-				}
-			}),
-		);
-	}
-
-	close();
+function validatePlexAccount() {
+	useSubscription(accountDialogStore.validatePlexAccount().subscribe());
 }
 
 function deleteAccount() {
-	set(deleteLoading, true);
-	useSubscription(
-		accountStore.deleteAccount(get(changedPlexAccount).id).subscribe(() => {
-			closeDialog();
-		}),
-	);
+	useSubscription(accountDialogStore.deleteAccount().subscribe());
 }
 
-function openDialog(event: IAccountDialog) {
-	const { isNewAccountValue, account } = event;
-	set(isNewAccount, isNewAccountValue);
-	// Setup values
-	if (account) {
-		set(changedPlexAccount, { ...get(changedPlexAccount), ...cloneDeep(account) });
-	}
+function saveAccount() {
+	useSubscription(accountDialogStore.saveAccount().subscribe());
 }
-
-function closeDialog() {
-	set(savingLoading, false);
-	set(deleteLoading, false);
-	closeVerificationDialog();
-	dialogStore.closeDialog(DialogType.AccountConfirmationDialog);
-	dialogStore.closeDialog(DialogType.AccountDialog);
-	reset();
-}
-
-// endregion
 </script>

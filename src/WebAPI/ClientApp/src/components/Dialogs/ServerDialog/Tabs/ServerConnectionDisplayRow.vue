@@ -48,7 +48,6 @@
 import type { PlexServerConnectionDTO, ServerConnectionCheckStatusProgressDTO } from '@dto';
 import { get, set } from '@vueuse/core';
 import { useSubscription } from '@vueuse/rxjs';
-import { computed, defineProps, onMounted, ref } from 'vue';
 import { map } from 'rxjs/operators';
 import { useDialogStore, useServerConnectionStore, useServerStore, useSignalrStore } from '@store';
 

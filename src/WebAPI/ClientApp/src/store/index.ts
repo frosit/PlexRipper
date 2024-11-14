@@ -15,3 +15,4 @@ export * from './localizationStore';
 export * from './mediaStore';
 export * from './signalrStore';
 export * from './dialogStore';
+export * from './accountDialogStore';

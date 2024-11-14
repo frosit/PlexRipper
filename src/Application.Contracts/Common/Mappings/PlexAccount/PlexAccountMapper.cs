@@ -26,7 +26,6 @@ public static class PlexAccountMapper
             HasPassword = source.HasPassword,
             AuthenticationToken = source.AuthenticationToken,
             VerificationCode = source.VerificationCode,
-            IsAuthTokenMode = source.IsAuthTokenMode,
             PlexServerAccess = source.PlexAccountServers.Select(x => x.PlexServerId).ToList(),
             PlexLibraryAccess = source.PlexAccountLibraries.Select(x => x.PlexLibraryId).ToList(),
         };
@@ -59,7 +58,6 @@ public static class PlexAccountMapper
             ClientId = source.ClientId,
             VerificationCode = source.VerificationCode,
             Is2Fa = source.Is2Fa,
-            IsAuthTokenMode = source.IsAuthTokenMode,
         };
 
     #endregion
