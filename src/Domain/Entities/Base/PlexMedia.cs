@@ -42,12 +42,27 @@ public class PlexMedia : PlexMediaSlim
     [Column(Order = 23)]
     public required string Guid { get; init; } = string.Empty;
 
+    /// <summary>
+    /// Gets or sets the IMDB guid.
+    /// Note: this is only the unique identifier part, and not including "imdb://".
+    /// <example>imdb://tt0397306</example>
+    /// </summary>
     [Column(Order = 24)]
     public required string? Guid_IMDB { get; init; }
 
+    /// <summary>
+    /// Gets or sets the TMDB guid.
+    /// Note: this is only the unique identifier part, and not including "tmdb://".
+    /// <example>tmdb://1433</example>
+    /// </summary>
     [Column(Order = 25)]
     public required string? Guid_TMDB { get; init; }
 
+    /// <summary>
+    /// Gets or sets the TVDB guid.
+    /// Note: this is only the unique identifier part, and not including "tvdb://".
+    /// <example>tvdb://73141</example>
+    /// </summary>
     [Column(Order = 26)]
     public required string? Guid_TVDB { get; init; }
 
