@@ -24,5 +24,5 @@ public class PlexMediaDTO : PlexMediaSlimDTO
 
     public required List<PlexMediaDataDTO> MediaData { get; set; } = new();
 
-    public new required List<PlexMediaDTO> Children { get; set; } = new();
+    public required List<PlexMediaDTO> Children { get; set; } = new();
 }

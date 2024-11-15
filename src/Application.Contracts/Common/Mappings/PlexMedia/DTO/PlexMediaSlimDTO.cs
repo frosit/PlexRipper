@@ -32,6 +32,8 @@ public class PlexMediaSlimDTO
 
     public required int ChildCount { get; init; }
 
+    public required int GrandChildCount { get; init; }
+
     public required DateTime AddedAt { get; init; }
 
     public required DateTime? UpdatedAt { get; init; }
@@ -44,14 +46,10 @@ public class PlexMediaSlimDTO
 
     public required bool HasThumb { get; set; }
 
-    public required string FullThumbUrl { get; set; } = string.Empty;
-
     /// <summary>
     /// The token used to authenticate with the Plex server to retrieve the thumbnail.
     /// </summary>
     public required string PlexToken { get; set; } = string.Empty;
 
     public required List<PlexMediaQualityDTO> Qualities { get; init; } = [];
-
-    public List<PlexMediaSlimDTO> Children { get; set; } = [];
 }

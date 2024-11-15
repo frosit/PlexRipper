@@ -52,7 +52,6 @@ public class GetPlexLibraryMediaEndpoint_UnitTests : BaseUnitTest<GetPlexLibrary
         {
             var validationResult = await PlexMediaSlimDtoValidator.ValidateAsync(plexMediaSlimDto);
             validationResult.Errors.ShouldBeEmpty();
-            plexMediaSlimDto.Children.ShouldBeEmpty();
         }
     }
 
@@ -96,7 +95,6 @@ public class GetPlexLibraryMediaEndpoint_UnitTests : BaseUnitTest<GetPlexLibrary
         {
             var validationResult = await PlexMediaSlimDtoValidator.ValidateAsync(plexMediaSlimDto);
             validationResult.Errors.ShouldBeEmpty();
-            plexMediaSlimDto.Children.ShouldBeEmpty();
         }
     }
 }
