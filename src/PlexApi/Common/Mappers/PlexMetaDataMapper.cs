@@ -28,8 +28,13 @@ public static class PlexMetaDataMapper
 
             // This is set later on
             SortIndex = 0,
+
             SearchTitle = source.Title.ToSearchTitle(),
             Guid = source.Guid,
+
+            Guid_IMDB = source.MediaGuid?.Find(x => x.Id.Contains("imdb"))?.Id.Replace("imdb://", "") ?? null,
+            Guid_TMDB = source.MediaGuid?.Find(x => x.Id.Contains("tmdb"))?.Id.Replace("tmdb://", "") ?? null,
+            Guid_TVDB = source.MediaGuid?.Find(x => x.Id.Contains("tvdb"))?.Id.Replace("tvdb://", "") ?? null,
 
             // Duration is in milliseconds and we want seconds
             Duration = source.Duration.GetValueOrDefault() / 1000,

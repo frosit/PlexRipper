@@ -37,6 +37,10 @@ public static class PlexMediaMapper
             PlexLibrary = source.PlexLibrary,
             PlexServer = source.PlexServer,
             Type = source.Type,
+            Guid = source.Guid,
+            Guid_IMDB = source.Guid_IMDB,
+            Guid_TMDB = source.Guid_TMDB,
+            Guid_TVDB = source.Guid_TVDB,
         };
 
     public static PlexTvShow ToPlexTvShow(this PlexMedia source, GetLibraryItemsMetadata originalSource) =>
@@ -73,6 +77,10 @@ public static class PlexMediaMapper
             PlexLibrary = source.PlexLibrary,
             PlexServer = source.PlexServer,
             Type = source.Type,
+            Guid = source.Guid,
+            Guid_IMDB = source.Guid_IMDB,
+            Guid_TMDB = source.Guid_TMDB,
+            Guid_TVDB = source.Guid_TVDB,
         };
 
     public static PlexTvShowSeason ToPlexTvShowSeason(this PlexMedia source, GetLibraryItemsMetadata originalSource) =>
@@ -109,6 +117,10 @@ public static class PlexMediaMapper
             PlexLibrary = source.PlexLibrary,
             PlexServer = source.PlexServer,
             Type = source.Type,
+            Guid = source.Guid,
+            Guid_IMDB = source.Guid_IMDB,
+            Guid_TMDB = source.Guid_TMDB,
+            Guid_TVDB = source.Guid_TVDB,
         };
 
     public static PlexTvShowEpisode ToPlexTvShowEpisode(
@@ -148,5 +160,9 @@ public static class PlexMediaMapper
             PlexServer = source.PlexServer,
             ParentKey = originalSource.ParentRatingKey != null ? int.Parse(originalSource.ParentRatingKey) : -1,
             Type = source.Type,
+            Guid = source.Guid,
+            Guid_IMDB = source.Guid_IMDB,
+            Guid_TMDB = source.Guid_TMDB,
+            Guid_TVDB = source.Guid_TVDB,
         };
 }

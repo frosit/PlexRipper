@@ -75,6 +75,7 @@ public static class PlexMediaSlimDTOMapper
             Duration = source.Duration,
             MediaSize = source.MediaSize,
             ChildCount = source.ChildCount,
+            GrandChildCount = source.GrandChildCount,
             AddedAt = source.AddedAt,
             UpdatedAt = source.UpdatedAt,
             PlexLibraryId = source.PlexLibraryId,
@@ -83,7 +84,6 @@ public static class PlexMediaSlimDTOMapper
             Key = source.Key,
             MetaDataKey = source.MetaDataKey,
             HasThumb = source.HasThumb,
-            GrandChildCount = 0,
             Qualities = source.Qualities.ToDTO(),
             PlexToken = string.Empty,
         };
