@@ -342,6 +342,7 @@ public class RefreshLibraryMediaCommandHandler : IRequestHandler<RefreshLibraryM
 
             plexTvShow.MediaSize = plexTvShow.Seasons.Sum(x => x.MediaSize);
             plexTvShow.Duration = plexTvShow.Seasons.Sum(x => x.Duration);
+            plexTvShow.GrandChildCount = plexTvShow.Seasons.Sum(x => x.ChildCount);
         }
 
         return rawTvShowData;
