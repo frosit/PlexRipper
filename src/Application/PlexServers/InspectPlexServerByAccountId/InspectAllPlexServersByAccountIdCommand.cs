@@ -57,7 +57,6 @@ public class InspectAllPlexServersByAccountIdCommandHandler
             return Result.Ok();
 
         // Inspect all PlexServers
-
         await _mediator.Send(
             new QueueInspectPlexServerJobCommand(plexServers.Value.Select(x => x.Id).ToList()),
             CancellationToken.None
