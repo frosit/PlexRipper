@@ -73,13 +73,13 @@ public static partial class DbContextExtensions
     public static async Task<Result<List<PlexMediaSlimDTO>>> GetMediaByType(
         this IPlexRipperDbContext dbContext,
         PlexMediaType mediaType,
-        int skip,
-        int take,
+        int skip = 0,
+        int take = 0,
         int plexLibraryId = 0,
         CancellationToken ct = default
     )
     {
-        var entities = new List<PlexMediaSlimDTO>();
+        List<PlexMediaSlimDTO> entities;
 
         switch (mediaType)
         {
@@ -87,10 +87,10 @@ public static partial class DbContextExtensions
             {
                 entities = await dbContext
                     .PlexMovies.AsNoTracking()
-                    .Where(x => x.PlexLibraryId <= 0 || x.PlexLibraryId == plexLibraryId)
-                    .OrderBy(x => x.SortIndex)
-                    .Skip(skip)
-                    .Take(take)
+                    .ApplyWhere(plexLibraryId > 0, x => x.PlexLibraryId == plexLibraryId)
+                    .ApplyOrderBy(plexLibraryId > 0, x => x.SortIndex)
+                    .ApplySkip(skip)
+                    .ApplyTake(take)
                     .ProjectToMediaSlimDTO()
                     .ToListAsync(ct);
 
@@ -100,10 +100,10 @@ public static partial class DbContextExtensions
             {
                 entities = await dbContext
                     .PlexTvShows.AsNoTracking()
-                    .Where(x => x.PlexLibraryId <= 0 || x.PlexLibraryId == plexLibraryId)
-                    .OrderBy(x => x.SortIndex)
-                    .Skip(skip)
-                    .Take(take)
+                    .ApplyWhere(plexLibraryId > 0, x => x.PlexLibraryId == plexLibraryId)
+                    .ApplyOrderBy(plexLibraryId > 0, x => x.SortIndex)
+                    .ApplySkip(skip)
+                    .ApplyTake(take)
                     .ProjectToMediaSlimDTO()
                     .ToListAsync(ct);
                 break;
@@ -133,6 +133,7 @@ public static partial class DbContextExtensions
             }
         }
 
-        return Result.Ok(entities);
+        // If the plexLibraryId is set, we don't need to sort the list again
+        return Result.Ok(plexLibraryId > 0 ? entities.ToList() : entities.OrderByNatural(x => x.SearchTitle).ToList());
     }
 }
