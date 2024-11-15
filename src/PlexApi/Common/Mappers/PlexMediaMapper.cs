@@ -1,8 +1,10 @@
+using LukeHagar.PlexAPI.SDK.Models.Requests;
+
 namespace PlexRipper.PlexApi;
 
 public static class PlexMediaMapper
 {
-    public static PlexMovie ToPlexMovie(this PlexMedia source) =>
+    public static PlexMovie ToPlexMovie(this PlexMedia source, GetLibraryItemsMetadata originalSource) =>
         new()
         {
             Id = source.Id,
@@ -31,13 +33,13 @@ public static class PlexMediaMapper
             ContentRating = source.ContentRating,
             Rating = source.Rating,
             OriginallyAvailableAt = source.OriginallyAvailableAt,
-            FullTitle = source.FullTitle,
+            FullTitle = $"{originalSource.Title} ({originalSource.Year})",
             PlexLibrary = source.PlexLibrary,
             PlexServer = source.PlexServer,
             Type = source.Type,
         };
 
-    public static PlexTvShow ToPlexTvShow(this PlexMedia source) =>
+    public static PlexTvShow ToPlexTvShow(this PlexMedia source, GetLibraryItemsMetadata originalSource) =>
         new()
         {
             Id = source.Id,
@@ -50,6 +52,7 @@ public static class PlexMediaMapper
             MediaSize = source.MediaSize,
             MetaDataKey = source.MetaDataKey,
             ChildCount = source.ChildCount,
+            GrandChildCount = 0, // This is set later on in BuildTvShowTree
             AddedAt = source.AddedAt,
             UpdatedAt = source.UpdatedAt,
             HasThumb = source.HasThumb,
@@ -66,13 +69,13 @@ public static class PlexMediaMapper
             ContentRating = source.ContentRating,
             Rating = source.Rating,
             OriginallyAvailableAt = source.OriginallyAvailableAt,
-            FullTitle = source.FullTitle,
+            FullTitle = originalSource.Title,
             PlexLibrary = source.PlexLibrary,
             PlexServer = source.PlexServer,
             Type = source.Type,
         };
 
-    public static PlexTvShowSeason ToPlexTvShowSeason(this PlexMedia source) =>
+    public static PlexTvShowSeason ToPlexTvShowSeason(this PlexMedia source, GetLibraryItemsMetadata originalSource) =>
         new()
         {
             Id = source.Id,
@@ -100,14 +103,18 @@ public static class PlexMediaMapper
             Summary = source.Summary,
             ContentRating = source.ContentRating,
             Rating = source.Rating,
+            ParentKey = originalSource.ParentRatingKey != null ? int.Parse(originalSource.ParentRatingKey) : -1,
             OriginallyAvailableAt = source.OriginallyAvailableAt,
-            FullTitle = source.FullTitle,
+            FullTitle = $"{originalSource.ParentTitle}/{originalSource.Title}",
             PlexLibrary = source.PlexLibrary,
             PlexServer = source.PlexServer,
             Type = source.Type,
         };
 
-    public static PlexTvShowEpisode ToPlexTvShowEpisode(this PlexMedia source) =>
+    public static PlexTvShowEpisode ToPlexTvShowEpisode(
+        this PlexMedia source,
+        GetLibraryItemsMetadata originalSource
+    ) =>
         new()
         {
             Id = source.Id,
@@ -136,9 +143,10 @@ public static class PlexMediaMapper
             ContentRating = source.ContentRating,
             Rating = source.Rating,
             OriginallyAvailableAt = source.OriginallyAvailableAt,
-            FullTitle = source.FullTitle,
+            FullTitle = $"{originalSource.GrandparentTitle}/{originalSource.ParentTitle}/{originalSource.Title}",
             PlexLibrary = source.PlexLibrary,
             PlexServer = source.PlexServer,
+            ParentKey = originalSource.ParentRatingKey != null ? int.Parse(originalSource.ParentRatingKey) : -1,
             Type = source.Type,
         };
 }
