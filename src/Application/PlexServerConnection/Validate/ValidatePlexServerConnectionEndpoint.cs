@@ -8,7 +8,7 @@ namespace PlexRipper.Application;
 
 public record ValidatePlexServerConnectionEndpointRequest()
 {
-    public string Url { get; init; }
+    public required string Url { get; init; }
 }
 
 public class ValidatePlexServerConnectionEndpointRequestValidator
