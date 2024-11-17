@@ -1,7 +1,7 @@
 <template>
 	<q-toolbar class="media-overview-bar">
 		<!--	Title	-->
-		<q-toolbar-title>
+		<q-toolbar-title style="overflow: visible">
 			<QRow
 				align="center"
 				justify="start">
@@ -21,7 +21,62 @@
 				</Transition>
 				<QCol cols="auto">
 					<q-list class="no-background">
-						<q-item>
+						<q-item
+							v-if="mediaOverviewStore.allMediaMode"
+							class="q-pa-none">
+							<q-item-section avatar>
+								<QFab
+									label-position="left"
+									square
+									flat
+									push
+									vertical-actions-align="left"
+									icon="mdi-keyboard-arrow-down"
+									direction="down">
+									<template #label>
+										<QRow
+											justify="center"
+											align="center">
+											<QCol
+												cols="auto"
+												class="q-mr-md">
+												<QMediaTypeIcon
+													:media-type="mediaOverviewStore.mediaType ?? PlexMediaType.None"
+													:size="36" />
+											</QCol>
+											<QCol>
+												<QText size="h5">
+													{{ headerText }}
+												</QText>
+											</QCol>
+										</QRow>
+									</template>
+
+									<QFabAction
+										v-for="(mediaType, i) in [PlexMediaType.Movie, PlexMediaType.TvShow].filter(type => type !== mediaOverviewStore.mediaType)"
+										:key="i"
+										square
+										outline
+										:label-position="'right'"
+										class="blur"
+										@click="mediaOverviewStore.changeMediaType(mediaType)">
+										<template #icon>
+											<QMediaTypeIcon
+												:media-type="mediaType"
+												:size="36"
+												class="q-mr-md" />
+										</template>
+										<template #label>
+											<QText
+												size="h5"
+												:value="mediaTypeToAllText(mediaType)" />
+										</template>
+									</QFabAction>
+								</QFab>
+							</q-item-section>
+							<q-item-section />
+						</q-item>
+						<q-item v-else>
 							<q-item-section avatar>
 								<QMediaTypeIcon
 									:media-type="mediaOverviewStore.mediaType ?? PlexMediaType.None"
@@ -29,13 +84,10 @@
 									class="mx-3" />
 							</q-item-section>
 							<q-item-section>
-								<q-item-label v-if="!mediaOverviewStore.allMediaMode">
+								<q-item-label>
 									{{ server ? serverStore.getServerName(server.id) : $t('general.commands.unknown') }}
 									{{ $t('general.delimiter.dash') }}
 									{{ library ? libraryStore.getLibraryName(library.id) : $t('general.commands.unknown') }}
-								</q-item-label>
-								<q-item-label v-else>
-									{{ headerText }}
 								</q-item-label>
 								<q-item-label
 									v-if="library && !detailMode"
@@ -221,13 +273,23 @@ const viewOptions = computed((): IViewOptions[] => {
 const headerText = computed(() => {
 	switch (mediaOverviewStore.mediaType) {
 		case PlexMediaType.Movie:
-			return t('components.media-overview-bar.all-media-mode.movies');
 		case PlexMediaType.TvShow:
-			return t('components.media-overview-bar.all-media-mode.tv-shows');
+			return mediaTypeToAllText(mediaOverviewStore.mediaType);
 		default:
 			return `Library type ${mediaOverviewStore.mediaType} is not supported`;
 	}
 });
+
+function mediaTypeToAllText(mediaType: PlexMediaType): string {
+	switch (mediaType) {
+		case PlexMediaType.Movie:
+			return t('components.media-overview-bar.all-media-mode.movies');
+		case PlexMediaType.TvShow:
+			return t('components.media-overview-bar.all-media-mode.tv-shows');
+		default:
+			return t('general.error.unknown');
+	}
+}
 </script>
 
 <style lang="scss">
@@ -236,5 +298,9 @@ const headerText = computed(() => {
 .media-overview-bar {
   @extend .default-border;
   min-height: $media-overview-bar-height;
+}
+
+.q-fab__label {
+  max-height: none;
 }
 </style>

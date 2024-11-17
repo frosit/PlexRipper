@@ -37,7 +37,7 @@
 		</div>
 		<div class="media-overview-content">
 			<!-- Media Overview -->
-			<template v-if="!loading && mediaOverviewStore.itemsLength">
+			<template v-if="!mediaOverviewStore.loading && mediaOverviewStore.itemsLength">
 				<template v-if="mediaOverviewStore.hasNoSearchResults">
 					<QAlert type="warning">
 						<QText
@@ -72,7 +72,7 @@
 			</template>
 
 			<!-- No Media Overview -->
-			<template v-else-if="!loading">
+			<template v-else-if="!mediaOverviewStore.loading">
 				<QRow justify="center">
 					<QCol cols="auto">
 						<QAlert type="warning">
@@ -92,7 +92,7 @@
 			<!-- Media Selection Dialog -->
 			<MediaSelectionDialog />
 			<!--	Loading overlay	-->
-			<QLoadingOverlay :loading="!isRefreshing && loading" />
+			<QLoadingOverlay :loading="!isRefreshing && mediaOverviewStore.loading" />
 			<!--		Download confirmation dialog	-->
 			<DownloadConfirmation @download="downloadStore.downloadMedia($event)" />
 		</div>
@@ -110,7 +110,7 @@ import {
 	useMediaOverviewSortBus,
 	listenMediaOverviewDownloadCommand,
 	sendMediaOverviewDownloadCommand,
-	useMediaStore,
+	useSignalrStore,
 	useMediaOverviewStore,
 	useSettingsStore,
 	useDownloadStore,
@@ -128,14 +128,13 @@ const downloadStore = useDownloadStore();
 const libraryStore = useLibraryStore();
 const serverStore = useServerStore();
 const dialogStore = useDialogStore();
+const signalRStore = useSignalrStore();
 
 // endregion
 
 const isRefreshing = ref(false);
 
 const libraryProgress = ref<LibraryProgress | null>(null);
-
-const loading = ref(false);
 
 const props = defineProps<{
 	libraryId: number;
@@ -201,25 +200,6 @@ function refreshLibrary() {
 	);
 }
 
-function onRequestMedia({ page = 0, size = 0 }: { page: number; size: number }) {
-	if (get(loading)) {
-		return;
-	}
-	set(loading, true);
-
-	useSubscription(
-		mediaOverviewStore.requestMedia({ page, size })
-			.subscribe({
-				error: (error) => {
-					Log.error(`MediaOverview => Error while server and mediaData for library id ${mediaOverviewStore.libraryId}:`, error);
-				},
-				complete: () => {
-					set(loading, false);
-				},
-			}),
-	);
-}
-
 // region Eventbus
 
 /**
@@ -259,22 +239,28 @@ onMounted(() => {
 	mediaOverviewStore.mediaType = props.mediaType;
 
 	// Initial data load
-	onRequestMedia({
-		page: 0,
-		size: 0,
-	});
+	useSubscription(
+		mediaOverviewStore.requestMedia({
+			mediaType: props.mediaType,
+			page: 0,
+			size: 0,
+		}).subscribe());
 
 	if (!mediaOverviewStore.allMediaMode) {
 		useSubscription(
-			useSignalrStore()
-				.getLibraryProgress(mediaOverviewStore.libraryId)
+			signalRStore.getLibraryProgress(mediaOverviewStore.libraryId)
 				.subscribe((data) => {
 					if (data) {
 						set(libraryProgress, data);
 						set(isRefreshing, data.isRefreshing);
 						if (data.isComplete) {
-							onRequestMedia({ size: 0, page: 0 });
 							set(isRefreshing, false);
+							useSubscription(
+								mediaOverviewStore.requestMedia({
+									mediaType: props.mediaType,
+									page: 0,
+									size: 0,
+								}).subscribe());
 						}
 					}
 				}),

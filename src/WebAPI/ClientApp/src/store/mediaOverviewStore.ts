@@ -6,8 +6,8 @@ import type { IMediaOverviewSort } from '@composables/event-bus';
 import type { ISelection } from '@interfaces';
 import { plexLibraryApi, plexMediaApi } from '@api';
 import { map, tap } from 'rxjs/operators';
-import { iif, defer } from 'rxjs';
-import { useSettingsStore } from '#build/imports';
+import { iif, defer, type Observable, of } from 'rxjs';
+import { useSettingsStore, useLibraryStore } from '#imports';
 
 export const useMediaOverviewStore = defineStore('MediaOverviewStore', () => {
 	const state = reactive<{
@@ -23,6 +23,7 @@ export const useMediaOverviewStore = defineStore('MediaOverviewStore', () => {
 		mediaType: PlexMediaType;
 		filterQuery: string;
 		lastMediaItemViewed: PlexMediaSlimDTO | null;
+		loading: boolean;
 	}>({
 		libraryId: 0,
 		items: [],
@@ -36,18 +37,31 @@ export const useMediaOverviewStore = defineStore('MediaOverviewStore', () => {
 		mediaType: PlexMediaType.None,
 		filterQuery: '',
 		lastMediaItemViewed: null,
+		loading: false,
 	});
 
 	const settingsStore = useSettingsStore();
 	const libraryStore = useLibraryStore();
 
 	const actions = {
-		requestMedia({ page = 0, size = 0 }: { page: number; size: number }) {
+		requestMedia({
+			mediaType,
+			page = 0,
+			size = 0,
+		}: {
+			mediaType: PlexMediaType;
+			page: number;
+			size: number;
+		}): Observable<PlexMediaSlimDTO[]> {
+			if (state.loading) {
+				return of([]);
+			}
+			state.loading = true;
 			return iif(
 				() => state.libraryId === 0,
 				defer(() =>
 					plexMediaApi.getAllMediaByTypeEndpoint({
-						mediaType: state.mediaType,
+						mediaType: mediaType,
 						page,
 						size,
 					}),
@@ -66,7 +80,8 @@ export const useMediaOverviewStore = defineStore('MediaOverviewStore', () => {
 					return [];
 				}),
 				tap((data) => {
-					actions.setMedia(data, state.mediaType);
+					actions.setMedia(data, mediaType);
+					state.loading = false;
 				}),
 			);
 		},
@@ -75,6 +90,10 @@ export const useMediaOverviewStore = defineStore('MediaOverviewStore', () => {
 			state.itemsLength = state.items.length;
 			state.mediaType = mediaType;
 			state.filterQuery = '';
+		},
+		changeMediaType(mediaType: PlexMediaType) {
+			state.mediaType = mediaType;
+			actions.requestMedia({ mediaType, page: 0, size: 0 }).subscribe();
 		},
 		setFirstLetterIndex() {
 			// Create scroll indexes for each letter
