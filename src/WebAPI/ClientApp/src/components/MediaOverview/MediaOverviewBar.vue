@@ -24,15 +24,18 @@
 						<q-item>
 							<q-item-section avatar>
 								<QMediaTypeIcon
-									:media-type="library?.type ?? PlexMediaType.None"
+									:media-type="mediaOverviewStore.mediaType ?? PlexMediaType.None"
 									:size="36"
 									class="mx-3" />
 							</q-item-section>
 							<q-item-section>
-								<q-item-label>
+								<q-item-label v-if="!mediaOverviewStore.allMediaMode">
 									{{ server ? serverStore.getServerName(server.id) : $t('general.commands.unknown') }}
 									{{ $t('general.delimiter.dash') }}
 									{{ library ? libraryStore.getLibraryName(library.id) : $t('general.commands.unknown') }}
+								</q-item-label>
+								<q-item-label v-else>
+									{{ headerText }}
 								</q-item-label>
 								<q-item-label
 									v-if="library && !detailMode"
@@ -89,7 +92,7 @@
 
 		<!--	Refresh library button	-->
 		<VerticalButton
-			v-if="!detailMode"
+			v-if="!mediaOverviewStore.allMediaMode && !detailMode"
 			:height="barHeight"
 			:label="$t('general.commands.refresh')"
 			:width="verticalButtonWidth"
@@ -142,6 +145,7 @@ import {
 	useMediaOverviewBarDownloadCommandBus,
 	useMediaOverviewStore,
 	useServerStore,
+	useI18n,
 } from '#imports';
 
 const libraryStore = useLibraryStore();
@@ -153,6 +157,8 @@ interface IViewOptions {
 	label: string;
 	viewMode: ViewMode;
 }
+
+const { t } = useI18n();
 
 const props = defineProps<{
 	server: PlexServerDTO | null;
@@ -186,14 +192,14 @@ const isSelected = (viewMode: ViewMode) => {
 };
 
 const libraryCountFormatted = computed(() => {
-	if (props.library) {
-		switch (props.library?.type) {
+	if (mediaOverviewStore.library) {
+		switch (mediaOverviewStore.mediaType) {
 			case PlexMediaType.Movie:
-				return `${props.library.count} Movies`;
+				return `${mediaOverviewStore.library.count} Movies`;
 			case PlexMediaType.TvShow:
-				return `${props.library.count} TvShows - ${props.library.seasonCount} Seasons - ${props.library.episodeCount} Episodes`;
+				return `${mediaOverviewStore.library.count} TvShows - ${mediaOverviewStore.library.seasonCount} Seasons - ${mediaOverviewStore.library.episodeCount} Episodes`;
 			default:
-				return `Library type ${props.library?.type} is not supported in the media count`;
+				return `Library type ${mediaOverviewStore.mediaType} is not supported in the media count`;
 		}
 	}
 	return 'unknown media count';
@@ -210,6 +216,17 @@ const viewOptions = computed((): IViewOptions[] => {
 			viewMode: ViewMode.Table,
 		},
 	];
+});
+
+const headerText = computed(() => {
+	switch (mediaOverviewStore.mediaType) {
+		case PlexMediaType.Movie:
+			return t('components.media-overview-bar.all-media-mode.movies');
+		case PlexMediaType.TvShow:
+			return t('components.media-overview-bar.all-media-mode.tv-shows');
+		default:
+			return `Library type ${mediaOverviewStore.mediaType} is not supported`;
+	}
 });
 </script>
 

@@ -1,4 +1,4 @@
-import { randMovie, randNumber, randRecentDate } from '@ngneat/falso';
+import { randMovie, randNumber, randRecentDate, randUuid } from '@ngneat/falso';
 import { times } from 'lodash-es';
 import { checkConfig, incrementSeed, type MockConfig } from '@mock';
 import { PlexMediaType, type PlexMediaSlimDTO } from '@dto';
@@ -23,8 +23,11 @@ export function generatePlexMedia({
 	checkConfig(config);
 	incrementSeed(id);
 	const title = randMovie();
-	return {
+	const media: PlexMediaSlimDTO = {
 		id,
+		key: randNumber({ min: 1, max: 1000000 }),
+		metaDataKey: randNumber({ min: 1, max: 1000000 }),
+		plexToken: randUuid(),
 		childCount: 0,
 		duration: randNumber({ min: 1900, max: 2023 }),
 		plexLibraryId,
@@ -41,8 +44,9 @@ export function generatePlexMedia({
 		children: [],
 		qualities: [],
 		fullThumbUrl: 'https://www.omdbapi.com/src/poster.jpg',
-		...partialData,
 	};
+
+	return Object.assign(media, partialData);
 }
 
 export function generatePlexMedias({

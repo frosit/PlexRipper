@@ -4,10 +4,14 @@ import { get } from '@vueuse/core';
 import { PlexMediaType, ViewMode, type PlexMediaSlimDTO } from '@dto';
 import type { IMediaOverviewSort } from '@composables/event-bus';
 import type { ISelection } from '@interfaces';
+import { plexLibraryApi, plexMediaApi } from '@api';
+import { map, tap } from 'rxjs/operators';
+import { iif, defer } from 'rxjs';
 import { useSettingsStore } from '#build/imports';
 
 export const useMediaOverviewStore = defineStore('MediaOverviewStore', () => {
 	const state = reactive<{
+		libraryId: number;
 		items: Readonly<PlexMediaSlimDTO[]>;
 		sortedItems: Readonly<PlexMediaSlimDTO[]>;
 		itemsLength: number;
@@ -20,6 +24,7 @@ export const useMediaOverviewStore = defineStore('MediaOverviewStore', () => {
 		filterQuery: string;
 		lastMediaItemViewed: PlexMediaSlimDTO | null;
 	}>({
+		libraryId: 0,
 		items: [],
 		sortedItems: [],
 		itemsLength: 0,
@@ -34,8 +39,37 @@ export const useMediaOverviewStore = defineStore('MediaOverviewStore', () => {
 	});
 
 	const settingsStore = useSettingsStore();
+	const libraryStore = useLibraryStore();
 
 	const actions = {
+		requestMedia({ page = 0, size = 0 }: { page: number; size: number }) {
+			return iif(
+				() => state.libraryId === 0,
+				defer(() =>
+					plexMediaApi.getAllMediaByTypeEndpoint({
+						mediaType: state.mediaType,
+						page,
+						size,
+					}),
+				),
+				defer(() =>
+					plexLibraryApi.getPlexLibraryMediaEndpoint(state.libraryId, {
+						page,
+						size,
+					}),
+				),
+			).pipe(
+				map((response) => {
+					if (response && response.isSuccess) {
+						return response.value ?? [];
+					}
+					return [];
+				}),
+				tap((data) => {
+					actions.setMedia(data, state.mediaType);
+				}),
+			);
+		},
 		setMedia(items: PlexMediaSlimDTO[], mediaType: PlexMediaType) {
 			state.items = Object.freeze(items);
 			state.itemsLength = state.items.length;
@@ -65,7 +99,9 @@ export const useMediaOverviewStore = defineStore('MediaOverviewStore', () => {
 		setSelectionRange(min: number, max: number) {
 			actions.setSelection({
 				indexKey: state.selection.indexKey,
-				keys: get(getters.getMediaItems).filter((x) => x.sortIndex >= min && x.sortIndex <= max).map((x) => x.id),
+				keys: get(getters.getMediaItems)
+					.filter((x) => x.sortIndex >= min && x.sortIndex <= max)
+					.map((x) => x.id),
 				allSelected: false,
 			} as ISelection);
 		},
@@ -100,11 +136,13 @@ export const useMediaOverviewStore = defineStore('MediaOverviewStore', () => {
 					sort: x.sort !== 'no-sort' ? x.sort : false,
 				};
 			});
-			state.sortedItems = Object.freeze(orderBy(
-				state.items, // Items to sort
-				lodashFormat.map((x) => x.field), // Sort by field
-				lodashFormat.map((x) => x.sort), // Sort by sort, asc or desc
-			));
+			state.sortedItems = Object.freeze(
+				orderBy(
+					state.items, // Items to sort
+					lodashFormat.map((x) => x.field), // Sort by field
+					lodashFormat.map((x) => x.sort), // Sort by sort, asc or desc
+				),
+			);
 			state.sortedState = newSortedState;
 		},
 		waitForPosterTableRef(selector: string): Promise<HTMLElement | null> {
@@ -119,6 +157,8 @@ export const useMediaOverviewStore = defineStore('MediaOverviewStore', () => {
 		hasNoSearchResults: computed((): boolean => {
 			return state.filterQuery != '' && get(getters.getMediaItems).length === 0;
 		}),
+		allMediaMode: computed(() => state.libraryId === 0),
+		library: computed(() => libraryStore.getLibrary(state.libraryId)),
 		getMediaItems: computed((): Readonly<PlexMediaSlimDTO[]> => {
 			// Currently sorting
 			const query = state.filterQuery.toLowerCase();
@@ -161,7 +201,6 @@ export const useMediaOverviewStore = defineStore('MediaOverviewStore', () => {
 
 			return null;
 		}),
-
 	};
 
 	watch(getters.getMediaItems, () => actions.setFirstLetterIndex());

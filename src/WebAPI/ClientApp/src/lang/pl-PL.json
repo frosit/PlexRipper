@@ -240,6 +240,12 @@
         "account-form": {
             "credentials-tab": "Nazwa użytkownika i hasło",
             "token-tab": "Token uwierzytelniający"
+        },
+        "media-overview-bar": {
+            "all-media-mode": {
+                "movies": "Wszystkie filmy",
+                "tv-shows": "Wszystkie programy telewizyjne"
+            }
         }
     },
     "confirmation": {

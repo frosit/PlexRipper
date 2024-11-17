@@ -26,17 +26,16 @@
 				</QRow>
 			</QCol>
 		</QRow>
-		<!--		<QRow v-else> -->
-		<!--			<QCol> -->
-		<!--				<SearchBar /> -->
-		<!--			</QCol> -->
-		<!--		</QRow> -->
+		<MediaOverview
+			:library-id="0"
+			:media-type="PlexMediaType.TvShow" />
 	</QPage>
 </template>
 
 <script setup lang="ts">
 import Log from 'consola';
 import { useSettingsStore } from '@store';
+import { PlexMediaType } from '@dto';
 
 const settingsStore = useSettingsStore();
 

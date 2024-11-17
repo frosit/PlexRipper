@@ -142,7 +142,7 @@ const props = defineProps<{
 	mediaType: PlexMediaType;
 }>();
 
-const library = computed(() => libraryStore.getLibrary(props.libraryId));
+const library = computed(() => libraryStore.getLibrary(mediaOverviewStore.libraryId));
 
 const isConfirmationEnabled = computed(() => {
 	switch (props.mediaType) {
@@ -160,9 +160,9 @@ const isConfirmationEnabled = computed(() => {
 });
 
 const refreshingText = computed(() => {
-	const server = libraryStore.getServerByLibraryId(props.libraryId);
+	const server = libraryStore.getServerByLibraryId(mediaOverviewStore.libraryId);
 	return t('components.media-overview.is-refreshing', {
-		library: get(library) ? libraryStore.getLibraryName(props.libraryId) : t('general.commands.unknown'),
+		library: get(library) ? libraryStore.getLibraryName(mediaOverviewStore.libraryId) : t('general.commands.unknown'),
 		server: server ? serverStore.getServerName(server.id) : t('general.commands.unknown'),
 	});
 });
@@ -176,7 +176,7 @@ function resetProgress(isRefreshingValue: boolean) {
 	set(isRefreshing, isRefreshingValue);
 
 	set(libraryProgress, {
-		id: props.libraryId,
+		id: mediaOverviewStore.libraryId,
 		percentage: 0,
 		received: 0,
 		total: 0,
@@ -193,7 +193,7 @@ function refreshLibrary() {
 	set(isRefreshing, true);
 	resetProgress(true);
 	useSubscription(
-		libraryStore.reSyncLibrary(props.libraryId).subscribe({
+		libraryStore.reSyncLibrary(mediaOverviewStore.libraryId).subscribe({
 			complete: () => {
 				set(isRefreshing, false);
 			},
@@ -208,17 +208,10 @@ function onRequestMedia({ page = 0, size = 0 }: { page: number; size: number }) 
 	set(loading, true);
 
 	useSubscription(
-		useMediaStore()
-			.getMediaData(props.libraryId, page, size)
+		mediaOverviewStore.requestMedia({ page, size })
 			.subscribe({
-				next: (mediaData) => {
-					if (!mediaData) {
-						Log.error(`MediaOverview => No media data for library id ${props.libraryId} was found`);
-					}
-					mediaOverviewStore.setMedia(mediaData, props.mediaType);
-				},
 				error: (error) => {
-					Log.error(`MediaOverview => Error while server and mediaData for library id ${props.libraryId}:`, error);
+					Log.error(`MediaOverview => Error while server and mediaData for library id ${mediaOverviewStore.libraryId}:`, error);
 				},
 				complete: () => {
 					set(loading, false);
@@ -246,8 +239,8 @@ listenMediaOverviewDownloadCommand((command) => {
 
 useMediaOverviewBarDownloadCommandBus().on(() => {
 	const downloadCommand: DownloadMediaDTO = {
-		plexServerId: libraryStore.getServerByLibraryId(props.libraryId)?.id ?? 0,
-		plexLibraryId: props.libraryId,
+		plexServerId: libraryStore.getServerByLibraryId(mediaOverviewStore.libraryId)?.id ?? 0,
+		plexLibraryId: mediaOverviewStore.libraryId,
 		mediaIds: mediaOverviewStore.selection.keys,
 		type: props.mediaType,
 	};
@@ -262,10 +255,8 @@ onMounted(() => {
 	resetProgress(false);
 	set(isRefreshing, false);
 
-	if (!props.libraryId) {
-		Log.error('Library id was not provided');
-		return;
-	}
+	mediaOverviewStore.libraryId = props.libraryId;
+	mediaOverviewStore.mediaType = props.mediaType;
 
 	// Initial data load
 	onRequestMedia({
@@ -273,20 +264,22 @@ onMounted(() => {
 		size: 0,
 	});
 
-	useSubscription(
-		useSignalrStore()
-			.getLibraryProgress(props.libraryId)
-			.subscribe((data) => {
-				if (data) {
-					set(libraryProgress, data);
-					set(isRefreshing, data.isRefreshing);
-					if (data.isComplete) {
-						onRequestMedia({ size: 0, page: 0 });
-						set(isRefreshing, false);
+	if (!mediaOverviewStore.allMediaMode) {
+		useSubscription(
+			useSignalrStore()
+				.getLibraryProgress(mediaOverviewStore.libraryId)
+				.subscribe((data) => {
+					if (data) {
+						set(libraryProgress, data);
+						set(isRefreshing, data.isRefreshing);
+						if (data.isComplete) {
+							onRequestMedia({ size: 0, page: 0 });
+							set(isRefreshing, false);
+						}
 					}
-				}
-			}),
-	);
+				}),
+		);
+	}
 });
 </script>
 

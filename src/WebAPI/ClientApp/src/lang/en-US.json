@@ -240,6 +240,12 @@
         "account-form": {
             "credentials-tab": "Username & Password",
             "token-tab": "Authentication Token"
+        },
+        "media-overview-bar": {
+            "all-media-mode": {
+                "movies": "All Movies",
+                "tv-shows": "All TV-Shows"
+            }
         }
     },
     "confirmation": {
