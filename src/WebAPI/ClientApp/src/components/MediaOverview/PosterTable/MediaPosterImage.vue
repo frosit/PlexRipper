@@ -1,20 +1,21 @@
 <template>
-	<QRow
-		justify="center"
-		align="center"
-		style="height: 100%"
-		:class="{ 'media-poster--fallback': fallback }">
-		<QCol
-			v-if="fallback"
-			cols="auto">
-			<QMediaTypeIcon
-				class="mx-3"
-				:size="90"
-				:media-type="mediaType" />
-		</QCol>
-		<QCol
-			cols="12"
-			text-align="center">
+	<q-card
+		square
+		flat
+		:class="{ 'media-poster--fallback': fallback }"
+		style="height: 100%">
+		<q-card-section
+			v-if="fallback">
+			<QRow justify="center">
+				<QCol cols="auto">
+					<QMediaTypeIcon
+						:size="90"
+						:media-type="mediaType" />
+				</QCol>
+			</QRow>
+		</q-card-section>
+
+		<q-card-section :class="{ 'q-py-none': fallback }">
 			<QText
 				:value="mediaItem.title"
 				bold="bold"
@@ -25,24 +26,32 @@
 				v-if="allMediaMode"
 				align="center"
 				:value="serverStore.getServerName(mediaItem.plexServerId)" />
-		</QCol>
-		<!-- Poster Actions -->
-		<QCol cols="auto">
-			<BaseButton
-				icon="mdi-download"
-				size="xl"
-				flat
-				:outline="false"
-				@click="$emit('download')" />
-			<BaseButton
-				v-if="mediaType === PlexMediaType.TvShow"
-				icon="mdi-magnify"
-				:outline="false"
-				size="xl"
-				flat
-				@click="$emit('open-media-details', mediaItem)" />
-		</QCol>
-	</QRow>
+		</q-card-section>
+
+		<QCardActions
+			align="center"
+			class="media-poster--actions">
+			<QRow :justify="mediaType === PlexMediaType.TvShow ? 'between' : 'center'">
+				<QCol cols="auto">
+					<BaseButton
+						icon="mdi-download"
+						size="xl"
+						flat
+						:outline="false"
+						@click="$emit('download')" />
+				</QCol>
+				<QCol cols="auto">
+					<BaseButton
+						v-if="mediaType === PlexMediaType.TvShow"
+						icon="mdi-magnify"
+						:outline="false"
+						size="xl"
+						flat
+						@click="$emit('open-media-details', mediaItem)" />
+				</QCol>
+			</QRow>
+		</QCardActions>
+	</q-card>
 </template>
 
 <script setup lang="ts">
@@ -74,11 +83,15 @@ const mediaType = computed(() => props.mediaItem?.type ?? PlexMediaType.Unknown)
 .media-poster {
   &--fallback {
     background-color: transparent !important;
-
-    & > div {
-      margin: 16px 0;
-    }
+    padding: 0 !important;
   }
 
+  &--actions {
+    position: absolute;
+    text-align: center;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
 }
 </style>

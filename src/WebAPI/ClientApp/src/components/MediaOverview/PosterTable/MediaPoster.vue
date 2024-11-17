@@ -147,6 +147,10 @@ function downloadMedia() {
 <style lang="scss">
 @import '@/assets/scss/_mixins.scss';
 
+.q-img__content > div {
+  margin: 0;
+}
+
 .media-poster {
   @extend .background-sm;
 
@@ -161,6 +165,7 @@ function downloadMedia() {
   &--fallback {
     width: 200px;
     height: 300px;
+
   }
 
   &--title {
