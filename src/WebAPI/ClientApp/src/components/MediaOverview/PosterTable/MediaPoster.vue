@@ -12,71 +12,21 @@
 						no-spinner
 						class="media-poster--image"
 						:alt="mediaItem.title">
-						<!--	Overlay	-->
-						<div :class="['media-poster--overlay', hover ? 'on-hover' : '', 'white--text']">
-							<QRow
-								justify="center"
-								align="end"
-								style="height: 100%">
-								<QCol
-									cols="12"
-									text-align="center">
-									<span class="media-poster--title">
-										{{ mediaItem.title }}
-									</span>
-								</QCol>
-								<QCol cols="auto">
-									<BaseButton
-										icon="mdi-download"
-										size="xl"
-										flat
-										:outline="false"
-										@click="downloadMedia()" />
-									<BaseButton
-										v-if="mediaType === PlexMediaType.TvShow"
-										icon="mdi-magnify"
-										:outline="false"
-										size="xl"
-										flat
-										@click="$emit('open-media-details', mediaItem)" />
-								</QCol>
-							</QRow>
-						</div>
-						<!--	Show fallback image	-->
+						<template #default>
+							<!--	Overlay	-->
+							<div :class="['media-poster--overlay', hover ? 'on-hover' : '', 'white--text']">
+								<MediaPosterImage
+									:media-item="mediaItem"
+									:all-media-mode="mediaOverviewStore.allMediaMode"
+									@download="downloadMedia" />
+							</div>
+						</template>
 						<template #error>
-							<QRow
-								column
-								align="center"
-								justify="between"
-								class="media-poster--fallback">
-								<QCol>
-									<QMediaTypeIcon
-										class="mx-3"
-										:size="90"
-										:media-type="mediaType" />
-								</QCol>
-								<QCol text-align="center">
-									<span class="media-poster--title">
-										{{ mediaItem.title }}
-									</span>
-								</QCol>
-
-								<QCol cols="auto">
-									<BaseButton
-										icon="mdi-download"
-										:outline="false"
-										size="xl"
-										flat
-										@click="downloadMedia()" />
-									<BaseButton
-										v-if="mediaType === PlexMediaType.TvShow"
-										icon="mdi-magnify"
-										:outline="false"
-										size="xl"
-										flat
-										@click="$emit('open-media-details', mediaItem)" />
-								</QCol>
-							</QRow>
+							<!--	Show fallback image	-->
+							<MediaPosterImage
+								fallback
+								:media-item="mediaItem"
+								:all-media-mode="mediaOverviewStore.allMediaMode" />
 						</template>
 					</q-img>
 				</template>
@@ -120,9 +70,10 @@ import Log from 'consola';
 import { get } from '@vueuse/core';
 import { type DownloadMediaDTO, type PlexMediaSlimDTO, PlexMediaType } from '@dto';
 import { toFullThumbUrl } from '@composables/conversion';
-import { useServerConnectionStore } from '#imports';
+import { useMediaOverviewStore, useServerConnectionStore } from '#imports';
 
 const connectionStore = useServerConnectionStore();
+const mediaOverviewStore = useMediaOverviewStore();
 
 const props = defineProps<{
 	mediaItem: PlexMediaSlimDTO;
@@ -210,14 +161,6 @@ function downloadMedia() {
   &--fallback {
     width: 200px;
     height: 300px;
-  }
-
-  &--fallback {
-    background-color: transparent !important;
-
-    & > div {
-      margin: 16px 0;
-    }
   }
 
   &--title {
