@@ -28,7 +28,7 @@
 		</QRow>
 		<MediaOverview
 			:library-id="0"
-			:media-type="PlexMediaType.TvShow" />
+			:media-type="PlexMediaType.Movie" />
 	</QPage>
 </template>
 

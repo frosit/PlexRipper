@@ -9,7 +9,7 @@
 			<QRow justify="center">
 				<QCol cols="auto">
 					<QMediaTypeIcon
-						:size="90"
+						:size="60"
 						:media-type="mediaType" />
 				</QCol>
 			</QRow>
@@ -20,11 +20,12 @@
 				:value="mediaItem.title"
 				bold="bold"
 				align="center"
-				size="h6"
+				size="subtitle1"
 				class="media-poster--title" />
 			<QText
 				v-if="allMediaMode"
 				align="center"
+				size="subtitle2"
 				:value="serverStore.getServerName(mediaItem.plexServerId)" />
 		</q-card-section>
 

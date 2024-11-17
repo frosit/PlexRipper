@@ -1,9 +1,9 @@
 <template>
 	<q-card
 		flat
-		class="media-poster media-poster--card highlight-border-box">
-		<div>
-			<QHover>
+		class="media-poster highlight-border-box">
+		<q-card-section class="media-poster--image">
+			<QHover v-if="imageUrl">
 				<template #default="{ hover }">
 					<q-img
 						loading="eager"
@@ -31,9 +31,15 @@
 					</q-img>
 				</template>
 			</QHover>
-		</div>
+			<!--	Show fallback image	-->
+			<MediaPosterImage
+				v-else
+				fallback
+				:media-item="mediaItem"
+				:all-media-mode="mediaOverviewStore.allMediaMode" />
+		</q-card-section>
 		<!--	Poster bar	-->
-		<div
+		<q-card-section
 			v-if="qualities.length"
 			class="media-poster--quality-bar">
 			<q-chip
@@ -43,7 +49,7 @@
 				size="md">
 				{{ quality.displayQuality }}
 			</q-chip>
-		</div>
+		</q-card-section>
 		<QLoadingOverlay :loading="loading" />
 		<!--	Highlight animation effect	-->
 		<svg class="glow-container">
@@ -148,7 +154,7 @@ function downloadMedia() {
 @import '@/assets/scss/_mixins.scss';
 
 .q-img__content > div {
-  margin: 0;
+  padding: 0;
 }
 
 .media-poster {
@@ -157,20 +163,14 @@ function downloadMedia() {
   width: 200px;
   margin: 32px;
 
-  &--card {
-    width: 200px;
-  }
-
-  &--image,
-  &--fallback {
-    width: 200px;
+  &--image {
     height: 300px;
-
+    padding: 0;
   }
 
-  &--title {
-    font-size: 1.5em;
-    font-weight: bold;
+  &--quality-bar {
+    height: 40px;
+    padding: 0;
     text-align: center;
   }
 
@@ -179,6 +179,7 @@ function downloadMedia() {
     width: 100%;
     height: 100%;
     opacity: 0;
+    margin: 0;
     transition: opacity 0.2s ease-in-out;
 
     &.on-hover {
@@ -190,11 +191,5 @@ function downloadMedia() {
     }
   }
 
-  &--quality-bar {
-    height: 40px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
 }
 </style>
