@@ -6,7 +6,7 @@ public static class PlexMediaDTOMapper
 {
     #region PlexMovie
 
-    public static PlexMediaDTO ToDTO(this PlexMovie source) =>
+    public static PlexMediaDTO ToDTO(this PlexMovie source, string plexToken) =>
         new()
         {
             Id = source.Id,
@@ -39,25 +39,25 @@ public static class PlexMediaDTOMapper
             OriginallyAvailableAt = source.OriginallyAvailableAt,
             Children = [],
             MetaDataKey = source.MetaDataKey,
-            PlexToken = string.Empty,
+            PlexToken = plexToken,
         };
 
     #endregion
 
     #region PlexTvShow
 
-    public static PlexMediaDTO ToDTO(this PlexTvShow plexTvShow)
+    public static PlexMediaDTO ToDTO(this PlexTvShow plexTvShow, string plexToken)
     {
-        var dto = plexTvShow.ToDTOMapper();
+        var dto = plexTvShow.ToDTOMapper(plexToken);
         dto.Children = [];
 
         foreach (var tvShowSeason in plexTvShow.Seasons)
-            dto.Children.Add(tvShowSeason.ToDTO());
+            dto.Children.Add(tvShowSeason.ToDTO(plexToken));
 
         return dto;
     }
 
-    private static PlexMediaDTO ToDTOMapper(this PlexTvShow source) =>
+    private static PlexMediaDTO ToDTOMapper(this PlexTvShow source, string plexToken) =>
         new()
         {
             Id = source.Id,
@@ -88,27 +88,27 @@ public static class PlexMediaDTOMapper
             ContentRating = source.ContentRating,
             Rating = source.Rating,
             OriginallyAvailableAt = source.OriginallyAvailableAt,
-            Children = source.Seasons.ConvertAll(ToDTO),
+            Children = source.Seasons.ConvertAll(x => x.ToDTO(plexToken)),
             MetaDataKey = source.MetaDataKey,
-            PlexToken = string.Empty,
+            PlexToken = plexToken,
         };
 
     #endregion
 
     #region PlexSeason
 
-    public static PlexMediaDTO ToDTO(this PlexTvShowSeason plexTvShowSeason)
+    public static PlexMediaDTO ToDTO(this PlexTvShowSeason plexTvShowSeason, string plexToken)
     {
-        var dto = plexTvShowSeason.ToDTOMapper();
+        var dto = plexTvShowSeason.ToDTOMapper(plexToken);
         dto.Children = [];
 
         foreach (var episode in plexTvShowSeason.Episodes)
-            dto.Children.Add(episode.ToDTO());
+            dto.Children.Add(episode.ToDTO(plexToken));
 
         return dto;
     }
 
-    private static PlexMediaDTO ToDTOMapper(this PlexTvShowSeason source) =>
+    private static PlexMediaDTO ToDTOMapper(this PlexTvShowSeason source, string plexToken) =>
         new()
         {
             Id = source.Id,
@@ -139,16 +139,16 @@ public static class PlexMediaDTOMapper
             ContentRating = source.ContentRating,
             Rating = source.Rating,
             OriginallyAvailableAt = source.OriginallyAvailableAt,
-            Children = source.Episodes.ConvertAll(ToDTO),
+            Children = source.Episodes.ConvertAll(x => x.ToDTO(plexToken)),
             MetaDataKey = source.MetaDataKey,
-            PlexToken = string.Empty,
+            PlexToken = plexToken,
         };
 
     #endregion
 
     #region PlexEpisode
 
-    public static PlexMediaDTO ToDTO(this PlexTvShowEpisode source) =>
+    public static PlexMediaDTO ToDTO(this PlexTvShowEpisode source, string plexToken) =>
         new()
         {
             Id = source.Id,
@@ -181,7 +181,7 @@ public static class PlexMediaDTOMapper
             OriginallyAvailableAt = source.OriginallyAvailableAt,
             Children = [],
             MetaDataKey = source.MetaDataKey,
-            PlexToken = string.Empty,
+            PlexToken = plexToken,
         };
 
     #endregion
