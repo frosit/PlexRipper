@@ -32,6 +32,7 @@ import type { PlexMediaType, PlexMediaSlimDTO } from '@dto';
 import { listenMediaOverviewScrollToCommand, sendMediaOverviewDownloadCommand } from '@composables/event-bus';
 import { triggerBoxHighlight } from '@composables/animations';
 import { waitForElement } from '@composables';
+import { useRouter, useMediaOverviewStore } from '#imports';
 
 const mediaOverviewStore = useMediaOverviewStore();
 
@@ -40,7 +41,7 @@ const recycleScrollerRef = ref<RecycleScroller | null>(null);
 const posterTableRef = computed(() => document.getElementById('poster-table') ?? null);
 const posterCardWidth = ref(200 + 32);
 const posterCardHeight = ref(340 + 32);
-const gridItems = ref(0);
+const gridItems = ref(10);
 const scrolledIndex = ref(0);
 const router = useRouter();
 
