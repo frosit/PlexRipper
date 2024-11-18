@@ -28,9 +28,8 @@
 			<!--	Overview bar	-->
 			<MediaOverviewBar
 				:detail-mode="false"
-				:library="library"
-				:server="
-					libraryStore.getServerByLibraryId(libraryId)"
+				:library-id="libraryId"
+				:media-type="mediaOverviewStore.mediaType"
 				@view-change="changeView"
 				@selection-dialog="dialogStore.openDialog(DialogType.MediaSelectionDialog)"
 				@refresh-library="refreshLibrary" />

@@ -20,7 +20,7 @@
 						ratio="2/3"
 						:width="thumbWidth + 'px'"
 						:height="thumbHeight + 'px'"
-						:src="`${opt.fullThumbUrl}&width=${thumbWidth}&height=${thumbHeight}`" />
+						:src="`&width=${thumbWidth}&height=${thumbHeight}`" /> <!-- Needs correct url -->
 				</q-item-section>
 				<q-item-section>
 					<q-item-label>{{ opt.title }}</q-item-label>

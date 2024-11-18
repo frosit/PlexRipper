@@ -21,8 +21,9 @@
 				</Transition>
 				<QCol cols="auto">
 					<q-list class="no-background">
+						<!-- All Media Mode Header -->
 						<q-item
-							v-if="mediaOverviewStore.allMediaMode"
+							v-if="libraryId === 0"
 							class="q-pa-none">
 							<q-item-section avatar>
 								<QFab
@@ -41,7 +42,7 @@
 												cols="auto"
 												class="q-mr-md">
 												<QMediaTypeIcon
-													:media-type="mediaOverviewStore.mediaType ?? PlexMediaType.None"
+													:media-type="mediaType"
 													:size="36" />
 											</QCol>
 											<QCol>
@@ -53,33 +54,34 @@
 									</template>
 
 									<QFabAction
-										v-for="(mediaType, i) in [PlexMediaType.Movie, PlexMediaType.TvShow].filter(type => type !== mediaOverviewStore.mediaType)"
+										v-for="(type, i) in [PlexMediaType.Movie, PlexMediaType.TvShow].filter(x => x !== mediaType)"
 										:key="i"
 										square
 										outline
 										:label-position="'right'"
 										class="blur"
-										@click="mediaOverviewStore.changeMediaType(mediaType)">
+										@click="mediaOverviewStore.changeMediaType(type)">
 										<template #icon>
 											<QMediaTypeIcon
-												:media-type="mediaType"
+												:media-type="type"
 												:size="36"
 												class="q-mr-md" />
 										</template>
 										<template #label>
 											<QText
 												size="h5"
-												:value="mediaTypeToAllText(mediaType)" />
+												:value="mediaTypeToAllText(type)" />
 										</template>
 									</QFabAction>
 								</QFab>
 							</q-item-section>
 							<q-item-section />
 						</q-item>
+						<!-- Single Library Mode -->
 						<q-item v-else>
 							<q-item-section avatar>
 								<QMediaTypeIcon
-									:media-type="mediaOverviewStore.mediaType ?? PlexMediaType.None"
+									:media-type="library?.type"
 									:size="36"
 									class="mx-3" />
 							</q-item-section>
@@ -131,7 +133,7 @@
 			:label="$t('general.commands.download')"
 			:width="verticalButtonWidth"
 			icon="mdi-download"
-			@click="download" />
+			@click="downloadCommandBus.emit('download')" />
 
 		<!--	Selection Dialog Button	-->
 		<VerticalButton
@@ -150,7 +152,7 @@
 			:width="verticalButtonWidth"
 			cy="media-overview-refresh-library-btn"
 			icon="mdi-refresh"
-			@click="refreshLibrary" />
+			@click="$emit('refresh-library', libraryId);" />
 
 		<!--	View mode	-->
 		<VerticalButton
@@ -171,7 +173,7 @@
 						:data-cy="`view-mode-${viewOption.viewMode.toLowerCase()}-btn`"
 						clickable
 						style="min-width: 200px"
-						@click="changeView(viewOption.viewMode)">
+						@click="$emit('view-change', viewOption.viewMode)">
 						<!-- View mode options -->
 						<q-item-section avatar>
 							<q-avatar>
@@ -190,7 +192,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { PlexLibraryDTO, PlexServerDTO } from '@dto';
+import { get } from '@vueuse/core';
 import { PlexMediaType, ViewMode } from '@dto';
 import {
 	useLibraryStore,
@@ -212,13 +214,16 @@ interface IViewOptions {
 
 const { t } = useI18n();
 
-const props = defineProps<{
-	server: PlexServerDTO | null;
-	library: PlexLibraryDTO | null;
+const props = withDefaults(defineProps<{
+	mediaType: PlexMediaType;
+	libraryId: number;
 	detailMode?: boolean;
-}>();
+}>(), {
+	libraryId: 0,
+	detailMode: false,
+});
 
-const emit = defineEmits<{
+defineEmits<{
 	(e: 'back' | 'selection-dialog'): void;
 	(e: 'refresh-library', libraryId: number): void;
 	(e: 'view-change', viewMode: ViewMode): void;
@@ -227,31 +232,23 @@ const emit = defineEmits<{
 const barHeight = ref(85);
 const verticalButtonWidth = ref(120);
 
-const refreshLibrary = () => {
-	emit('refresh-library', props.library?.id ?? -1);
-};
+const library = computed(() => libraryStore.getLibrary(props.libraryId));
+const server = computed(() => serverStore.getServer(get(library)?.plexServerId ?? -1));
 
-const download = () => {
-	downloadCommandBus.emit('download');
-};
-
-const changeView = (viewMode: ViewMode) => {
-	emit('view-change', viewMode);
-};
-
-const isSelected = (viewMode: ViewMode) => {
+function isSelected(viewMode: ViewMode) {
 	return mediaOverviewStore.getMediaViewMode === viewMode;
-};
+}
 
 const libraryCountFormatted = computed(() => {
-	if (mediaOverviewStore.library) {
-		switch (mediaOverviewStore.mediaType) {
+	const libraryValue = get(library);
+	if (libraryValue) {
+		switch (props.mediaType) {
 			case PlexMediaType.Movie:
-				return `${mediaOverviewStore.library.count} Movies`;
+				return `${libraryValue.count} Movies`;
 			case PlexMediaType.TvShow:
-				return `${mediaOverviewStore.library.count} TvShows - ${mediaOverviewStore.library.seasonCount} Seasons - ${mediaOverviewStore.library.episodeCount} Episodes`;
+				return `${libraryValue.count} TvShows - ${libraryValue.seasonCount} Seasons - ${libraryValue.episodeCount} Episodes`;
 			default:
-				return `Library type ${mediaOverviewStore.mediaType} is not supported in the media count`;
+				return `Library type ${props.mediaType} is not supported in the media count`;
 		}
 	}
 	return 'unknown media count';
@@ -271,12 +268,12 @@ const viewOptions = computed((): IViewOptions[] => {
 });
 
 const headerText = computed(() => {
-	switch (mediaOverviewStore.mediaType) {
+	switch (props.mediaType) {
 		case PlexMediaType.Movie:
 		case PlexMediaType.TvShow:
-			return mediaTypeToAllText(mediaOverviewStore.mediaType);
+			return mediaTypeToAllText(props.mediaType);
 		default:
-			return `Library type ${mediaOverviewStore.mediaType} is not supported`;
+			return `Library type ${props.mediaType} is not supported`;
 	}
 });
 

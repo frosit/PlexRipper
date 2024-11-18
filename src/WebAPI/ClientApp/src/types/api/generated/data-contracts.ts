@@ -475,7 +475,8 @@ export interface PlexMediaDTO {
   contentRating?: string | null;
   /** @format int32 */
   duration: number;
-  fullThumbUrl: string;
+  /** @format int32 */
+  grandChildCount: number;
   hasArt: boolean;
   hasBanner: boolean;
   hasTheme: boolean;
@@ -561,10 +562,10 @@ export interface PlexMediaSlimDTO {
   addedAt: string;
   /** @format int32 */
   childCount: number;
-  children: PlexMediaSlimDTO[];
   /** @format int32 */
   duration: number;
-  fullThumbUrl: string;
+  /** @format int32 */
+  grandChildCount: number;
   hasThumb: boolean;
   /** @format int32 */
   id: number;

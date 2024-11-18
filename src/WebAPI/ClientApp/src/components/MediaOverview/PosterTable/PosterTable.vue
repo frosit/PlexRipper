@@ -16,6 +16,7 @@
 			:index="index"
 			:media-item="item"
 			:data-scroll-index="index"
+
 			@download="sendMediaOverviewDownloadCommand($event)"
 			@open-media-details="onOpenMediaDetails" />
 	</RecycleScroller>

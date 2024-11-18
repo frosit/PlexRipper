@@ -1,17 +1,16 @@
 <template>
 	<QPage>
-		<template v-if="!loading">
+		<template v-if="!loading && mediaItemDetail">
 			<!--	Overview bar	-->
 			<MediaOverviewBar
-				:server="libraryStore.getServerByLibraryId(libraryId)"
-				:library="libraryStore.getLibrary(libraryId)"
+				:media-type="mediaItemDetail.type"
+				:library-id="libraryId"
 				:detail-mode="true"
 				@back="onBack" />
 			<QScroll class="page-content-minus-media-overview-bar">
 				<!--	Header	-->
 				<QRow>
 					<QCol
-						v-if="mediaItemDetail"
 						cols="auto">
 						<!--	Poster	-->
 						<MediaPosterImage
@@ -93,7 +92,6 @@ import { useRouter } from 'vue-router';
 import {
 	definePageMeta,
 	useI18n,
-	useLibraryStore,
 	useMediaOverviewStore,
 	useMediaStore,
 	useSubscription,
@@ -107,7 +105,6 @@ const route = useRoute();
 
 const mediaStore = useMediaStore();
 const mediaOverviewStore = useMediaOverviewStore();
-const libraryStore = useLibraryStore();
 const router = useRouter();
 
 const { t } = useI18n();
@@ -140,12 +137,7 @@ const libraryId = computed(() => +route.params.libraryId);
 const mediaId = computed(() => +route.params.tvShowId);
 
 function onBack() {
-	router.push({
-		name: 'tvshows-libraryId',
-		params: {
-			libraryId: get(libraryId),
-		},
-	});
+	router.go(-1);
 }
 
 onMounted(() => {

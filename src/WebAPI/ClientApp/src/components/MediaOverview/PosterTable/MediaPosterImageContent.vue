@@ -3,7 +3,7 @@
 		square
 		flat
 		:class="{ 'media-poster--fallback': fallback }"
-		style="height: 100%">
+		:style="{ height: thumbHeight + 'px', width: thumbWidth + 'px' }">
 		<q-card-section
 			v-if="fallback">
 			<QRow justify="center">
@@ -66,10 +66,14 @@ const props = withDefaults(defineProps<{
 	fallback?: boolean;
 	allMediaMode?: boolean;
 	actions?: boolean;
+	thumbWidth?: number;
+	thumbHeight?: number;
 }>(), {
 	fallback: false,
 	allMediaMode: false,
 	actions: true,
+	thumbWidth: 200,
+	thumbHeight: 300,
 });
 
 defineEmits<{
@@ -84,7 +88,7 @@ const mediaType = computed(() => props.mediaItem?.type ?? PlexMediaType.Unknown)
 
 .media-poster {
   &--fallback {
-    background-color: transparent !important;
+    @extend .background-sm;
     padding: 0 !important;
   }
 

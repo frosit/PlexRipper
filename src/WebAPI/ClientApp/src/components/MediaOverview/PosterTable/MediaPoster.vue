@@ -1,44 +1,26 @@
 <template>
-	<q-card
-		flat
-		class="highlight-border-box">
+	<q-card flat>
 		<q-card-section>
 			<MediaPosterImage
 				:media-item="mediaItem"
 				:all-media-mode="mediaOverviewStore.allMediaMode"
 				overlay
+				actions
 				@action="onAction" />
-		</q-card-section>
-		<!--	Poster bar	-->
-		<q-card-section
-			v-if="qualities.length"
-			class="media-poster-quality-bar">
-			<q-chip
-				v-for="(quality, j) in qualities"
-				:key="j"
-				:color="getQualityColor(quality.quality)"
-				size="md">
-				{{ quality.displayQuality }}
-			</q-chip>
+			<!--	Poster bar	-->
+			<div
+				v-if="qualities.length"
+				class="media-poster-quality-bar">
+				<q-chip
+					v-for="(quality, j) in qualities"
+					:key="j"
+					:color="getQualityColor(quality.quality)"
+					size="md">
+					{{ quality.displayQuality }}
+				</q-chip>
+			</div>
 		</q-card-section>
 		<QLoadingOverlay :loading="loading" />
-		<!--	Highlight animation effect	-->
-		<svg class="glow-container">
-			<!-- suppress HtmlUnknownAttribute -->
-			<rect
-				pathLength="100"
-				height="5"
-				width="5"
-				stroke-linecap="round"
-				class="glow-blur" />
-			<!-- suppress HtmlUnknownAttribute -->
-			<rect
-				pathLength="100"
-				height="5"
-				width="5"
-				stroke-linecap="round"
-				class="glow-line" />
-		</svg>
 	</q-card>
 </template>
 
@@ -53,6 +35,7 @@ const mediaOverviewStore = useMediaOverviewStore();
 const props = defineProps<{
 	mediaItem: PlexMediaSlimDTO;
 	index: number;
+
 }>();
 
 const emit = defineEmits<{
@@ -107,8 +90,11 @@ function onAction(event: 'download' | 'open-media-details') {
 </script>
 
 <style lang="scss">
+@import '@/assets/scss/_mixins.scss';
+
 .media-poster-quality-bar {
-  height: 40px;
+  @extend .background-sm;
+
   padding: 0;
   text-align: center;
 }

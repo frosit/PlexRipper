@@ -1,60 +1,69 @@
 <template>
-	<QHover
-		v-if="imageUrl"
-		class="media-poster">
-		<template #default="{ hover }">
-			<q-img
-				loading="eager"
-				:src="imageUrl"
-				fit="fill"
-				no-spinner
-				class="media-poster--image"
-				:alt="mediaItem.title">
-				<template #default>
-					<!--	Overlay	-->
-					<div :class="['media-poster--overlay', hover && overlay ? 'on-hover' : '', 'white--text']">
+	<QGlowContainer>
+		<QHover
+			v-if="imageUrl"
+			class="media-poster">
+			<template #default="{ hover }">
+				<q-img
+					loading="eager"
+					:src="imageUrl"
+					fit="fill"
+					no-spinner
+					class="media-poster--image"
+					:alt="mediaItem.title">
+					<template #default>
+						<!--	Overlay	-->
+						<div :class="['media-poster--overlay', hover && overlay ? 'on-hover' : '', 'white--text']">
+							<MediaPosterImageContent
+								:media-item="mediaItem"
+								:actions="actions"
+								:all-media-mode="allMediaMode"
+								@action="$emit('action', $event)" />
+						</div>
+					</template>
+					<template #error>
+						<!--	Show fallback image	-->
 						<MediaPosterImageContent
+							fallback
+							:actions="actions"
 							:media-item="mediaItem"
-							:all-media-mode="mediaOverviewStore.allMediaMode"
+							:all-media-mode="allMediaMode"
 							@action="$emit('action', $event)" />
-					</div>
-				</template>
-				<template #error>
-					<!--	Show fallback image	-->
-					<MediaPosterImageContent
-						fallback
-						:media-item="mediaItem"
-						:all-media-mode="mediaOverviewStore.allMediaMode"
-						@action="$emit('action', $event)" />
-				</template>
-			</q-img>
-		</template>
-	</QHover>
-	<!--	Show fallback image	-->
-	<MediaPosterImageContent
-		v-else
-		fallback
-		:media-item="mediaItem"
-		:all-media-mode="mediaOverviewStore.allMediaMode"
-		@action="$emit('action', $event)" />
+					</template>
+				</q-img>
+			</template>
+		</QHover>
+		<!--	Show fallback image	-->
+		<MediaPosterImageContent
+			v-else
+			fallback
+			:actions="actions"
+			:media-item="mediaItem"
+			:all-media-mode="allMediaMode"
+			@action="$emit('action', $event)" />
+	</QGlowContainer>
 </template>
 
 <script setup lang="ts">
 import Log from 'consola';
 import { toFullThumbUrl } from '@composables/conversion';
 import type { PlexMediaSlimDTO } from '@dto';
-import { useMediaOverviewStore, useServerConnectionStore } from '#imports';
+import { useServerConnectionStore } from '#imports';
 
 const connectionStore = useServerConnectionStore();
-const mediaOverviewStore = useMediaOverviewStore();
 
 const props = withDefaults(defineProps<{
 	mediaItem: PlexMediaSlimDTO;
 	overlay?: boolean;
+	actions?: boolean;
+	allMediaMode?: boolean;
+
 	thumbWidth?: number;
 	thumbHeight?: number;
 }>(), {
 	overlay: false,
+	actions: false,
+	allMediaMode: false,
 	thumbWidth: 200,
 	thumbHeight: 300,
 });
@@ -96,7 +105,6 @@ const imageUrl = computed((): string => {
   @extend .background-sm;
 
   width: 200px;
-  margin: 32px;
 
   &--image {
     height: 300px;

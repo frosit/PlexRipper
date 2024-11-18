@@ -103,7 +103,7 @@
 <script setup lang="ts">
 import Log from 'consola';
 import { get, set } from '@vueuse/core';
-import { type DownloadMediaDTO, type PlexMediaSlimDTO, PlexMediaType } from '@dto';
+import { type DownloadMediaDTO, type PlexMediaDTO, type PlexMediaSlimDTO, PlexMediaType } from '@dto';
 import type { ISelection } from '@interfaces';
 import {
 	useI18n,
@@ -119,7 +119,7 @@ const defaultOpened = ref(false);
 const { t } = useI18n();
 const props = withDefaults(
 	defineProps<{
-		mediaItem: PlexMediaSlimDTO | null;
+		mediaItem: PlexMediaDTO | null;
 		loading?: boolean;
 		disableIntersection: boolean;
 		disableHighlight: boolean;
@@ -265,7 +265,6 @@ useMediaOverviewBarDownloadCommandBus().on(() => {
 // endregion
 onMounted(() => {
 	const children = props.mediaItem?.children ?? [];
-	Log.info('MediaList => Mounted', children);
 	if (children.length === 0) {
 		return;
 	}
