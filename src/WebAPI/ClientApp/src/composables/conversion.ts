@@ -26,5 +26,5 @@ export function toFullThumbUrl({
 	width?: number;
 	height?: number;
 }): string {
-	return `${connectionUrl}/photo/:/transcode?url=/library/metadata/${mediaKey}/thumb/${MetaDataKey}&X-Plex-Token=${token}&width=${width}&height=${height}`;
+	return `${connectionUrl}/photo/:/transcode?url=/library/metadata/${mediaKey}/thumb/${MetaDataKey}&minSize=1&upscale=1&width=${width}&height=${height}&X-Plex-Token=${token}`;
 }
