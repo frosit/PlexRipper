@@ -106,6 +106,7 @@ import { get, set } from '@vueuse/core';
 import { type DownloadMediaDTO, type PlexMediaSlimDTO, PlexMediaType } from '@dto';
 import type { ISelection } from '@interfaces';
 import {
+	useI18n,
 	useMediaOverviewBarDownloadCommandBus,
 	toDownloadMedia,
 	sendMediaOverviewDownloadCommand,
@@ -264,6 +265,7 @@ useMediaOverviewBarDownloadCommandBus().on(() => {
 // endregion
 onMounted(() => {
 	const children = props.mediaItem?.children ?? [];
+	Log.info('MediaList => Mounted', children);
 	if (children.length === 0) {
 		return;
 	}
