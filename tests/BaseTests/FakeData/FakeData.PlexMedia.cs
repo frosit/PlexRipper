@@ -44,7 +44,6 @@ public static partial class FakeData
             .RuleFor(x => x.PlexServer, _ => null)
             .RuleFor(x => x.PlexLibraryId, _ => 0)
             .RuleFor(x => x.PlexLibrary, _ => null)
-            .RuleFor(x => x.FullThumbUrl, _ => string.Empty)
             .RuleFor(x => x.FullBannerUrl, _ => string.Empty)
             .RuleFor(x => x.Guid, _ => string.Empty)
             .RuleFor(

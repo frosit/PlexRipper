@@ -63,7 +63,6 @@ public static class PlexMetaDataMapper
             PlexServer = default,
             PlexLibraryId = default,
             PlexServerId = default,
-            FullThumbUrl = string.Empty,
             FullBannerUrl = string.Empty,
         };
     }

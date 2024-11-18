@@ -79,14 +79,7 @@ public class SearchPlexMediaEndpoint : BaseEndpoint<SearchPlexMediaRequest, Resu
         }
 
         // Set the full thumbnail url and convert to slim DTO
-        var entities = new List<PlexMediaSlimDTO>();
-        foreach (var media in response)
-        {
-            if (media.HasThumb && tokenDict.ContainsKey(media.PlexServerId))
-                media.SetFullThumbnailUrl(tokenDict[media.PlexServerId].Item1, tokenDict[media.PlexServerId].Item2);
-
-            entities.Add(media.ToSlimDTO());
-        }
+        var entities = response.Select(media => media.ToSlimDTO()).ToList();
 
         await SendFluentResult(Result.Ok(entities), ct);
     }
