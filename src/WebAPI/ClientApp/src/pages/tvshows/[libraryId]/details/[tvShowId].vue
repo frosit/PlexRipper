@@ -6,96 +6,98 @@
 			:library="libraryStore.getLibrary(libraryId)"
 			:detail-mode="true"
 			@back="onBack" />
-		<!--	Header	-->
-		<QRow>
-			<QCol cols="auto">
-				<q-card class="q-ma-md media-info-container">
-					<!--	Poster	-->
-					<q-img
-						:src="imageUrl"
-						fit="fill"
-						:width="`${thumbWidth}px`"
-						:height="`${thumbHeight}px`"
-						ratio="2/3">
-						<!--	Placeholder	-->
-						<template #loading>
-							<!--	Show fallback image	-->
-							<QRow
-								align="center"
-								justify="center"
-								class="fill-height">
-								<QCol cols="auto">
-									<QMediaTypeIcon
-										:size="100"
-										class="mx-3"
-										:media-type="mediaItemDetail?.type ?? PlexMediaType.Unknown" />
-								</QCol>
-								<QCol cols="12">
-									<h4 class="text-center">
-										{{ mediaItemDetail?.title ?? 'unknown' }}
-									</h4>
-								</QCol>
-							</QRow>
-						</template>
-					</q-img>
-				</q-card>
-			</QCol>
-			<QCol>
-				<q-card
-					class="q-ma-md media-info-container"
-					:style="{ height: thumbHeight + 'px' }">
-					<!-- Media info -->
-					<q-card-section>
-						<q-markup-table wrap-cells>
-							<tbody>
-								<tr class="q-tr--no-hover">
-									<td
-										colspan="2"
-										class="media-info-column media-title">
-										{{ mediaItemDetail?.title ?? 'unknown' }}
-									</td>
-								</tr>
-								<tr>
-									<td class="media-info-column">
-										{{ t('components.details-overview.total-duration') }}
-									</td>
-									<td class="media-info-column">
-										<QDuration :value="mediaItemDetail?.duration ?? -1" />
-									</td>
-								</tr>
-								<tr>
-									<td class="media-info-column">
-										{{ t('components.details-overview.media-count-label') }}
-									</td>
-									<td class="media-info-column">
-										{{ mediaCountFormatted }}
-									</td>
-								</tr>
-								<tr>
-									<td class="media-info-column">
-										{{ t('components.details-overview.summary') }}
-									</td>
-									<td class="media-info-column">
-										{{ mediaItemDetail?.summary ?? '' }}
-									</td>
-								</tr>
-							</tbody>
-						</q-markup-table>
-					</q-card-section>
-				</q-card>
-			</QCol>
-		</QRow>
+		<QScroll class="page-content-minus-media-overview-bar">
+			<!--	Header	-->
+			<QRow>
+				<QCol cols="auto">
+					<q-card class="q-ma-md media-info-container">
+						<!--	Poster	-->
+						<q-img
+							:src="imageUrl"
+							fit="fill"
+							:width="`${thumbWidth}px`"
+							:height="`${thumbHeight}px`"
+							ratio="2/3">
+							<!--	Placeholder	-->
+							<template #loading>
+								<!--	Show fallback image	-->
+								<QRow
+									align="center"
+									justify="center"
+									class="fill-height">
+									<QCol cols="auto">
+										<QMediaTypeIcon
+											:size="100"
+											class="mx-3"
+											:media-type="mediaItemDetail?.type ?? PlexMediaType.Unknown" />
+									</QCol>
+									<QCol cols="12">
+										<h4 class="text-center">
+											{{ mediaItemDetail?.title ?? 'unknown' }}
+										</h4>
+									</QCol>
+								</QRow>
+							</template>
+						</q-img>
+					</q-card>
+				</QCol>
+				<QCol>
+					<q-card
+						class="q-ma-md media-info-container"
+						:style="{ height: thumbHeight + 'px' }">
+						<!-- Media info -->
+						<q-card-section>
+							<q-markup-table wrap-cells>
+								<tbody>
+									<tr class="q-tr--no-hover">
+										<td
+											colspan="2"
+											class="media-info-column media-title">
+											{{ mediaItemDetail?.title ?? 'unknown' }}
+										</td>
+									</tr>
+									<tr>
+										<td class="media-info-column">
+											{{ t('components.details-overview.total-duration') }}
+										</td>
+										<td class="media-info-column">
+											<QDuration :value="mediaItemDetail?.duration ?? -1" />
+										</td>
+									</tr>
+									<tr>
+										<td class="media-info-column">
+											{{ t('components.details-overview.media-count-label') }}
+										</td>
+										<td class="media-info-column">
+											{{ mediaCountFormatted }}
+										</td>
+									</tr>
+									<tr>
+										<td class="media-info-column">
+											{{ t('components.details-overview.summary') }}
+										</td>
+										<td class="media-info-column">
+											{{ mediaItemDetail?.summary ?? '' }}
+										</td>
+									</tr>
+								</tbody>
+							</q-markup-table>
+						</q-card-section>
+					</q-card>
+				</QCol>
+			</QRow>
 
-		<!--	Media Table	-->
-		<QRow no-gutters>
-			<QCol>
-				<MediaList
-					use-q-table
-					:media-item="mediaItemDetail"
-					disable-intersection
-					disable-highlight />
-			</QCol>
-		</QRow>
+			<!--	Media Table	-->
+			<QRow no-gutters>
+				<QCol>
+					<MediaList
+						use-q-table
+						:media-item="mediaItemDetail"
+						disable-intersection
+						disable-highlight />
+				</QCol>
+			</QRow>
+		</QScroll>
 	</QPage>
 </template>
 
@@ -113,6 +115,7 @@ import {
 	useMediaOverviewStore,
 	useMediaStore,
 	useServerConnectionStore,
+	useSubscription,
 } from '#imports';
 
 definePageMeta({
@@ -218,46 +221,3 @@ onBeforeUnmount(() => {
 	mediaOverviewStore.downloadButtonVisible = false;
 });
 </script>
-
-<style lang="scss">
-@import '@/assets/scss/variables.scss';
-
-.media-details-dialog {
-  .q-dialog__inner {
-    height: calc($page-height-minus-app-bar - $media-overview-bar-height);
-    transition: all 0.12s ease;
-
-    top: auto !important;
-    left: auto !important;
-    bottom: 0 !important;
-    right: 0 !important;
-  }
-}
-
-body {
-  // Disable transitions animation when manually resizing the window
-  &.window-resizing {
-    .media-details-dialog {
-      .q-dialog__inner {
-        transition: none !important;
-      }
-    }
-  }
-
-  &.navigation-drawer-closed {
-    .media-details-dialog {
-      .q-dialog__inner {
-        width: 100vw !important;
-      }
-    }
-  }
-
-  &.navigation-drawer-opened {
-    .media-details-dialog {
-      .q-dialog__inner {
-        width: calc(100vw - $navigation-drawer-width);
-      }
-    }
-  }
-}
-</style>
