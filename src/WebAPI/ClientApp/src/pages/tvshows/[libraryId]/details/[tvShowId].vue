@@ -10,41 +10,20 @@
 			<QScroll class="page-content-minus-media-overview-bar">
 				<!--	Header	-->
 				<QRow>
-					<QCol cols="auto">
-						<q-card class="q-ma-md media-info-container">
-							<!--	Poster	-->
-							<q-img
-								:src="imageUrl"
-								fit="fill"
-								:width="`${thumbWidth}px`"
-								:height="`${thumbHeight}px`"
-								ratio="2/3">
-								<!--	Placeholder	-->
-								<template #loading>
-									<!--	Show fallback image	-->
-									<QRow
-										align="center"
-										justify="center"
-										class="fill-height">
-										<QCol cols="auto">
-											<QMediaTypeIcon
-												:size="100"
-												class="mx-3"
-												:media-type="mediaItemDetail?.type ?? PlexMediaType.Unknown" />
-										</QCol>
-										<QCol cols="12">
-											<h4 class="text-center">
-												{{ mediaItemDetail?.title ?? 'unknown' }}
-											</h4>
-										</QCol>
-									</QRow>
-								</template>
-							</q-img>
-						</q-card>
+					<QCol
+						v-if="mediaItemDetail"
+						cols="auto">
+						<!--	Poster	-->
+						<MediaPosterImage
+							class="q-ma-md"
+							:thumb-width="thumbWidth"
+							:thumb-height="thumbHeight"
+							:actions="false"
+							:media-item="mediaItemDetail" />
 					</QCol>
 					<QCol>
 						<q-card
-							class="q-ma-md media-info-container"
+							class="media-info-container"
 							:style="{ height: thumbHeight + 'px' }">
 							<!-- Media info -->
 							<q-card-section>
@@ -113,12 +92,10 @@ import { type PlexMediaDTO, PlexMediaType } from '@dto';
 import { useRouter } from 'vue-router';
 import {
 	definePageMeta,
-	toFullThumbUrl,
 	useI18n,
 	useLibraryStore,
 	useMediaOverviewStore,
 	useMediaStore,
-	useServerConnectionStore,
 	useSubscription,
 } from '#imports';
 
@@ -132,13 +109,12 @@ const mediaStore = useMediaStore();
 const mediaOverviewStore = useMediaOverviewStore();
 const libraryStore = useLibraryStore();
 const router = useRouter();
-const connectionStore = useServerConnectionStore();
 
 const { t } = useI18n();
 const loading = ref(true);
 const mediaItemDetail = ref<PlexMediaDTO | null>(null);
-const thumbWidth = ref(180);
-const thumbHeight = ref(270);
+const thumbWidth = ref(200);
+const thumbHeight = ref(300);
 const defaultImage = ref(false);
 
 const mediaCountFormatted = computed(() => {
@@ -158,27 +134,6 @@ const mediaCountFormatted = computed(() => {
 	}
 
 	return 'unknown media count';
-});
-
-const imageUrl = computed((): string => {
-	const mediaItem = get(mediaItemDetail);
-	if (mediaItem === null || !mediaItem.hasThumb) {
-		return '';
-	}
-
-	const connection = connectionStore.chooseServerConnection(mediaItem.plexServerId);
-	if (!connection) {
-		return '';
-	}
-
-	return toFullThumbUrl({
-		connectionUrl: connection.url,
-		mediaKey: mediaItem.key,
-		MetaDataKey: mediaItem.metaDataKey,
-		token: mediaItem.plexToken,
-		width: get(thumbWidth),
-		height: get(thumbHeight),
-	});
 });
 
 const libraryId = computed(() => +route.params.libraryId);
@@ -225,3 +180,26 @@ onBeforeUnmount(() => {
 	mediaOverviewStore.downloadButtonVisible = false;
 });
 </script>
+
+<style lang="scss">
+@import '@/assets/scss/_mixins.scss';
+
+.media-info-container {
+  @extend .background-sm;
+  box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14),
+  0px 1px 5px 0px rgba(0, 0, 0, 0.12);
+
+  margin-right: 1rem;
+
+  .media-title {
+    font-size: 30px;
+    font-weight: bold;
+  }
+
+  .media-info-column {
+    min-width: 150px;
+    text-align: left;
+    white-space: pre-wrap;
+  }
+}
+</style>

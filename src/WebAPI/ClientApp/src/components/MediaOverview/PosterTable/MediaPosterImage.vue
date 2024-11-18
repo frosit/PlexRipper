@@ -1,96 +1,124 @@
 <template>
-	<q-card
-		square
-		flat
-		:class="{ 'media-poster--fallback': fallback }"
-		style="height: 100%">
-		<q-card-section
-			v-if="fallback">
-			<QRow justify="center">
-				<QCol cols="auto">
-					<QMediaTypeIcon
-						:size="60"
-						:media-type="mediaType" />
-				</QCol>
-			</QRow>
-		</q-card-section>
-
-		<q-card-section :class="{ 'q-py-none': fallback }">
-			<QText
-				:value="mediaItem.title"
-				bold="bold"
-				align="center"
-				:size="allMediaMode ? 'subtitle1' : 'h5'" />
-			<QText
-				v-if="allMediaMode"
-				align="center"
-				:size="allMediaMode ? 'subtitle2' : 'h6'"
-				:value="serverStore.getServerName(mediaItem.plexServerId)" />
-		</q-card-section>
-
-		<QCardActions
-			align="center"
-			class="media-poster--actions">
-			<QRow :justify="mediaType === PlexMediaType.TvShow ? 'around' : 'center'">
-				<QCol cols="auto">
-					<BaseButton
-						icon="mdi-download"
-						size="xl"
-						flat
-						:outline="false"
-						@click="$emit('action', 'download')" />
-				</QCol>
-				<QCol cols="auto">
-					<BaseButton
-						v-if="mediaType === PlexMediaType.TvShow"
-						icon="mdi-magnify"
-						:outline="false"
-						size="xl"
-						flat
-						@click="$emit('action', 'open-media-details')" />
-				</QCol>
-			</QRow>
-		</QCardActions>
-	</q-card>
+	<QHover
+		v-if="imageUrl"
+		class="media-poster">
+		<template #default="{ hover }">
+			<q-img
+				loading="eager"
+				:src="imageUrl"
+				fit="fill"
+				no-spinner
+				class="media-poster--image"
+				:alt="mediaItem.title">
+				<template #default>
+					<!--	Overlay	-->
+					<div :class="['media-poster--overlay', hover && overlay ? 'on-hover' : '', 'white--text']">
+						<MediaPosterImageContent
+							:media-item="mediaItem"
+							:all-media-mode="mediaOverviewStore.allMediaMode"
+							@action="$emit('action', $event)" />
+					</div>
+				</template>
+				<template #error>
+					<!--	Show fallback image	-->
+					<MediaPosterImageContent
+						fallback
+						:media-item="mediaItem"
+						:all-media-mode="mediaOverviewStore.allMediaMode"
+						@action="$emit('action', $event)" />
+				</template>
+			</q-img>
+		</template>
+	</QHover>
+	<!--	Show fallback image	-->
+	<MediaPosterImageContent
+		v-else
+		fallback
+		:media-item="mediaItem"
+		:all-media-mode="mediaOverviewStore.allMediaMode"
+		@action="$emit('action', $event)" />
 </template>
 
 <script setup lang="ts">
-import { type PlexMediaSlimDTO, PlexMediaType } from '@dto';
-import { useServerStore } from '@store';
+import Log from 'consola';
+import { toFullThumbUrl } from '@composables/conversion';
+import type { PlexMediaSlimDTO } from '@dto';
+import { useMediaOverviewStore, useServerConnectionStore } from '#imports';
 
-const serverStore = useServerStore();
+const connectionStore = useServerConnectionStore();
+const mediaOverviewStore = useMediaOverviewStore();
 
 const props = withDefaults(defineProps<{
 	mediaItem: PlexMediaSlimDTO;
-	fallback?: boolean;
-	allMediaMode?: boolean;
+	overlay?: boolean;
+	thumbWidth?: number;
+	thumbHeight?: number;
 }>(), {
-	fallback: false,
-	allMediaMode: false,
+	overlay: false,
+	thumbWidth: 200,
+	thumbHeight: 300,
 });
 
 defineEmits<{
 	(e: 'action', event: 'download' | 'open-media-details'): void;
 }>();
 
-const mediaType = computed(() => props.mediaItem?.type ?? PlexMediaType.Unknown);
+const imageUrl = computed((): string => {
+	if (!props.mediaItem?.hasThumb) {
+		return '';
+	}
+
+	const connection = connectionStore.chooseServerConnection(props.mediaItem.plexServerId);
+	if (!connection) {
+		Log.error('No connection found for plexServerId in media item', props.mediaItem.plexServerId);
+		return '';
+	}
+
+	return toFullThumbUrl({
+		connectionUrl: connection.url,
+		mediaKey: props.mediaItem.key,
+		MetaDataKey: props.mediaItem.metaDataKey,
+		token: props.mediaItem.plexToken,
+		width: 627,
+		height: 938,
+	});
+});
 </script>
 
 <style lang="scss">
 @import '@/assets/scss/_mixins.scss';
 
+.q-img__content > div {
+  padding: 0;
+}
+
 .media-poster {
-  &--fallback {
-    background-color: transparent !important;
-    padding: 0 !important;
+  @extend .background-sm;
+
+  width: 200px;
+  margin: 32px;
+
+  &--image {
+    height: 300px;
+    padding: 0;
   }
 
-  &--actions {
-    position: absolute;
-    text-align: center;
-    bottom: 0;
-    left: 0;
-    right: 0;
+  &--overlay {
+    @extend .background-xl;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    margin: 0;
+    transition: opacity 0.2s ease-in-out;
+
+    &.on-hover {
+      opacity: 0.8;
+
+      .q-btn {
+        opacity: 1;
+      }
+    }
   }
+
 }
 </style>

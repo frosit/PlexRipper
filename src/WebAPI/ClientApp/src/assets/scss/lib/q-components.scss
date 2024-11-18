@@ -5,19 +5,19 @@
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 body {
-	&.body--dark {
-		.notification-drawer {
-			@extend .blur;
-			background-color: $dark-sm-background-color;
-		}
-	}
+  &.body--dark {
+    .notification-drawer {
+      @extend .blur;
+      background-color: $dark-sm-background-color;
+    }
+  }
 
-	&.body--light {
-		.notification-drawer {
-			@extend .blur;
-			background-color: $light-sm-background-color;
-		}
-	}
+  &.body--light {
+    .notification-drawer {
+      @extend .blur;
+      background-color: $light-sm-background-color;
+    }
+  }
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -25,17 +25,17 @@ body {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 body {
-	&.body--dark {
-		.background-overlay {
-			background-color: $dark-xl-background-color;
-		}
-	}
+  &.body--dark {
+    .background-overlay {
+      background-color: $dark-xl-background-color;
+    }
+  }
 
-	&.body--light {
-		.background-overlay {
-			background-color: $light-xl-background-color;
-		}
-	}
+  &.body--light {
+    .background-overlay {
+      background-color: $light-xl-background-color;
+    }
+  }
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -43,8 +43,8 @@ body {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 .q-card-title {
-	font-size: 24px;
-	font-weight: bold;
+  font-size: 24px;
+  font-weight: bold;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -52,7 +52,7 @@ body {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 .q-card-subtitle {
-	font-size: 14px;
+  font-size: 14px;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -60,39 +60,39 @@ body {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 .q-tree-view-table {
-	.q-tree {
-		&__node {
-			border-bottom-style: solid;
-			border-bottom-width: 1px;
-			padding-bottom: 0;
+  .q-tree {
+    &__node {
+      border-bottom-style: solid;
+      border-bottom-width: 1px;
+      padding-bottom: 0;
 
-			.q-tree__node-header,
-			.q-tree__children .q-tree__node-header {
-				margin-top: 0;
-				border-radius: 0;
-			}
+      .q-tree__node-header,
+      .q-tree__children .q-tree__node-header {
+        margin-top: 0;
+        border-radius: 0;
+      }
 
-			&:last-child {
-				border-bottom: none;
-			}
-		}
-	}
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+  }
 }
 
 .body--dark {
-	.q-tree-view-table {
-		.q-tree__node {
-			border-bottom-color: $separator-dark-color;
-		}
-	}
+  .q-tree-view-table {
+    .q-tree__node {
+      border-bottom-color: $separator-dark-color;
+    }
+  }
 }
 
 .body--light {
-	.q-tree-view-table {
-		.q-tree__node {
-			border-bottom-color: $separator-color;
-		}
-	}
+  .q-tree-view-table {
+    .q-tree__node {
+      border-bottom-color: $separator-color;
+    }
+  }
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -100,113 +100,88 @@ body {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 .download-overview-bar {
-	@extend .default-border;
-}
-
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-// * DetailsOverview
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-.q-dialog {
-	.q-card {
-		&.media-info-container {
-			@extend .background-sm;
-			box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14),
-			0px 1px 5px 0px rgba(0, 0, 0, 0.12);
-
-			.media-title {
-				font-size: 30px;
-				font-weight: bold;
-			}
-
-			.media-info-column {
-				min-width: 150px;
-				text-align: left;
-				white-space: pre-wrap;
-			}
-		}
-	}
+  @extend .default-border;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 // * BaseButton
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 body {
-	.base-btn {
-		&-outline {
-			border: 2px solid;
-		}
+  .base-btn {
+    &-outline {
+      border: 2px solid;
+    }
 
-		&-block {
-			width: 100%;
-			max-width: 400px;
-		}
+    &-block {
+      width: 100%;
+      max-width: 400px;
+    }
 
-		&-vertical {
-			.q-btn__content {
-				flex-direction: column;
-				align-items: center;
+    &-vertical {
+      .q-btn__content {
+        flex-direction: column;
+        align-items: center;
 
-				.q-icon {
-					font-size: 3em;
-					margin: 0 !important;
-				}
+        .q-icon {
+          font-size: 3em;
+          margin: 0 !important;
+        }
 
-				// Btn text
-				span {
-					transition-duration: 0.28s;
-					height: 30px;
-					font-size: 1.0rem;
-				}
-			}
-		}
-	}
+        // Btn text
+        span {
+          transition-duration: 0.28s;
+          height: 30px;
+          font-size: 1.0rem;
+        }
+      }
+    }
+  }
 
-	&.body--dark {
-		.base-btn {
-			&-positive {
-				color: $positive-dark-btn-color;
-				border-color: $positive-dark-btn-color;
-			}
+  &.body--dark {
+    .base-btn {
+      &-positive {
+        color: $positive-dark-btn-color;
+        border-color: $positive-dark-btn-color;
+      }
 
-			&-default {
-				color: $default-dark-btn-color;
-				border-color: $default-dark-btn-color;
-			}
+      &-default {
+        color: $default-dark-btn-color;
+        border-color: $default-dark-btn-color;
+      }
 
-			&-warning {
-				color: $warning-dark-btn-color;
-				border-color: $warning-dark-btn-color
-			}
+      &-warning {
+        color: $warning-dark-btn-color;
+        border-color: $warning-dark-btn-color
+      }
 
-			&-negative {
-				color: $negative-dark-btn-color;
-				border-color: $negative-dark-btn-color;
-			}
-		}
-	}
+      &-negative {
+        color: $negative-dark-btn-color;
+        border-color: $negative-dark-btn-color;
+      }
+    }
+  }
 
-	&.body--light {
-		.base-btn {
-			&-positive {
-				color: $positive-light-btn-color;
-				border-color: $positive-light-btn-color;
-			}
+  &.body--light {
+    .base-btn {
+      &-positive {
+        color: $positive-light-btn-color;
+        border-color: $positive-light-btn-color;
+      }
 
-			&-default {
-				color: $default-light-btn-color;
-				border-color: $default-light-btn-color;
-			}
+      &-default {
+        color: $default-light-btn-color;
+        border-color: $default-light-btn-color;
+      }
 
-			&-warning {
-				color: $warning-light-btn-color;
-				border-color: $warning-light-btn-color
-			}
+      &-warning {
+        color: $warning-light-btn-color;
+        border-color: $warning-light-btn-color
+      }
 
-			&-negative {
-				color: $negative-light-btn-color;
-				border-color: $negative-light-btn-color;
-			}
-		}
-	}
+      &-negative {
+        color: $negative-light-btn-color;
+        border-color: $negative-light-btn-color;
+      }
+    }
+  }
 }

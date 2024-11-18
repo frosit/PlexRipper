@@ -1,49 +1,18 @@
 <template>
 	<q-card
 		flat
-		class="media-poster highlight-border-box">
-		<q-card-section class="media-poster--image">
-			<QHover v-if="imageUrl">
-				<template #default="{ hover }">
-					<q-img
-						loading="eager"
-						:src="imageUrl"
-						fit="fill"
-						no-spinner
-						class="media-poster--image"
-						:alt="mediaItem.title">
-						<template #default>
-							<!--	Overlay	-->
-							<div :class="['media-poster--overlay', hover ? 'on-hover' : '', 'white--text']">
-								<MediaPosterImage
-									:media-item="mediaItem"
-									:all-media-mode="mediaOverviewStore.allMediaMode"
-									@action="onAction" />
-							</div>
-						</template>
-						<template #error>
-							<!--	Show fallback image	-->
-							<MediaPosterImage
-								fallback
-								:media-item="mediaItem"
-								:all-media-mode="mediaOverviewStore.allMediaMode"
-								@action="onAction" />
-						</template>
-					</q-img>
-				</template>
-			</QHover>
-			<!--	Show fallback image	-->
+		class="highlight-border-box">
+		<q-card-section>
 			<MediaPosterImage
-				v-else
-				fallback
 				:media-item="mediaItem"
 				:all-media-mode="mediaOverviewStore.allMediaMode"
+				overlay
 				@action="onAction" />
 		</q-card-section>
 		<!--	Poster bar	-->
 		<q-card-section
 			v-if="qualities.length"
-			class="media-poster--quality-bar">
+			class="media-poster-quality-bar">
 			<q-chip
 				v-for="(quality, j) in qualities"
 				:key="j"
@@ -77,10 +46,8 @@
 import Log from 'consola';
 import { get } from '@vueuse/core';
 import { type DownloadMediaDTO, type PlexMediaSlimDTO, PlexMediaType } from '@dto';
-import { toFullThumbUrl } from '@composables/conversion';
-import { useMediaOverviewStore, useServerConnectionStore } from '#imports';
+import { useMediaOverviewStore } from '#imports';
 
-const connectionStore = useServerConnectionStore();
 const mediaOverviewStore = useMediaOverviewStore();
 
 const props = defineProps<{
@@ -93,32 +60,9 @@ const emit = defineEmits<{
 	(e: 'open-media-details', payload: PlexMediaSlimDTO): void;
 }>();
 
-const thumbWidth = ref(200);
-const thumbHeight = ref(300);
-
 const loading = ref(false);
 const mediaType = computed(() => props.mediaItem?.type ?? PlexMediaType.Unknown);
 const qualities = computed(() => props.mediaItem?.qualities ?? []);
-
-const imageUrl = computed((): string => {
-	if (!props.mediaItem?.hasThumb) {
-		return '';
-	}
-
-	const connection = connectionStore.chooseServerConnection(props.mediaItem.plexServerId);
-	if (!connection) {
-		return '';
-	}
-
-	return toFullThumbUrl({
-		connectionUrl: connection.url,
-		mediaKey: props.mediaItem.key,
-		MetaDataKey: props.mediaItem.metaDataKey,
-		token: props.mediaItem.plexToken,
-		width: get(thumbWidth),
-		height: get(thumbHeight),
-	});
-});
 
 const getQualityColor = (quality: string): string => {
 	switch (quality) {
@@ -163,45 +107,9 @@ function onAction(event: 'download' | 'open-media-details') {
 </script>
 
 <style lang="scss">
-@import '@/assets/scss/_mixins.scss';
-
-.q-img__content > div {
+.media-poster-quality-bar {
+  height: 40px;
   padding: 0;
-}
-
-.media-poster {
-  @extend .background-sm;
-
-  width: 200px;
-  margin: 32px;
-
-  &--image {
-    height: 300px;
-    padding: 0;
-  }
-
-  &--quality-bar {
-    height: 40px;
-    padding: 0;
-    text-align: center;
-  }
-
-  &--overlay {
-    @extend .background-xl;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    margin: 0;
-    transition: opacity 0.2s ease-in-out;
-
-    &.on-hover {
-      opacity: 0.8;
-
-      .q-btn {
-        opacity: 1;
-      }
-    }
-  }
-
+  text-align: center;
 }
 </style>
