@@ -18,7 +18,7 @@
 								<MediaPosterImage
 									:media-item="mediaItem"
 									:all-media-mode="mediaOverviewStore.allMediaMode"
-									@download="downloadMedia" />
+									@action="onAction" />
 							</div>
 						</template>
 						<template #error>
@@ -26,7 +26,8 @@
 							<MediaPosterImage
 								fallback
 								:media-item="mediaItem"
-								:all-media-mode="mediaOverviewStore.allMediaMode" />
+								:all-media-mode="mediaOverviewStore.allMediaMode"
+								@action="onAction" />
 						</template>
 					</q-img>
 				</template>
@@ -36,7 +37,8 @@
 				v-else
 				fallback
 				:media-item="mediaItem"
-				:all-media-mode="mediaOverviewStore.allMediaMode" />
+				:all-media-mode="mediaOverviewStore.allMediaMode"
+				@action="onAction" />
 		</q-card-section>
 		<!--	Poster bar	-->
 		<q-card-section
@@ -138,7 +140,7 @@ const getQualityColor = (quality: string): string => {
 	}
 };
 
-function downloadMedia() {
+function onAction(event: 'download' | 'open-media-details') {
 	const downloadCommand: DownloadMediaDTO = {
 		type: get(mediaType),
 		mediaIds: [props.mediaItem.id],
@@ -146,7 +148,17 @@ function downloadMedia() {
 		plexServerId: props.mediaItem.plexServerId,
 	};
 
-	emit('download', [downloadCommand]);
+	switch (event) {
+		case 'download':
+			emit('download', [downloadCommand]);
+			break;
+		case 'open-media-details':
+			emit('open-media-details', props.mediaItem);
+			break;
+		default:
+			Log.error('Unknown action event', event);
+			break;
+	}
 }
 </script>
 

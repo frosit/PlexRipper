@@ -20,26 +20,25 @@
 				:value="mediaItem.title"
 				bold="bold"
 				align="center"
-				size="subtitle1"
-				class="media-poster--title" />
+				:size="allMediaMode ? 'subtitle1' : 'h5'" />
 			<QText
 				v-if="allMediaMode"
 				align="center"
-				size="subtitle2"
+				:size="allMediaMode ? 'subtitle2' : 'h6'"
 				:value="serverStore.getServerName(mediaItem.plexServerId)" />
 		</q-card-section>
 
 		<QCardActions
 			align="center"
 			class="media-poster--actions">
-			<QRow :justify="mediaType === PlexMediaType.TvShow ? 'between' : 'center'">
+			<QRow :justify="mediaType === PlexMediaType.TvShow ? 'around' : 'center'">
 				<QCol cols="auto">
 					<BaseButton
 						icon="mdi-download"
 						size="xl"
 						flat
 						:outline="false"
-						@click="$emit('download')" />
+						@click="$emit('action', 'download')" />
 				</QCol>
 				<QCol cols="auto">
 					<BaseButton
@@ -48,7 +47,7 @@
 						:outline="false"
 						size="xl"
 						flat
-						@click="$emit('open-media-details', mediaItem)" />
+						@click="$emit('action', 'open-media-details')" />
 				</QCol>
 			</QRow>
 		</QCardActions>
@@ -71,8 +70,7 @@ const props = withDefaults(defineProps<{
 });
 
 defineEmits<{
-	(e: 'download'): void;
-	(e: 'open-media-details', payload: PlexMediaSlimDTO): void;
+	(e: 'action', event: 'download' | 'open-media-details'): void;
 }>();
 
 const mediaType = computed(() => props.mediaItem?.type ?? PlexMediaType.Unknown);

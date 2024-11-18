@@ -107,10 +107,12 @@ import { type PlexMediaDTO, PlexMediaType } from '@dto';
 import { useRouter } from 'vue-router';
 import {
 	definePageMeta,
+	toFullThumbUrl,
 	useI18n,
 	useLibraryStore,
 	useMediaOverviewStore,
 	useMediaStore,
+	useServerConnectionStore,
 } from '#imports';
 
 definePageMeta({
@@ -123,6 +125,7 @@ const mediaStore = useMediaStore();
 const mediaOverviewStore = useMediaOverviewStore();
 const libraryStore = useLibraryStore();
 const router = useRouter();
+const connectionStore = useServerConnectionStore();
 
 const { t } = useI18n();
 const loading = ref(true);
@@ -150,10 +153,25 @@ const mediaCountFormatted = computed(() => {
 	return 'unknown media count';
 });
 
-const imageUrl = computed(() => {
-	return get(mediaItemDetail)?.hasThumb
-		? `${get(mediaItemDetail)?.fullThumbUrl}&width=${get(thumbWidth)}&height=${get(thumbHeight)}`
-		: '';
+const imageUrl = computed((): string => {
+	const mediaItem = get(mediaItemDetail);
+	if (mediaItem === null || !mediaItem.hasThumb) {
+		return '';
+	}
+
+	const connection = connectionStore.chooseServerConnection(mediaItem.plexServerId);
+	if (!connection) {
+		return '';
+	}
+
+	return toFullThumbUrl({
+		connectionUrl: connection.url,
+		mediaKey: mediaItem.key,
+		MetaDataKey: mediaItem.metaDataKey,
+		token: mediaItem.plexToken,
+		width: get(thumbWidth),
+		height: get(thumbHeight),
+	});
 });
 
 const libraryId = computed(() => +route.params.libraryId);
