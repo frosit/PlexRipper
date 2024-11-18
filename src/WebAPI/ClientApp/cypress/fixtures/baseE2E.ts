@@ -4,10 +4,11 @@ import {
 	generateResultDTO,
 	checkConfig,
 	generateServerDownloadProgress,
-	generatePlexMedias,
 	generateDownloadTask,
 	generatePlexLibrariesFromPlexServers,
 	generatePlexServerConnections,
+	generatePlexMediaSlims,
+	generatePlexMedia,
 } from '@mock';
 import { generateSettingsModel } from '@factories/settings-factory';
 import { generatePlexAccounts } from '@factories/plex-account-factory';
@@ -193,14 +194,13 @@ export function basePageSetup(config: Partial<MockConfig> = {}): Cypress.Chainab
 
 	// Generate library media page data
 	for (const library of result.plexLibraries) {
-		if (library.type !== PlexMediaType.Movie) {
-			continue;
-		}
-		const mediaList = generatePlexMedias({
-			plexLibraryId: library.id,
-			plexServerId: library.plexServerId,
-			type: library.type,
+		const mediaList = generatePlexMediaSlims({
 			config,
+			partialData: {
+				plexLibraryId: library.id,
+				plexServerId: library.plexServerId,
+				type: library.type,
+			},
 		});
 
 		result.mediaData.push({
@@ -208,17 +208,30 @@ export function basePageSetup(config: Partial<MockConfig> = {}): Cypress.Chainab
 			media: mediaList,
 		});
 
-		// Intercept the Library media call
-		cy.intercept(
-			'GET',
-			PlexMediaPaths.getMediaDetailByIdEndpoint(library.id, {
-				type: library.type,
-			}),
-			{
-				statusCode: 200,
-				body: generateResultDTO(mediaList),
-			},
-		);
+		for (const mediaItem of mediaList) {
+			if (mediaItem.type === PlexMediaType.TvShow) {
+				cy.intercept(
+					'GET',
+					PlexMediaPaths.getMediaDetailByIdEndpoint(mediaItem.id, {
+						type: library.type,
+					}),
+					{
+						statusCode: 200,
+						body: generateResultDTO(
+							generatePlexMedia({
+								config,
+								partialData: {
+									type: PlexMediaType.TvShow,
+									id: mediaItem.id,
+									plexLibraryId: library.id,
+									plexServerId: library.plexServerId,
+								},
+							}),
+						),
+					},
+				);
+			}
+		}
 	}
 
 	cy.intercept('GET', FolderPathPaths.getAllFolderPathsEndpoint(), {

@@ -5,6 +5,7 @@
 			<QRow align="center">
 				<QCol cols="auto">
 					<q-checkbox
+						data-cy="media-list-root-checkbox"
 						:model-value="rootSelected"
 						@update:model-value="rootSetSelected($event)" />
 				</QCol>
@@ -17,7 +18,9 @@
 				<QCol
 					v-if="selectedCount"
 					cols="auto">
-					<span class="text-weight-bold">
+					<span
+						class="text-weight-bold"
+						data-cy="media-list-root-total-selected-count">
 						{{ t('components.media-list.selected-count', { selectedCount }) }}
 					</span>
 				</QCol>
@@ -53,7 +56,8 @@
 					<QCol
 						v-if="getSelected(child.id)?.keys.length"
 						cols="auto">
-						<span class="text-weight-bold">
+						<span
+							class="text-weight-bold">
 							{{
 								t('components.media-list.selected-count', {
 									selectedCount: getSelected(child.id)?.keys.length ?? -1,

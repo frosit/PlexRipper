@@ -133,6 +133,7 @@
 			:label="$t('general.commands.download')"
 			:width="verticalButtonWidth"
 			icon="mdi-download"
+			cy="media-overview-bar-download-button"
 			@click="downloadCommandBus.emit('download')" />
 
 		<!--	Selection Dialog Button	-->
