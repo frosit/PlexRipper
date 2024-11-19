@@ -1,13 +1,8 @@
 <template>
 	<q-dialog
 		v-model:model-value="showDialog"
-		:no-route-dismiss="noRouteDismiss"
-		:no-backdrop-dismiss="noBackdropDismiss"
 		:persistent="persistent"
-		:seamless="seamless"
-		:maximized="maximized"
 		:full-height="fullHeight"
-		:full-width="fullWidth"
 		:transition-show="transitionShow"
 		:transition-hide="transitionHide"
 		@before-show="$emit('opened', dataValue!)"
@@ -17,7 +12,6 @@
 			:class="{
 				'dialog-container': true,
 				'dialog-container-background': true,
-				'no-background': noBackground,
 			}"
 			:style="styles">
 			<!--	Dialog Title -->
@@ -82,16 +76,10 @@ const props = withDefaults(
 		type?: T;
 		width?: string;
 		fullHeight?: boolean;
-		fullWidth?: boolean;
 		contentHeight?: '100' | '80' | '60' | '40' | '20' | '0';
 		loading?: boolean;
 		persistent?: boolean;
-		seamless?: boolean;
-		maximized?: boolean;
 		closeButton?: boolean;
-		noBackdropDismiss?: boolean;
-		noBackground?: boolean;
-		noRouteDismiss?: boolean;
 		transitionShow?: string;
 		transitionHide?: string;
 		buttonAlign?: 'start' | 'center' | 'end' | 'between' | 'around' | 'evenly';
@@ -104,18 +92,12 @@ const props = withDefaults(
 		contentHeight: '0',
 		loading: false,
 		fullHeight: false,
-		fullWidth: false,
 		persistent: false,
-		seamless: false,
-		maximized: false,
 		closeButton: false,
-		noBackground: false,
-		noBackdropDismiss: false,
-		noRouteDismiss: false,
-		cy: 'q-card-dialog-cy',
 		buttonAlign: 'between',
 		transitionShow: 'fade',
 		transitionHide: 'fade',
+		cy: 'q-card-dialog-cy',
 	},
 );
 
