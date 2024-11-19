@@ -57,6 +57,15 @@
 				<q-tr>
 					<q-td>
 						<DebugButton
+							:label="$t('general.commands.media-options')"
+							@click="dialogStore.openDialog(DialogType.MediaOptionsDialog)" />
+						<MediaOptionsDialog />
+					</q-td>
+				</q-tr>
+
+				<q-tr>
+					<q-td>
+						<DebugButton
 							data-cy="directory-browser-dialog-button"
 							:label="t('pages.debug.dialogs.buttons.directory-browser')"
 							@click="dialogStore.openDirectoryBrowserDialog(folderPath)" />
@@ -165,6 +174,7 @@ import { generateDefaultFolderPaths, generatePlexAccount } from '@factories';
 import { DialogType } from '@enums';
 import QSection from '@components/Common/QSection.vue';
 import MediaSelectionDialog from '@components/Dialogs/MediaSelectionDialog.vue';
+import MediaOptionsDialog from '@components/Dialogs/MediaOptionsDialog.vue';
 import { useAlertStore, useHelpStore, useDialogStore } from '#imports';
 
 const { t } = useI18n();

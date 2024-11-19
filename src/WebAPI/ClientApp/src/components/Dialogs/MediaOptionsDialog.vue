@@ -1,6 +1,6 @@
 <template>
 	<QCardDialog
-		width="800px"
+		width="600px"
 		:name="DialogType.MediaOptionsDialog"
 		:loading="false"
 		close-button>
@@ -13,6 +13,7 @@
 		<template #default>
 			<HelpGroup>
 				<HelpRow
+					center-slot
 					:title="$t('help.media-options.hide-offline-servers.title')"
 					:label="$t('help.media-options.hide-offline-servers.label')"
 					:text="$t('help.media-options.hide-offline-servers.text')">
@@ -21,6 +22,7 @@
 						color="red" />
 				</HelpRow>
 				<HelpRow
+					center-slot
 					:title="$t('help.media-options.hide-owned-media.title')"
 					:label="$t('help.media-options.hide-owned-media.label')"
 					:text="$t('help.media-options.hide-owned-media.text')">
@@ -29,6 +31,7 @@
 						color="red" />
 				</HelpRow>
 				<HelpRow
+					center-slot
 					:title="$t('help.media-options.use-low-quality-poster-images.title')"
 					:label="$t('help.media-options.use-low-quality-poster-images.label')"
 					:text="$t('help.media-options.use-low-quality-poster-images.text')">
@@ -43,9 +46,6 @@
 
 <script setup lang="ts">
 import { DialogType } from '@enums';
-import HelpRow from '@components/Help/HelpRow.vue';
-import HelpGroup from '@components/Help/HelpGroup.vue';
-import { useMediaOverviewStore } from '#imports';
 
 const value1 = ref(false);
 const value2 = ref(false);
