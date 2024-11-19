@@ -187,11 +187,9 @@
 						@click="changeView(viewOption.viewMode)">
 						<!-- View mode options -->
 						<q-item-section avatar>
-							<q-avatar>
-								<q-icon
-									v-if="isSelected(viewOption.viewMode)"
-									name="mdi-check" />
-							</q-avatar>
+							<q-icon
+								v-if="isSelected(viewOption.viewMode)"
+								name="mdi-check" />
 						</q-item-section>
 						<!--	Is selected icon	-->
 						<q-item-section> {{ viewOption.label }}</q-item-section>
