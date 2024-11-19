@@ -1,6 +1,5 @@
 <template>
 	<QCardDialog
-		max-width="900px"
 		:name="DialogType.AccountDialog"
 		persistent
 		:type="{} as IAccountDialog"
@@ -44,7 +43,7 @@
 							<BaseButton
 								block
 								cy="account-dialog-generate-token-button"
-								label="Generate Token"
+								:label="$t('components.account-dialog.generate-token-button')"
 								@click="dialogStore.openDialog(DialogType.AccountGenerateTokenDialog)" />
 						</QCol>
 					</QRow>

@@ -1,11 +1,8 @@
 <template>
 	<QCardDialog
 		:name="DialogType.ServerSettingsDialog"
-		max-width="1200px"
 		content-height="80"
-		:scroll="false"
 		:loading="loading"
-		button-align="right"
 		cy="server-dialog-cy"
 		@opened="open"
 		@closed="close">

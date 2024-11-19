@@ -2,7 +2,7 @@
 	<QCardDialog
 		:name="DialogType.AccountTokenValidateDialog"
 		persistent
-		max-width="700px"
+		width="700px"
 		cy="auth-token-validation-dialog">
 		<template #title>
 			{{ $t('components.account-token-validate-dialog.title') }}

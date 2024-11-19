@@ -1,9 +1,9 @@
 <template>
 	<QCardDialog
-		max-width="500px"
 		:name="DialogType.HelpInfoDialog"
 		:loading="false"
 		:type="{} as IHelp"
+		width="500px"
 		@opened="onOpen"
 		@closed="onClose">
 		<template #title>

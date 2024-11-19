@@ -1,8 +1,8 @@
 <template>
 	<QCardDialog
-		max-width="1000px"
 		:name="`${DialogType.AlertInfoDialog}-${alert.id}`"
 		:type="{} as IAlert"
+		width="500px"
 		@closed="alertStore.removeAlert(alert.id)">
 		<template #title>
 			{{ alert.title }}

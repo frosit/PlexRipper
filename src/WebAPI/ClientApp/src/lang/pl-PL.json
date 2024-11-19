@@ -6,7 +6,8 @@
         },
         "account-dialog": {
             "add-account-title": "Dodaj konto Plex: {name}",
-            "edit-account-title": "Edytuj konto Plex: {name}"
+            "edit-account-title": "Edytuj konto Plex: {name}",
+            "generate-token-button": "Generuj token"
         },
         "connection-progress-text": {
             "retry-connection": "Próba ponownego połączenia, { attemptIndex } z { attemptCount } prób.",
