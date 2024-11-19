@@ -246,6 +246,9 @@
                 "movies": "Alle Filme",
                 "tv-shows": "Alle TV-Sendungen"
             }
+        },
+        "media-options-dialog": {
+            "title": "Medienübersicht Optionen"
         }
     },
     "confirmation": {
@@ -514,6 +517,23 @@
                         "title": "Deaktivieren Sie die Hintergrundanimation"
                     }
                 }
+            }
+        },
+        "media-options": {
+            "hide-offline-servers": {
+                "label": "Keine Medien von Offline-Plex-Servern anzeigen:",
+                "text": "Wenn aktiviert, werden Medien von derzeit offline befindlichen Plex-Servern von dieser Medienübersicht ausgeschlossen.",
+                "title": "Keine Medien von Offline-Plex-Servern anzeigen"
+            },
+            "hide-owned-media": {
+                "label": "Keine Medien von eigenen Plex-Servern anzeigen:",
+                "text": "Blenden Sie alle Medien in dieser Übersicht aus, wenn sie von Plex-Servern stammen, die einem Plex-Konto gehören.",
+                "title": "Keine Medien von eigenen Plex-Servern anzeigen"
+            },
+            "use-low-quality-poster-images": {
+                "label": "Verwenden Sie Posterbilder in niedriger Qualität:",
+                "text": "Wenn diese Option aktiviert ist, werden für die Poster-Miniaturansichten Bilder mit niedrigerer Auflösung verwendet, was die Ladegeschwindigkeit beim Durchsuchen der Plex-Bibliotheken erheblich verbessert.",
+                "title": "Verwenden Sie Posterbilder in niedriger Qualität"
             }
         }
     },

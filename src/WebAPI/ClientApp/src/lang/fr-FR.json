@@ -246,6 +246,9 @@
                 "movies": "Tous les films",
                 "tv-shows": "Toutes les émissions de télévision"
             }
+        },
+        "media-options-dialog": {
+            "title": "Options de présentation des médias"
         }
     },
     "confirmation": {
@@ -514,6 +517,23 @@
                         "title": "Désactiver l'animation d'arrière-plan"
                     }
                 }
+            }
+        },
+        "media-options": {
+            "hide-offline-servers": {
+                "label": "Ne pas afficher les médias provenant de serveurs Plex hors ligne :",
+                "text": "Lorsque cette option est activée, les médias provenant de serveurs Plex actuellement hors ligne seront exclus de cet aperçu multimédia.",
+                "title": "Ne pas afficher les médias provenant de serveurs Plex hors ligne"
+            },
+            "hide-owned-media": {
+                "label": "Ne pas afficher les médias provenant des serveurs Plex détenus :",
+                "text": "Masquer tous les médias dans cet aperçu lorsqu'ils proviennent de serveurs Plex appartenant à un compte Plex.",
+                "title": "Ne pas afficher les médias provenant des serveurs Plex détenus"
+            },
+            "use-low-quality-poster-images": {
+                "label": "Utilisez des images d’affiche de faible qualité :",
+                "text": "Lorsque cette option est activée, des images de résolution inférieure seront utilisées pour les miniatures des affiches, améliorant considérablement la vitesse de chargement lors de la navigation dans les bibliothèques Plex.",
+                "title": "Utilisez des images d’affiche de mauvaise qualité"
             }
         }
     },

@@ -246,6 +246,9 @@
                 "movies": "All Movies",
                 "tv-shows": "All TV-Shows"
             }
+        },
+        "media-options-dialog": {
+            "title": "Media Overview Options"
         }
     },
     "confirmation": {
@@ -514,6 +517,23 @@
                         "title": "Disable the background animation"
                     }
                 }
+            }
+        },
+        "media-options": {
+            "hide-offline-servers": {
+                "label": "Do not show media from offline Plex servers:",
+                "text": "When enabled, media from currently offline Plex servers will be excluded from this media overview.",
+                "title": "Don't show media from offline Plex servers"
+            },
+            "hide-owned-media": {
+                "label": "Don't show media from owned Plex servers:",
+                "text": "Hide all media in this overview that originates from Plex servers owned by a Plex account.",
+                "title": "Don't show media from owned Plex servers"
+            },
+            "use-low-quality-poster-images": {
+                "label": "Use low quality poster images:",
+                "text": "When enabled, lower-resolution images will be used for poster thumbnails, significantly improving loading speed while browsing Plex libraries.",
+                "title": "Use low quality poster images"
             }
         }
     },
