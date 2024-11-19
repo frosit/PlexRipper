@@ -15,7 +15,6 @@
 		<MediaPoster
 			:media-item="item"
 			:data-scroll-index="index"
-
 			@download="sendMediaOverviewDownloadCommand($event)"
 			@open-media-details="onOpenMediaDetails" />
 	</RecycleScroller>
@@ -59,9 +58,11 @@ function onResize() {
 
 function onPageReady() {
 	const lastMediaItemViewed = get(mediaOverviewStore.lastMediaItemViewed);
-	if (lastMediaItemViewed && lastMediaItemViewed.sortIndex > 0) {
+	if (lastMediaItemViewed) {
+		// The index is relative depending on the view mode so we translate the mediaId to the index of the current view
+		const index = mediaOverviewStore.getMediaIndex(lastMediaItemViewed?.id);
 		// If we have a last viewed media item, scroll to it
-		scrollToIndex(lastMediaItemViewed.sortIndex - 1);
+		scrollToIndex(index);
 	}
 }
 

@@ -115,6 +115,9 @@ export const useMediaOverviewStore = defineStore('MediaOverviewStore', () => {
 		setSelection(selection: ISelection) {
 			state.selection = selection;
 		},
+		getMediaIndex(mediaId: number): number {
+			return state.items.findIndex((x) => x.id === mediaId);
+		},
 		setSelectionRange(min: number, max: number) {
 			actions.setSelection({
 				indexKey: state.selection.indexKey,
