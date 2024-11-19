@@ -307,7 +307,8 @@
             "set-selection": "Auswahl festlegen",
             "download": "Herunterladen",
             "refresh": "Aktualisierung",
-            "view": "Sicht"
+            "view": "Sicht",
+            "media-options": "Optionen"
         },
         "name-version": "PlexRipper - V{version}",
         "units": {

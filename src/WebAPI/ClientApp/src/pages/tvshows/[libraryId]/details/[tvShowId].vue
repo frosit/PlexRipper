@@ -6,7 +6,7 @@
 				:media-type="mediaItemDetail.type"
 				:library-id="libraryId"
 				:detail-mode="true"
-				@back="onBack" />
+				@action="onAction" />
 			<QScroll class="page-content-minus-media-overview-bar">
 				<!--	Header	-->
 				<QRow>
@@ -89,6 +89,7 @@ import { forkJoin } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { type PlexMediaDTO, PlexMediaType } from '@dto';
 import { useRouter } from 'vue-router';
+import type { IMediaOverviewBarActions } from '@interfaces';
 import {
 	definePageMeta,
 	useI18n,
@@ -136,8 +137,10 @@ const mediaCountFormatted = computed(() => {
 const libraryId = computed(() => +route.params.libraryId);
 const mediaId = computed(() => +route.params.tvShowId);
 
-function onBack() {
-	router.go(-1);
+function onAction(event: IMediaOverviewBarActions) {
+	if (event === 'back') {
+		router.go(-1);
+	}
 }
 
 onMounted(() => {

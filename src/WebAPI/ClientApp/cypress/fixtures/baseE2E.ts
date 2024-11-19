@@ -1,28 +1,28 @@
 import {
-	type MockConfig,
-	generatePlexServers,
-	generateResultDTO,
 	checkConfig,
-	generateServerDownloadProgress,
 	generateDownloadTask,
 	generatePlexLibrariesFromPlexServers,
-	generatePlexServerConnections,
-	generatePlexMediaSlims,
 	generatePlexMedia,
+	generatePlexMediaSlims,
+	generatePlexServerConnections,
+	generatePlexServers,
+	generateResultDTO,
+	generateServerDownloadProgress,
+	type MockConfig,
 } from '@mock';
 import { generateSettingsModel } from '@factories/settings-factory';
 import { generatePlexAccounts } from '@factories/plex-account-factory';
-import type {
-	PlexAccountDTO,
-	PlexLibraryDTO,
-	PlexMediaSlimDTO,
-	PlexServerConnectionDTO,
-	PlexServerDTO,
-	ServerDownloadProgressDTO,
-	SettingsModelDTO,
-	DownloadTaskDTO,
+import {
+	type DownloadTaskDTO,
+	type PlexAccountDTO,
+	type PlexLibraryDTO,
+	type PlexMediaSlimDTO,
+	PlexMediaType,
+	type PlexServerConnectionDTO,
+	type PlexServerDTO,
+	type ServerDownloadProgressDTO,
+	type SettingsModelDTO,
 } from '@dto';
-import { PlexMediaType } from '@dto';
 import {
 	DownloadPaths,
 	FolderPathPaths,
@@ -209,6 +209,18 @@ export function basePageSetup(config: Partial<MockConfig> = {}): Cypress.Chainab
 		});
 
 		for (const mediaItem of mediaList) {
+			cy.intercept(
+				'GET',
+				PlexLibraryPaths.getPlexLibraryMediaEndpoint(library.id, {
+					page: 0,
+					size: 0,
+				}),
+				{
+					statusCode: 200,
+					body: generateResultDTO(mediaList),
+				},
+			);
+
 			if (mediaItem.type === PlexMediaType.TvShow) {
 				cy.intercept(
 					'GET',
@@ -232,6 +244,23 @@ export function basePageSetup(config: Partial<MockConfig> = {}): Cypress.Chainab
 				);
 			}
 		}
+	}
+
+	for (const mediaType of [PlexMediaType.Movie, PlexMediaType.TvShow]) {
+		cy.intercept(
+			'GET',
+			PlexMediaPaths.getAllMediaByTypeEndpoint({
+				mediaType,
+				page: 0,
+				size: 0,
+			}),
+			{
+				statusCode: 200,
+				body: generateResultDTO(
+					result.mediaData.filter((x) => x.media.some((y) => y.type === mediaType)).flatMap((x) => x.media),
+				),
+			},
+		);
 	}
 
 	cy.intercept('GET', FolderPathPaths.getAllFolderPathsEndpoint(), {

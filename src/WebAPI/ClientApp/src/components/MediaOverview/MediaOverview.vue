@@ -30,9 +30,7 @@
 				:detail-mode="false"
 				:library-id="libraryId"
 				:media-type="mediaOverviewStore.mediaType"
-				@view-change="changeView"
-				@selection-dialog="dialogStore.openDialog(DialogType.MediaSelectionDialog)"
-				@refresh-library="refreshLibrary" />
+				@action="onAction" />
 		</div>
 		<div class="media-overview-content">
 			<!-- Media Overview -->
@@ -90,9 +88,11 @@
 			</template>
 			<!-- Media Selection Dialog -->
 			<MediaSelectionDialog />
-			<!--	Loading overlay	-->
+			<!-- Media Options Dialog -->
+			<MediaOptionsDialog />
+			<!-- Loading overlay -->
 			<QLoadingOverlay :loading="!isRefreshing && mediaOverviewStore.loading" />
-			<!--		Download confirmation dialog	-->
+			<!-- Download confirmation dialog	-->
 			<DownloadConfirmation @download="downloadStore.downloadMedia($event)" />
 		</div>
 	</template>
@@ -104,6 +104,7 @@ import { get, set } from '@vueuse/core';
 import { useSubscription } from '@vueuse/rxjs';
 import { type DownloadMediaDTO, type LibraryProgress, PlexMediaType, ViewMode } from '@dto';
 import { DialogType } from '@enums';
+import type { IMediaOverviewBarActions } from '@interfaces';
 import {
 	useMediaOverviewBarDownloadCommandBus,
 	useMediaOverviewSortBus,
@@ -165,11 +166,6 @@ const refreshingText = computed(() => {
 	});
 });
 
-function changeView(viewMode: ViewMode) {
-	mediaOverviewStore.clearSort();
-	settingsStore.updateDisplayMode(props.mediaType, viewMode);
-}
-
 function resetProgress(isRefreshingValue: boolean) {
 	set(isRefreshing, isRefreshingValue);
 
@@ -229,6 +225,25 @@ useMediaOverviewBarDownloadCommandBus().on(() => {
 useMediaOverviewSortBus().on((event) => {
 	mediaOverviewStore.sortMedia(event);
 });
+
+function onAction(event: IMediaOverviewBarActions) {
+	switch (event) {
+		case 'back':
+			break;
+		case 'selection-dialog':
+			dialogStore.openDialog(DialogType.MediaSelectionDialog);
+			break;
+		case 'refresh-library':
+			refreshLibrary();
+			break;
+		case 'media-options-dialog':
+			dialogStore.openDialog(DialogType.MediaOptionsDialog);
+			break;
+		default:
+			Log.error('Unknown action event', event);
+			break;
+	}
+}
 
 onMounted(() => {
 	resetProgress(false);

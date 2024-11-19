@@ -16,7 +16,7 @@
 							flat
 							icon="mdi-arrow-left"
 							size="xl"
-							@click="$emit('back')" />
+							@click="$emit('action', 'back')" />
 					</QCol>
 				</Transition>
 				<QCol cols="auto">
@@ -143,7 +143,7 @@
 			:label="$t('general.commands.selection')"
 			:width="verticalButtonWidth"
 			icon="mdi-select-marker"
-			@click="$emit('selection-dialog')" />
+			@click="$emit('action', 'selection-dialog')" />
 
 		<!--	Refresh library button	-->
 		<VerticalButton
@@ -153,7 +153,17 @@
 			:width="verticalButtonWidth"
 			cy="media-overview-refresh-library-btn"
 			icon="mdi-refresh"
-			@click="$emit('refresh-library', libraryId);" />
+			@click="$emit('action', 'refresh-library');" />
+
+		<!--	Media Options button	-->
+		<VerticalButton
+			v-if="mediaOverviewStore.allMediaMode"
+			:height="barHeight"
+			:label="$t('general.commands.media-options')"
+			:width="verticalButtonWidth"
+			cy="media-overview-options-btn"
+			icon="mdi-tune"
+			@click="$emit('action', 'media-options-dialog');" />
 
 		<!--	View mode	-->
 		<VerticalButton
@@ -174,7 +184,7 @@
 						:data-cy="`view-mode-${viewOption.viewMode.toLowerCase()}-btn`"
 						clickable
 						style="min-width: 200px"
-						@click="$emit('view-change', viewOption.viewMode)">
+						@click="changeView(viewOption.viewMode)">
 						<!-- View mode options -->
 						<q-item-section avatar>
 							<q-avatar>
@@ -195,12 +205,13 @@
 <script lang="ts" setup>
 import { get } from '@vueuse/core';
 import { PlexMediaType, ViewMode } from '@dto';
+import type { IMediaOverviewBarActions, IViewOptions } from '@interfaces';
 import {
 	useLibraryStore,
 	useMediaOverviewBarDownloadCommandBus,
 	useMediaOverviewStore,
 	useServerStore,
-	useI18n,
+	useI18n, useSettingsStore,
 } from '#imports';
 
 const libraryStore = useLibraryStore();
@@ -208,12 +219,8 @@ const serverStore = useServerStore();
 const mediaOverviewStore = useMediaOverviewStore();
 const downloadCommandBus = useMediaOverviewBarDownloadCommandBus();
 
-interface IViewOptions {
-	label: string;
-	viewMode: ViewMode;
-}
-
 const { t } = useI18n();
+const settingsStore = useSettingsStore();
 
 const props = withDefaults(defineProps<{
 	mediaType: PlexMediaType;
@@ -225,9 +232,7 @@ const props = withDefaults(defineProps<{
 });
 
 defineEmits<{
-	(e: 'back' | 'selection-dialog'): void;
-	(e: 'refresh-library', libraryId: number): void;
-	(e: 'view-change', viewMode: ViewMode): void;
+	(e: 'action', payload: IMediaOverviewBarActions): void;
 }>();
 
 const barHeight = ref(85);
@@ -277,6 +282,11 @@ const headerText = computed(() => {
 			return `Library type ${props.mediaType} is not supported`;
 	}
 });
+
+function changeView(viewMode: ViewMode) {
+	mediaOverviewStore.clearSort();
+	settingsStore.updateDisplayMode(props.mediaType, viewMode);
+}
 
 function mediaTypeToAllText(mediaType: PlexMediaType): string {
 	switch (mediaType) {

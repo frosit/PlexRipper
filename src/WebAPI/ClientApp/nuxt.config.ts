@@ -5,7 +5,7 @@ import { defineNuxtConfig } from 'nuxt/config';
 export default defineNuxtConfig({
 	ssr: false,
 	srcDir: 'src',
-	devtools: { enabled: true },
+	devtools: { enabled: false },
 	runtimeConfig: {
 		// Config within public will be also exposed to the client
 		public: {
