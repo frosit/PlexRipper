@@ -34,8 +34,6 @@ const mediaOverviewStore = useMediaOverviewStore();
 
 const props = defineProps<{
 	mediaItem: PlexMediaSlimDTO;
-	index: number;
-
 }>();
 
 const emit = defineEmits<{
