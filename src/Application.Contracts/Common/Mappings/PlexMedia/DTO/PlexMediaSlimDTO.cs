@@ -22,7 +22,10 @@ public class PlexMediaSlimDTO
 
     public required string SearchTitle { get; init; } = string.Empty;
 
-    public required int SortIndex { get; init; }
+    /// <summary>
+    /// Gets or sets the sort index of the media based on the abc sort order. This makes sorting much quicker as it can sort on this index which is unique within the response. Starts from 1.
+    /// </summary>
+    public required int SortIndex { get; set; }
 
     public required int Year { get; init; }
 

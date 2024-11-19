@@ -79,13 +79,13 @@ public static partial class DbContextExtensions
         CancellationToken ct = default
     )
     {
-        List<PlexMediaSlimDTO> entities;
+        List<PlexMediaSlimDTO> plexMediaSlimDtos;
 
         switch (mediaType)
         {
             case PlexMediaType.Movie:
             {
-                entities = await dbContext
+                plexMediaSlimDtos = await dbContext
                     .PlexMovies.AsNoTracking()
                     .ApplyWhere(plexLibraryId > 0, x => x.PlexLibraryId == plexLibraryId)
                     .ApplyOrderBy(plexLibraryId > 0, x => x.SortIndex)
@@ -98,7 +98,7 @@ public static partial class DbContextExtensions
             }
             case PlexMediaType.TvShow:
             {
-                entities = await dbContext
+                plexMediaSlimDtos = await dbContext
                     .PlexTvShows.AsNoTracking()
                     .ApplyWhere(plexLibraryId > 0, x => x.PlexLibraryId == plexLibraryId)
                     .ApplyOrderBy(plexLibraryId > 0, x => x.SortIndex)
@@ -114,11 +114,20 @@ public static partial class DbContextExtensions
                 );
         }
 
+        if (plexLibraryId == 0)
+        {
+            plexMediaSlimDtos = plexMediaSlimDtos.OrderByNatural(x => x.SearchTitle).ToList();
+        }
+
         // Add token to retrieve thumbnail in front-end
         Dictionary<int, string> tokensCache = new();
 
-        foreach (var slimDTO in entities)
+        for (var i = 0; i < plexMediaSlimDtos.Count; i++)
         {
+            var slimDTO = plexMediaSlimDtos[i];
+
+            slimDTO.SortIndex = i + 1;
+
             if (tokensCache.TryGetValue(slimDTO.PlexServerId, out var token))
             {
                 slimDTO.PlexToken = token;
@@ -134,6 +143,6 @@ public static partial class DbContextExtensions
         }
 
         // If the plexLibraryId is set, we don't need to sort the list again
-        return Result.Ok(plexLibraryId > 0 ? entities.ToList() : entities.OrderByNatural(x => x.SearchTitle).ToList());
+        return Result.Ok(plexMediaSlimDtos);
     }
 }
