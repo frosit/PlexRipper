@@ -83,7 +83,15 @@ public class GetPlexLibraryMediaEndpoint : BaseEndpoint<GetPlexLibraryMediaEndpo
         if (plexServerConnection.IsFailed)
             plexServerConnection.ToResult().LogError();
 
-        var result = await _dbContext.GetMediaByType(plexLibrary.Type, skip, take, plexLibrary.Id, ct: ct);
+        var result = await _dbContext.GetMediaByType(
+            mediaType: plexLibrary.Type,
+            skip: skip,
+            take: take,
+            plexLibraryId: plexLibrary.Id,
+            filterOfflineMedia: false,
+            filterOwnedMedia: false,
+            ct: ct
+        );
 
         await SendFluentResult(result, ct);
     }

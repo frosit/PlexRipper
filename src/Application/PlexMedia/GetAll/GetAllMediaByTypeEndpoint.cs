@@ -66,7 +66,15 @@ public class GetAllMediaByTypeEndpoint : BaseEndpoint<GetAllMediaByTypeRequest, 
         var take = req.Size <= 0 ? 0 : req.Size;
         var skip = req.Page * req.Size;
 
-        var entitiesResult = await _dbContext.GetMediaByType(req.MediaType, skip, take, ct: ct);
+        var entitiesResult = await _dbContext.GetMediaByType(
+            mediaType: req.MediaType,
+            skip: skip,
+            take: take,
+            plexLibraryId: 0,
+            filterOfflineMedia: req.FilterOfflineMedia,
+            filterOwnedMedia: req.FilterOwnedMedia,
+            ct: ct
+        );
 
         await SendFluentResult(entitiesResult, ct);
     }
