@@ -76,10 +76,43 @@ public static partial class DbContextExtensions
         int skip = 0,
         int take = 0,
         int plexLibraryId = 0,
+        bool filterOfflineMedia = false,
+        bool filterOwnedMedia = false,
         CancellationToken ct = default
     )
     {
         List<PlexMediaSlimDTO> plexMediaSlimDtos;
+
+        var serverList = await dbContext
+            .PlexServers.Where(x => x.IsEnabled)
+            .Select(server => new { Id = server.Id, PlexLibraryIds = server.PlexLibraries.Select(x => x.Id).ToList() })
+            .ToListAsync(ct);
+
+        var allowedPlexLibraryIds = serverList.SelectMany(x => x.PlexLibraryIds).ToList();
+        if (filterOwnedMedia)
+        {
+            var ownedPlexLibraries = await dbContext
+                .PlexAccountLibraries.Where(x => x.IsLibraryOwned)
+                .Select(x => x.PlexLibraryId)
+                .ToListAsync(ct);
+
+            allowedPlexLibraryIds.RemoveAll(x => ownedPlexLibraries.Contains(x));
+        }
+
+        if (filterOfflineMedia)
+        {
+            foreach (var server in serverList)
+            {
+                var isServerOnline = await dbContext.IsServerOnline(server.Id, ct);
+                if (!isServerOnline)
+                {
+                    allowedPlexLibraryIds.RemoveAll(x => server.PlexLibraryIds.Contains(x));
+                }
+            }
+        }
+
+        if (plexLibraryId == 0 && !allowedPlexLibraryIds.Any())
+            return Result.Ok(new List<PlexMediaSlimDTO>());
 
         switch (mediaType)
         {
@@ -88,6 +121,7 @@ public static partial class DbContextExtensions
                 plexMediaSlimDtos = await dbContext
                     .PlexMovies.AsNoTracking()
                     .ApplyWhere(plexLibraryId > 0, x => x.PlexLibraryId == plexLibraryId)
+                    .ApplyWhere(plexLibraryId == 0, x => allowedPlexLibraryIds.Contains(x.PlexLibraryId))
                     .ApplyOrderBy(plexLibraryId > 0, x => x.SortIndex)
                     .ApplySkip(skip)
                     .ApplyTake(take)
@@ -101,6 +135,7 @@ public static partial class DbContextExtensions
                 plexMediaSlimDtos = await dbContext
                     .PlexTvShows.AsNoTracking()
                     .ApplyWhere(plexLibraryId > 0, x => x.PlexLibraryId == plexLibraryId)
+                    .ApplyWhere(plexLibraryId == 0, x => allowedPlexLibraryIds.Contains(x.PlexLibraryId))
                     .ApplyOrderBy(plexLibraryId > 0, x => x.SortIndex)
                     .ApplySkip(skip)
                     .ApplyTake(take)

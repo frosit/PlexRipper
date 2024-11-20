@@ -26,5 +26,8 @@ public class PlexAccountServer
     [Column(Order = 3)]
     public required DateTime AuthTokenCreationDate { get; set; }
 
+    [Column(Order = 4)]
+    public required bool IsServerOwned { get; set; }
+
     #endregion
 }

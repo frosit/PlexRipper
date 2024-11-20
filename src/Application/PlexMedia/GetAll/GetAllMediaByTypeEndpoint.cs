@@ -18,6 +18,12 @@ public record GetAllMediaByTypeRequest
     [QueryParam]
     [DefaultValue(0)]
     public int Size { get; init; }
+
+    [QueryParam]
+    public bool FilterOfflineMedia { get; init; }
+
+    [QueryParam]
+    public bool FilterOwnedMedia { get; init; }
 }
 
 public class GetAllMediaByTypeRequestValidator : Validator<GetAllMediaByTypeRequest>

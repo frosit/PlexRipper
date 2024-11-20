@@ -192,6 +192,7 @@ public class PlexApiService : IPlexApiService
                     PlexAccountId = plexAccountId,
                     MachineIdentifier = x.ClientIdentifier,
                     AccessToken = x.AccessToken,
+                    IsServerOwned = x.Owned,
                 },
                 PlexServer = new PlexServer
                 {
