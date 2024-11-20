@@ -57,14 +57,14 @@ public class UserSettings : IUserSettings
 
     private readonly Subject<UserSettings> _settingsUpdated = new();
 
-    private GeneralSettingsModule _generalSettings = new();
-    private ConfirmationSettingsModule _confirmationSettings = new();
-    private DateTimeSettingsModule _dateTimeSettings = new();
-    private DisplaySettingsModule _displaySettings = new();
-    private DownloadManagerSettingsModule _downloadManagerSettings = new();
-    private LanguageSettingsModule _languageSettings = new();
-    private DebugSettingsModule _debugSettings = new();
-    private PlexServerSettingsModule _serverSettings = new() { Data = [] };
+    private GeneralSettingsModule _generalSettings = GeneralSettingsModule.Create();
+    private ConfirmationSettingsModule _confirmationSettings = ConfirmationSettingsModule.Create();
+    private DateTimeSettingsModule _dateTimeSettings = DateTimeSettingsModule.Create();
+    private DisplaySettingsModule _displaySettings = DisplaySettingsModule.Create();
+    private DownloadManagerSettingsModule _downloadManagerSettings = DownloadManagerSettingsModule.Create();
+    private LanguageSettingsModule _languageSettings = LanguageSettingsModule.Create();
+    private DebugSettingsModule _debugSettings = DebugSettingsModule.Create();
+    private PlexServerSettingsModule _serverSettings = PlexServerSettingsModule.Create();
 
     /// <summary>
     /// The <see cref="UserSettings"/> class is a wrapper class for the individual Settings.
@@ -92,14 +92,14 @@ public class UserSettings : IUserSettings
 
     public void Reset()
     {
-        _confirmationSettings = new ConfirmationSettingsModule();
-        _dateTimeSettings = new DateTimeSettingsModule();
-        _displaySettings = new DisplaySettingsModule();
-        _downloadManagerSettings = new DownloadManagerSettingsModule();
-        _generalSettings = new GeneralSettingsModule();
-        _debugSettings = new DebugSettingsModule();
-        _languageSettings = new LanguageSettingsModule();
-        _serverSettings = new PlexServerSettingsModule();
+        _generalSettings = GeneralSettingsModule.Create();
+        _confirmationSettings = ConfirmationSettingsModule.Create();
+        _dateTimeSettings = DateTimeSettingsModule.Create();
+        _displaySettings = DisplaySettingsModule.Create();
+        _downloadManagerSettings = DownloadManagerSettingsModule.Create();
+        _languageSettings = LanguageSettingsModule.Create();
+        _debugSettings = DebugSettingsModule.Create();
+        _serverSettings = PlexServerSettingsModule.Create();
     }
 
     public UserSettings UpdateSettings(ISettingsModel sourceSettings)

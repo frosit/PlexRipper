@@ -6,16 +6,31 @@ public record DisplaySettingsModule : BaseSettingsModule<DisplaySettingsModule>,
 {
     private ViewMode _tvShowViewMode = ViewMode.Poster;
     private ViewMode _movieViewMode = ViewMode.Poster;
+    private PlexMediaType _allOverviewViewMode = PlexMediaType.Movie;
 
-    public ViewMode TvShowViewMode
+    public static DisplaySettingsModule Create() =>
+        new()
+        {
+            TvShowViewMode = ViewMode.Poster,
+            MovieViewMode = ViewMode.Poster,
+            AllOverviewViewMode = PlexMediaType.Movie,
+        };
+
+    public required ViewMode TvShowViewMode
     {
         get => _tvShowViewMode;
         set => SetProperty(ref _tvShowViewMode, value);
     }
 
-    public ViewMode MovieViewMode
+    public required ViewMode MovieViewMode
     {
         get => _movieViewMode;
         set => SetProperty(ref _movieViewMode, value);
+    }
+
+    public required PlexMediaType AllOverviewViewMode
+    {
+        get => _allOverviewViewMode;
+        set => SetProperty(ref _allOverviewViewMode, value);
     }
 }

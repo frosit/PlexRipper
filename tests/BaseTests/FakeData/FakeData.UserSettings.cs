@@ -39,8 +39,10 @@ public static partial class FakeData
             .StrictMode(true)
             .UseSeed(seed.Next())
             .RuleFor(x => x.FirstTimeSetup, f => f.Random.Bool())
-            .RuleFor(x => x.DebugMode, f => f.Random.Bool())
             .RuleFor(x => x.DisableAnimatedBackground, f => f.Random.Bool())
+            .RuleFor(x => x.HideMediaFromOwnedServers, f => f.Random.Bool())
+            .RuleFor(x => x.HideMediaFromOfflineServers, f => f.Random.Bool())
+            .RuleFor(x => x.UseLowQualityPosterImages, f => f.Random.Bool())
             .RuleFor(x => x.ActiveAccountId, f => f.Random.Int(1, 10));
     }
 
