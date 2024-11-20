@@ -64,6 +64,8 @@ export const useMediaOverviewStore = defineStore('MediaOverviewStore', () => {
 						mediaType: mediaType,
 						page,
 						size,
+						filterOwnedMedia: settingsStore.generalSettings.hideMediaFromOwnedServers,
+						filterOfflineMedia: settingsStore.generalSettings.hideMediaFromOfflineServers,
 					}),
 				),
 				defer(() =>
@@ -166,9 +168,6 @@ export const useMediaOverviewStore = defineStore('MediaOverviewStore', () => {
 				),
 			);
 			state.sortedState = newSortedState;
-		},
-		waitForPosterTableRef(selector: string): Promise<HTMLElement | null> {
-			return waitForElement(document.getElementById('poster-table'), selector);
 		},
 	};
 

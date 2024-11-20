@@ -29,6 +29,8 @@ export class PlexMedia {
  */
   getAllMediaByTypeEndpoint = (
     query: {
+      filterOfflineMedia: boolean;
+      filterOwnedMedia: boolean;
       mediaType: PlexMediaType;
       /**
        * @format int32
@@ -105,6 +107,8 @@ export class PlexMedia {
 
 export class PlexMediaPaths {
   static getAllMediaByTypeEndpoint = (query: {
+    filterOfflineMedia: boolean;
+    filterOwnedMedia: boolean;
     mediaType: PlexMediaType;
     /**
      * @format int32

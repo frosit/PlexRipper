@@ -3,7 +3,8 @@
 		width="600px"
 		:name="DialogType.MediaOptionsDialog"
 		:loading="false"
-		close-button>
+		close-button
+		@closed="$emit('closed')">
 		<template #title>
 			{{
 				$t('components.media-options-dialog.title')
@@ -18,7 +19,7 @@
 					:label="$t('help.media-options.hide-offline-servers.label')"
 					:text="$t('help.media-options.hide-offline-servers.text')">
 					<q-toggle
-						v-model="value1"
+						v-model="settingsStore.generalSettings.hideMediaFromOfflineServers"
 						color="red" />
 				</HelpRow>
 				<HelpRow
@@ -27,7 +28,7 @@
 					:label="$t('help.media-options.hide-owned-media.label')"
 					:text="$t('help.media-options.hide-owned-media.text')">
 					<q-toggle
-						v-model="value2"
+						v-model="settingsStore.generalSettings.hideMediaFromOwnedServers"
 						color="red" />
 				</HelpRow>
 				<HelpRow
@@ -36,7 +37,7 @@
 					:label="$t('help.media-options.use-low-quality-poster-images.label')"
 					:text="$t('help.media-options.use-low-quality-poster-images.text')">
 					<q-toggle
-						v-model="value3"
+						v-model="settingsStore.generalSettings.useLowQualityPosterImages"
 						color="red" />
 				</HelpRow>
 			</HelpGroup>
@@ -46,8 +47,11 @@
 
 <script setup lang="ts">
 import { DialogType } from '@enums';
+import { useSettingsStore } from '#imports';
 
-const value1 = ref(false);
-const value2 = ref(false);
-const value3 = ref(false);
+const settingsStore = useSettingsStore();
+
+defineEmits<{
+	(e: 'closed'): void;
+}>();
 </script>

@@ -32,10 +32,12 @@ export const useSettingsStore = defineStore('SettingsStore', () => {
 		serverSettings: ServerSettingsDTO;
 	}>({
 		generalSettings: {
-			debugMode: false,
 			activeAccountId: 0,
 			firstTimeSetup: true,
 			disableAnimatedBackground: false,
+			hideMediaFromOfflineServers: false,
+			hideMediaFromOwnedServers: false,
+			useLowQualityPosterImages: false,
 		},
 		debugSettings: { debugModeEnabled: false, maskLibraryNames: false, maskServerNames: false },
 		confirmationSettings: {
@@ -54,6 +56,7 @@ export const useSettingsStore = defineStore('SettingsStore', () => {
 		displaySettings: {
 			movieViewMode: ViewMode.Poster,
 			tvShowViewMode: ViewMode.Poster,
+			allOverviewViewMode: PlexMediaType.TvShow,
 		},
 		downloadManagerSettings: { downloadSegments: 4 },
 		languageSettings: { language: 'en-US' },
@@ -76,11 +79,11 @@ export const useSettingsStore = defineStore('SettingsStore', () => {
 				.subscribe();
 
 			return actions.refreshSettings().pipe(
-				tap(() => {
+				tap(() =>
 					useSettingsStore().$subscribe((mutation, state) => {
 						if (mutation.type) _settingsUpdated.next(state);
-					});
-				}),
+					}),
+				),
 				switchMap(() => of({ name: useSettingsStore.name, isSuccess: true })),
 			);
 		},
@@ -139,12 +142,8 @@ export const useSettingsStore = defineStore('SettingsStore', () => {
 	const getters = {
 		debugMode: computed((): boolean => state.debugSettings.debugModeEnabled),
 
-		shouldMaskServerNames: computed(
-			(): boolean => state.debugSettings.debugModeEnabled && state.debugSettings.maskServerNames,
-		),
-		shouldMaskLibraryNames: computed(
-			(): boolean => state.debugSettings.debugModeEnabled && state.debugSettings.maskLibraryNames,
-		),
+		shouldMaskServerNames: computed((): boolean => state.debugSettings.debugModeEnabled && state.debugSettings.maskServerNames),
+		shouldMaskLibraryNames: computed((): boolean => state.debugSettings.debugModeEnabled && state.debugSettings.maskLibraryNames),
 	};
 	return {
 		...toRefs(state),

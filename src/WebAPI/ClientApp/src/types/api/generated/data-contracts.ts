@@ -81,6 +81,7 @@ export interface DeleteDownloadTaskEndpointRequest {
 }
 
 export interface DisplaySettingsDTO {
+  allOverviewViewMode: PlexMediaType;
   movieViewMode: ViewMode;
   tvShowViewMode: ViewMode;
 }
@@ -309,9 +310,11 @@ export enum FolderType {
 export interface GeneralSettingsDTO {
   /** @format int32 */
   activeAccountId: number;
-  debugMode: boolean;
   disableAnimatedBackground: boolean;
   firstTimeSetup: boolean;
+  hideMediaFromOfflineServers: boolean;
+  hideMediaFromOwnedServers: boolean;
+  useLowQualityPosterImages: boolean;
 }
 
 export interface IError {

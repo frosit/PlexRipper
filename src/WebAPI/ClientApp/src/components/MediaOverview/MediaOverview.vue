@@ -89,7 +89,7 @@
 			<!-- Media Selection Dialog -->
 			<MediaSelectionDialog />
 			<!-- Media Options Dialog -->
-			<MediaOptionsDialog />
+			<MediaOptionsDialog @closed="onOptionsClosed" />
 			<!-- Loading overlay -->
 			<QLoadingOverlay :loading="!isRefreshing && mediaOverviewStore.loading" />
 			<!-- Download confirmation dialog	-->
@@ -243,6 +243,15 @@ function onAction(event: IMediaOverviewBarActions) {
 			Log.error('Unknown action event', event);
 			break;
 	}
+}
+
+function onOptionsClosed() {
+	useSubscription(
+		mediaOverviewStore.requestMedia({
+			mediaType: props.mediaType,
+			page: 0,
+			size: 0,
+		}).subscribe());
 }
 
 onMounted(() => {
