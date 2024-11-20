@@ -45,7 +45,7 @@ public class PlexMedia : PlexMediaSlim
     /// <summary>
     /// Gets or sets the IMDB guid.
     /// Note: this is only the unique identifier part, and not including "imdb://".
-    /// <example>imdb://tt0397306</example>
+    /// <example>imdb://imdb0397306</example>
     /// </summary>
     [Column(Order = 24)]
     public required string? Guid_IMDB { get; init; }
