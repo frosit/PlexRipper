@@ -4,7 +4,6 @@ using Data.Contracts;
 using FluentValidation;
 using Logging.Interface;
 using Microsoft.EntityFrameworkCore;
-using PlexRipper.Domain.Config;
 using Quartz;
 
 namespace PlexRipper.Application;

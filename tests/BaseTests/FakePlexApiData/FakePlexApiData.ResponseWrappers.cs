@@ -2,7 +2,6 @@ using System.Net;
 using System.Text.Json;
 using Bogus;
 using LukeHagar.PlexAPI.SDK.Models.Requests;
-using PlexRipper.Domain.Config;
 
 namespace PlexRipper.BaseTests;
 

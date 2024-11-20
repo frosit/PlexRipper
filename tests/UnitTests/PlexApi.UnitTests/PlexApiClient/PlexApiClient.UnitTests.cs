@@ -3,7 +3,6 @@ using System.Text;
 using System.Text.Json;
 using Moq.Contrib.HttpClient;
 using PlexApi.Contracts;
-using PlexRipper.Domain.Config;
 using PlexRipper.PlexApi;
 
 namespace PlexApi.UnitTests;

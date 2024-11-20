@@ -1,7 +1,7 @@
 using System.Text.Json;
 using Logging;
 using Logging.Interface;
-using PlexRipper.Domain.Config;
+using PlexRipper.Domain;
 using Quartz;
 
 namespace Application.Contracts;

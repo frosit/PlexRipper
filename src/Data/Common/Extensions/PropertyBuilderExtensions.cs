@@ -1,6 +1,5 @@
 ﻿using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using PlexRipper.Domain.Config;
 
 namespace PlexRipper.Data.Common;
 

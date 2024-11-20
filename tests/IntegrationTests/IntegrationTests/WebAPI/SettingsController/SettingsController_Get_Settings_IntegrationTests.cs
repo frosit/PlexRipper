@@ -2,7 +2,6 @@
 using Application.Contracts;
 using FastEndpoints;
 using PlexRipper.Application;
-using PlexRipper.Domain.Config;
 using PlexRipper.Settings;
 using Settings.Contracts;
 

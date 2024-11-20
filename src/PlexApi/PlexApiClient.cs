@@ -5,7 +5,6 @@ using System.Text.Json;
 using Application.Contracts;
 using HttpClientToCurl;
 using PlexApi.Contracts;
-using PlexRipper.Domain.Config;
 using Polly;
 using Polly.Timeout;
 using Polly.Wrap;
