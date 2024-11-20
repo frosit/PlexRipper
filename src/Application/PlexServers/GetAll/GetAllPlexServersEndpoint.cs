@@ -38,12 +38,7 @@ public class GetAllPlexServersEndpoint : BaseEndpointWithoutRequest<List<PlexSer
 
     public override async Task HandleAsync(CancellationToken ct)
     {
-        var plexServers = await _dbContext.PlexServers.ToListAsync(ct);
-
-        plexServers = plexServers
-            .OrderByDescending(x => x.Owned)
-            .ThenBy(x => x.Name, StringComparison.OrdinalIgnoreCase.WithNaturalSort())
-            .ToList();
+        var plexServers = await _dbContext.PlexServers.Include(x => x.PlexAccountServers).ToListAsync(ct);
 
         await SendFluentResult(Result.Ok(plexServers), x => x.ToDTO(), ct);
     }

@@ -6,36 +6,17 @@ public static class PlexMetaDataMapper
 {
     #region Single Conversions
 
-    public static PlexMovie ToPlexMovie(this GetLibraryItemsMetadata source)
-    {
-        var plexMovie = source.ToPlexMedia().ToPlexMovie();
+    public static PlexMovie ToPlexMovie(this GetLibraryItemsMetadata source) =>
+        source.ToPlexMedia().ToPlexMovie(source);
 
-        plexMovie.FullTitle = $"{source.Title} ({source.Year})";
-        return plexMovie;
-    }
+    public static PlexTvShow ToPlexTvShow(this GetLibraryItemsMetadata source) =>
+        source.ToPlexMedia().ToPlexTvShow(source);
 
-    public static PlexTvShow ToPlexTvShow(this GetLibraryItemsMetadata source)
-    {
-        var plexTvShow = source.ToPlexMedia().ToPlexTvShow();
-        plexTvShow.FullTitle = source.Title;
-        return plexTvShow;
-    }
+    public static PlexTvShowSeason ToPlexTvShowSeason(this GetLibraryItemsMetadata source) =>
+        source.ToPlexMedia().ToPlexTvShowSeason(source);
 
-    public static PlexTvShowSeason ToPlexTvShowSeason(this GetLibraryItemsMetadata source)
-    {
-        var plexTvShowSeason = source.ToPlexMedia().ToPlexTvShowSeason();
-        plexTvShowSeason.FullTitle = $"{source.ParentTitle}/{source.Title}";
-        plexTvShowSeason.ParentKey = source.ParentRatingKey != null ? int.Parse(source.ParentRatingKey) : -1;
-        return plexTvShowSeason;
-    }
-
-    public static PlexTvShowEpisode ToPlexTvShowEpisode(this GetLibraryItemsMetadata source)
-    {
-        var plexTvShowSeason = source.ToPlexMedia().ToPlexTvShowEpisode();
-        plexTvShowSeason.FullTitle = $"{source.GrandparentTitle}/{source.ParentTitle}/{source.Title}";
-        plexTvShowSeason.ParentKey = source.ParentRatingKey != null ? int.Parse(source.ParentRatingKey) : -1;
-        return plexTvShowSeason;
-    }
+    public static PlexTvShowEpisode ToPlexTvShowEpisode(this GetLibraryItemsMetadata source) =>
+        source.ToPlexMedia().ToPlexTvShowEpisode(source);
 
     public static PlexMedia ToPlexMedia(this GetLibraryItemsMetadata source)
     {
@@ -47,8 +28,13 @@ public static class PlexMetaDataMapper
 
             // This is set later on
             SortIndex = 0,
+
             SearchTitle = source.Title.ToSearchTitle(),
             Guid = source.Guid,
+
+            Guid_IMDB = source.MediaGuid?.Find(x => x.Id.Contains("imdb"))?.Id.Replace("imdb://", "") ?? null,
+            Guid_TMDB = source.MediaGuid?.Find(x => x.Id.Contains("tmdb"))?.Id.Replace("tmdb://", "") ?? null,
+            Guid_TVDB = source.MediaGuid?.Find(x => x.Id.Contains("tvdb"))?.Id.Replace("tvdb://", "") ?? null,
 
             // Duration is in milliseconds and we want seconds
             Duration = source.Duration.GetValueOrDefault() / 1000,
@@ -77,7 +63,6 @@ public static class PlexMetaDataMapper
             PlexServer = default,
             PlexLibraryId = default,
             PlexServerId = default,
-            FullThumbUrl = string.Empty,
             FullBannerUrl = string.Empty,
         };
     }

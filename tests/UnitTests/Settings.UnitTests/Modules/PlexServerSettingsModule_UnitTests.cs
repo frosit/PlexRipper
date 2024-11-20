@@ -11,7 +11,7 @@ public class PlexServerSettingsModule_UnitTests : BaseUnitTest<PlexServerSetting
     public void ShouldRenameAServerByItsMachineIdentifier_WhenItDoesNotExist()
     {
         // Arrange
-        var sut = new PlexServerSettingsModule();
+        var sut = PlexServerSettingsModule.Create();
         var machineIdentifier = "test";
 
         // Act
@@ -26,7 +26,7 @@ public class PlexServerSettingsModule_UnitTests : BaseUnitTest<PlexServerSetting
     public void ShouldRenameAServerByItsMachineIdentifier_WhenItAlreadyExists()
     {
         // Arrange
-        var sut = new PlexServerSettingsModule();
+        var sut = PlexServerSettingsModule.Create();
         var machineIdentifier = "test";
         sut.SetServerName(machineIdentifier, "test-name");
 
@@ -42,7 +42,7 @@ public class PlexServerSettingsModule_UnitTests : BaseUnitTest<PlexServerSetting
     public void GetDownloadSpeedLimit_ShouldReturnDefaultWhenNotSet()
     {
         // Arrange
-        var sut = new PlexServerSettingsModule();
+        var sut = PlexServerSettingsModule.Create();
 
         // Act
         var speedLimit = sut.GetDownloadSpeedLimit("machine1");
@@ -55,7 +55,7 @@ public class PlexServerSettingsModule_UnitTests : BaseUnitTest<PlexServerSetting
     public void SetServerHiddenState_ShouldUpdateValue()
     {
         // Arrange
-        var sut = new PlexServerSettingsModule();
+        var sut = PlexServerSettingsModule.Create();
 
         sut.SetServerHiddenState("machine1", true);
 
@@ -71,7 +71,7 @@ public class PlexServerSettingsModule_UnitTests : BaseUnitTest<PlexServerSetting
     public void ShouldEmitValuesWhenChanged_WhenSubscribedToTheObservable()
     {
         // Arrange
-        var sut = new PlexServerSettingsModule();
+        var sut = PlexServerSettingsModule.Create();
 
         var emittedValues = new List<int>();
         var subscription = sut.GetDownloadSpeedLimitObservable("machine1").Subscribe(emittedValues.Add);

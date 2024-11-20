@@ -86,9 +86,6 @@ public class PlexServer : BaseEntity
     [Column(Order = 15)]
     public required bool IsEnabled { get; set; } = true;
 
-    [Column(Order = 16)]
-    public required bool Owned { get; init; }
-
     [Column(Order = 17)]
     public required bool Home { get; init; }
 
@@ -112,13 +109,6 @@ public class PlexServer : BaseEntity
 
     [Column(Order = 24)]
     public required bool NatLoopbackSupported { get; init; }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether certain servers have protection or are misconfigured which is why we can apply certain fixes to facilitate server communication.
-    /// This will attempt to connect on port 80 of the server.
-    /// </summary>
-    [Column(Order = 25)]
-    public required bool ServerFixApplyDNSFix { get; init; }
 
     #endregion
 
@@ -167,8 +157,6 @@ public class PlexServer : BaseEntity
 
     #endregion
 
-    #region Equality
-
     /// <inheritdoc/>
     [SuppressMessage(
         "ReSharper",
@@ -192,7 +180,6 @@ public class PlexServer : BaseEntity
         hashCode.Add(MachineIdentifier);
         hashCode.Add(PublicAddress);
         hashCode.Add(PreferredConnectionId);
-        hashCode.Add(Owned);
         hashCode.Add(Home);
         hashCode.Add(Synced);
         hashCode.Add(Relay);
@@ -201,7 +188,6 @@ public class PlexServer : BaseEntity
         hashCode.Add(PublicAddressMatches);
         hashCode.Add(DnsRebindingProtection);
         hashCode.Add(NatLoopbackSupported);
-        hashCode.Add(ServerFixApplyDNSFix);
         return hashCode.ToHashCode();
     }
 
@@ -237,7 +223,6 @@ public class PlexServer : BaseEntity
         && MachineIdentifier == other.MachineIdentifier
         && PublicAddress == other.PublicAddress
         && PreferredConnectionId == other.PreferredConnectionId
-        && Owned == other.Owned
         && Home == other.Home
         && Synced == other.Synced
         && Relay == other.Relay
@@ -245,8 +230,5 @@ public class PlexServer : BaseEntity
         && HttpsRequired == other.HttpsRequired
         && PublicAddressMatches == other.PublicAddressMatches
         && DnsRebindingProtection == other.DnsRebindingProtection
-        && NatLoopbackSupported == other.NatLoopbackSupported
-        && ServerFixApplyDNSFix == other.ServerFixApplyDNSFix;
-
-    #endregion
+        && NatLoopbackSupported == other.NatLoopbackSupported;
 }

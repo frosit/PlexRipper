@@ -1,7 +1,6 @@
 ﻿using System.Net.Http.Json;
 using System.Text.Json;
 using Application.Contracts;
-using PlexRipper.Domain.Config;
 
 namespace PlexRipper.BaseTests;
 

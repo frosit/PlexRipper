@@ -30,7 +30,7 @@
 			<template v-else>
 				<q-intersection
 					v-for="(row, index) in rows"
-					:key="index"
+					:key="row.id"
 					:once="disableIntersection"
 					class="media-table--intersection highlight-border-box"
 					:data-scroll-index="index">

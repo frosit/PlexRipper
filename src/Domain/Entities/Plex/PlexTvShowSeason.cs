@@ -7,7 +7,7 @@ public class PlexTvShowSeason : PlexMedia
     /// <summary>
     /// The PlexKey of the tvShow this belongs too.
     /// </summary>
-    public int ParentKey { get; set; }
+    public required int ParentKey { get; set; }
 
     #region Relationships
 

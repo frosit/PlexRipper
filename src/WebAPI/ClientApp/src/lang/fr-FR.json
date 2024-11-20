@@ -6,7 +6,8 @@
         },
         "account-dialog": {
             "add-account-title": "Ajouter un compte Plex: {name}",
-            "edit-account-title": "Modifier le compte Plex: {name}"
+            "edit-account-title": "Modifier le compte Plex: {name}",
+            "generate-token-button": "Générer un jeton"
         },
         "connection-progress-text": {
             "retry-connection": "Tentative de nouvelle tentative de connexion, { attemptIndex } dans { attemptCount } tentative.",
@@ -240,6 +241,15 @@
         "account-form": {
             "credentials-tab": "Nom d'utilisateur et mot de passe",
             "token-tab": "Jeton d'authentification"
+        },
+        "media-overview-bar": {
+            "all-media-mode": {
+                "movies": "Tous les films",
+                "tv-shows": "Toutes les émissions de télévision"
+            }
+        },
+        "media-options-dialog": {
+            "title": "Options de présentation des médias"
         }
     },
     "confirmation": {
@@ -301,7 +311,8 @@
             "set-selection": "Définir la sélection",
             "download": "Télécharger",
             "refresh": "Rafraîchir",
-            "view": "Voir"
+            "view": "Voir",
+            "media-options": "Possibilités"
         },
         "name-version": "PlexRipper - V{version}",
         "units": {
@@ -508,6 +519,23 @@
                     }
                 }
             }
+        },
+        "media-options": {
+            "hide-offline-servers": {
+                "label": "Ne pas afficher les médias provenant de serveurs Plex hors ligne:",
+                "text": "Lorsque cette option est activée, les médias provenant de serveurs Plex actuellement hors ligne seront exclus de cet aperçu multimédia.",
+                "title": "Ne pas afficher les médias provenant de serveurs Plex hors ligne"
+            },
+            "hide-owned-media": {
+                "label": "Ne pas afficher les médias provenant des serveurs Plex détenus:",
+                "text": "Masquer tous les médias dans cet aperçu lorsqu'ils proviennent de serveurs Plex appartenant à un compte Plex.",
+                "title": "Ne pas afficher les médias provenant des serveurs Plex détenus"
+            },
+            "use-low-quality-poster-images": {
+                "label": "Utilisez des images d’affiche de faible qualité:",
+                "text": "Lorsque cette option est activée, des images de résolution inférieure seront utilisées pour les miniatures des affiches, améliorant considérablement la vitesse de chargement lors de la navigation dans les bibliothèques Plex.",
+                "title": "Utilisez des images d’affiche de mauvaise qualité"
+            }
         }
     },
     "pages": {
@@ -643,7 +671,9 @@
                     "directory-browser": "Boîte de dialogue Navigateur de répertoire",
                     "verification-dialog": "Boîte de dialogue de vérification 2FA"
                 },
-                "header": "Modaux de dialogue de débogage"
+                "header": "Modaux de dialogue de débogage",
+                "account-dialog-header": "Dialogue de compte",
+                "connection-dialog-header": "Dialogue de connexion"
             }
         },
         "empty": {

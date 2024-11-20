@@ -1,27 +1,28 @@
 import {
-	type MockConfig,
-	generatePlexServers,
-	generateResultDTO,
 	checkConfig,
-	generateServerDownloadProgress,
-	generatePlexMedias,
 	generateDownloadTask,
 	generatePlexLibrariesFromPlexServers,
+	generatePlexMedia,
+	generatePlexMediaSlims,
 	generatePlexServerConnections,
+	generatePlexServers,
+	generateResultDTO,
+	generateServerDownloadProgress,
+	type MockConfig,
 } from '@mock';
 import { generateSettingsModel } from '@factories/settings-factory';
 import { generatePlexAccounts } from '@factories/plex-account-factory';
-import type {
-	PlexAccountDTO,
-	PlexLibraryDTO,
-	PlexMediaSlimDTO,
-	PlexServerConnectionDTO,
-	PlexServerDTO,
-	ServerDownloadProgressDTO,
-	SettingsModelDTO,
-	DownloadTaskDTO,
+import {
+	type DownloadTaskDTO,
+	type PlexAccountDTO,
+	type PlexLibraryDTO,
+	type PlexMediaSlimDTO,
+	PlexMediaType,
+	type PlexServerConnectionDTO,
+	type PlexServerDTO,
+	type ServerDownloadProgressDTO,
+	type SettingsModelDTO,
 } from '@dto';
-import { PlexMediaType } from '@dto';
 import {
 	DownloadPaths,
 	FolderPathPaths,
@@ -193,14 +194,13 @@ export function basePageSetup(config: Partial<MockConfig> = {}): Cypress.Chainab
 
 	// Generate library media page data
 	for (const library of result.plexLibraries) {
-		if (library.type !== PlexMediaType.Movie) {
-			continue;
-		}
-		const mediaList = generatePlexMedias({
-			plexLibraryId: library.id,
-			plexServerId: library.plexServerId,
-			type: library.type,
+		const mediaList = generatePlexMediaSlims({
 			config,
+			partialData: {
+				plexLibraryId: library.id,
+				plexServerId: library.plexServerId,
+				type: library.type,
+			},
 		});
 
 		result.mediaData.push({
@@ -208,15 +208,59 @@ export function basePageSetup(config: Partial<MockConfig> = {}): Cypress.Chainab
 			media: mediaList,
 		});
 
-		// Intercept the Library media call
+		for (const mediaItem of mediaList) {
+			cy.intercept(
+				'GET',
+				PlexLibraryPaths.getPlexLibraryMediaEndpoint(library.id, {
+					page: 0,
+					size: 0,
+				}),
+				{
+					statusCode: 200,
+					body: generateResultDTO(mediaList),
+				},
+			);
+
+			if (mediaItem.type === PlexMediaType.TvShow) {
+				cy.intercept(
+					'GET',
+					PlexMediaPaths.getMediaDetailByIdEndpoint(mediaItem.id, {
+						type: library.type,
+					}),
+					{
+						statusCode: 200,
+						body: generateResultDTO(
+							generatePlexMedia({
+								config,
+								partialData: {
+									type: PlexMediaType.TvShow,
+									id: mediaItem.id,
+									plexLibraryId: library.id,
+									plexServerId: library.plexServerId,
+								},
+							}),
+						),
+					},
+				);
+			}
+		}
+	}
+
+	for (const mediaType of [PlexMediaType.Movie, PlexMediaType.TvShow]) {
 		cy.intercept(
 			'GET',
-			PlexMediaPaths.getMediaDetailByIdEndpoint(library.id, {
-				type: library.type,
+			PlexMediaPaths.getAllMediaByTypeEndpoint({
+				mediaType,
+				page: 0,
+				size: 0,
+				filterOwnedMedia: false,
+				filterOfflineMedia: false,
 			}),
 			{
 				statusCode: 200,
-				body: generateResultDTO(mediaList),
+				body: generateResultDTO(
+					result.mediaData.filter((x) => x.media.some((y) => y.type === mediaType)).flatMap((x) => x.media),
+				),
 			},
 		);
 	}

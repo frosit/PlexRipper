@@ -44,9 +44,11 @@ public static partial class FakeData
             .RuleFor(x => x.PlexServer, _ => null)
             .RuleFor(x => x.PlexLibraryId, _ => 0)
             .RuleFor(x => x.PlexLibrary, _ => null)
-            .RuleFor(x => x.FullThumbUrl, _ => string.Empty)
             .RuleFor(x => x.FullBannerUrl, _ => string.Empty)
             .RuleFor(x => x.Guid, _ => string.Empty)
+            .RuleFor(x => x.Guid_IMDB, f => "imdb://tt" + f.Random.Int(10000, 99999))
+            .RuleFor(x => x.Guid_TMDB, f => "tmdb://" + f.Random.Int(10000, 99999))
+            .RuleFor(x => x.Guid_TVDB, f => "tvdb://" + f.Random.Int(10000, 99999))
             .RuleFor(
                 x => x.MediaData,
                 _ => new PlexMediaContainer { MediaData = GetPlexMediaData(seed, options).Generate(1) }
@@ -128,6 +130,7 @@ public static partial class FakeData
             .UseSeed(seed.Next())
             .ApplyBasePlexMedia(seed, options)
             .RuleFor(x => x.Seasons, _ => GetPlexTvShowSeason(seed, options).Generate(config.TvShowSeasonCount))
+            .RuleFor(x => x.GrandChildCount, _ => config.TvShowSeasonCount * config.TvShowEpisodeCount)
             .FinishWith(
                 (_, tvShow) =>
                 {

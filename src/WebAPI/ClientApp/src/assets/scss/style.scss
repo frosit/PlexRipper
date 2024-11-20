@@ -12,11 +12,11 @@ default
 */
 html,
 body {
-	height: 100%;
-	margin: 0;
+  height: 100%;
+  margin: 0;
 
-	// Prevents unneeded vertical scroll bar on body/page level
-	overflow-y: hidden;
+  // Prevents unneeded vertical scroll bar on body/page level
+  overflow-y: hidden;
 }
 
 
@@ -24,11 +24,24 @@ body {
 SectionTable
 */
 .section-table {
-	@extend .no-background;
+  @extend .no-background;
 
-	tr {
-		height: 65px;
-		// This is to disable the hover highlight
-		@extend .no-background;
-	}
+  tr {
+    height: 65px;
+    // This is to disable the hover highlight
+    @extend .no-background;
+  }
 }
+
+/*
+Layout
+ */
+.max-height-page-height-minus-app-bar {
+  max-height: $page-height-minus-app-bar;
+}
+
+.page-content-minus-media-overview-bar {
+  max-height: $page-height-minus-app-bar-minus-media-overview-bar;
+}
+
+

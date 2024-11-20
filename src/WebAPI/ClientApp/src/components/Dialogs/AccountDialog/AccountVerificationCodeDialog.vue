@@ -2,7 +2,7 @@
 	<QCardDialog
 		:name="DialogType.AccountVerificationCodeDialog"
 		persistent
-		max-width="700px"
+		width="640px"
 		cy="2fa-code-verification-dialog">
 		<template #title>
 			{{ t('components.account-verification-code-dialog.title') }}

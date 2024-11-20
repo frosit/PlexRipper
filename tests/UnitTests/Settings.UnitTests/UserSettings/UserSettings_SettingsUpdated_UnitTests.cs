@@ -18,13 +18,7 @@ public class UserSettings_SettingsUpdated_UnitTests : BaseUnitTest
 
         var changedSettings = new UserSettings
         {
-            DateTimeSettings = new DateTimeSettingsModule()
-            {
-                TimeFormat = string.Empty,
-                TimeZone = string.Empty,
-                LongDateFormat = string.Empty,
-                ShortDateFormat = string.Empty,
-            },
+            DateTimeSettings = DateTimeSettingsModule.Create(),
             ConfirmationSettings = new ConfirmationSettingsModule()
             {
                 AskDownloadEpisodeConfirmation = false,
@@ -33,10 +27,10 @@ public class UserSettings_SettingsUpdated_UnitTests : BaseUnitTest
                 AskDownloadTvShowConfirmation = false,
             },
             LanguageSettings = new LanguageSettingsModule() { Language = string.Empty },
-            DisplaySettings = new DisplaySettingsModule(),
-            GeneralSettings = new GeneralSettingsModule(),
-            ServerSettings = new PlexServerSettingsModule(),
-            DownloadManagerSettings = new DownloadManagerSettingsModule(),
+            DisplaySettings = DisplaySettingsModule.Create(),
+            GeneralSettings = GeneralSettingsModule.Create(),
+            ServerSettings = PlexServerSettingsModule.Create(),
+            DownloadManagerSettings = DownloadManagerSettingsModule.Create(),
         };
         sut.UpdateSettings(changedSettings);
         sut.Reset();

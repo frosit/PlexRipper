@@ -4,10 +4,14 @@ import { get } from '@vueuse/core';
 import { PlexMediaType, ViewMode, type PlexMediaSlimDTO } from '@dto';
 import type { IMediaOverviewSort } from '@composables/event-bus';
 import type { ISelection } from '@interfaces';
-import { useSettingsStore } from '#build/imports';
+import { plexLibraryApi, plexMediaApi } from '@api';
+import { map, tap } from 'rxjs/operators';
+import { iif, defer, type Observable, of } from 'rxjs';
+import { useSettingsStore, useLibraryStore } from '#imports';
 
 export const useMediaOverviewStore = defineStore('MediaOverviewStore', () => {
 	const state = reactive<{
+		libraryId: number;
 		items: Readonly<PlexMediaSlimDTO[]>;
 		sortedItems: Readonly<PlexMediaSlimDTO[]>;
 		itemsLength: number;
@@ -19,7 +23,9 @@ export const useMediaOverviewStore = defineStore('MediaOverviewStore', () => {
 		mediaType: PlexMediaType;
 		filterQuery: string;
 		lastMediaItemViewed: PlexMediaSlimDTO | null;
+		loading: boolean;
 	}>({
+		libraryId: 0,
 		items: [],
 		sortedItems: [],
 		itemsLength: 0,
@@ -31,16 +37,66 @@ export const useMediaOverviewStore = defineStore('MediaOverviewStore', () => {
 		mediaType: PlexMediaType.None,
 		filterQuery: '',
 		lastMediaItemViewed: null,
+		loading: false,
 	});
 
 	const settingsStore = useSettingsStore();
+	const libraryStore = useLibraryStore();
 
 	const actions = {
+		requestMedia({
+			mediaType,
+			page = 0,
+			size = 0,
+		}: {
+			mediaType: PlexMediaType;
+			page: number;
+			size: number;
+		}): Observable<PlexMediaSlimDTO[]> {
+			if (state.loading) {
+				return of([]);
+			}
+			state.loading = true;
+			return iif(
+				() => state.libraryId === 0,
+				defer(() =>
+					plexMediaApi.getAllMediaByTypeEndpoint({
+						mediaType: mediaType,
+						page,
+						size,
+						filterOwnedMedia: settingsStore.generalSettings.hideMediaFromOwnedServers,
+						filterOfflineMedia: settingsStore.generalSettings.hideMediaFromOfflineServers,
+					}),
+				),
+				defer(() =>
+					plexLibraryApi.getPlexLibraryMediaEndpoint(state.libraryId, {
+						page,
+						size,
+					}),
+				),
+			).pipe(
+				map((response) => {
+					if (response && response.isSuccess) {
+						return response.value ?? [];
+					}
+					return [];
+				}),
+				tap((data) => {
+					actions.setMedia(data, mediaType);
+					state.loading = false;
+				}),
+			);
+		},
 		setMedia(items: PlexMediaSlimDTO[], mediaType: PlexMediaType) {
 			state.items = Object.freeze(items);
 			state.itemsLength = state.items.length;
 			state.mediaType = mediaType;
 			state.filterQuery = '';
+		},
+		changeAllMediaOverviewType(mediaType: PlexMediaType) {
+			state.mediaType = mediaType;
+			settingsStore.displaySettings.allOverviewViewMode = mediaType;
+			actions.requestMedia({ mediaType, page: 0, size: 0 }).subscribe();
 		},
 		setFirstLetterIndex() {
 			// Create scroll indexes for each letter
@@ -62,10 +118,15 @@ export const useMediaOverviewStore = defineStore('MediaOverviewStore', () => {
 		setSelection(selection: ISelection) {
 			state.selection = selection;
 		},
+		getMediaIndex(mediaId: number): number {
+			return state.items.findIndex((x) => x.id === mediaId);
+		},
 		setSelectionRange(min: number, max: number) {
 			actions.setSelection({
 				indexKey: state.selection.indexKey,
-				keys: get(getters.getMediaItems).filter((x) => x.sortIndex >= min && x.sortIndex <= max).map((x) => x.id),
+				keys: get(getters.getMediaItems)
+					.filter((x) => x.sortIndex >= min && x.sortIndex <= max)
+					.map((x) => x.id),
 				allSelected: false,
 			} as ISelection);
 		},
@@ -100,15 +161,14 @@ export const useMediaOverviewStore = defineStore('MediaOverviewStore', () => {
 					sort: x.sort !== 'no-sort' ? x.sort : false,
 				};
 			});
-			state.sortedItems = Object.freeze(orderBy(
-				state.items, // Items to sort
-				lodashFormat.map((x) => x.field), // Sort by field
-				lodashFormat.map((x) => x.sort), // Sort by sort, asc or desc
-			));
+			state.sortedItems = Object.freeze(
+				orderBy(
+					state.items, // Items to sort
+					lodashFormat.map((x) => x.field), // Sort by field
+					lodashFormat.map((x) => x.sort), // Sort by sort, asc or desc
+				),
+			);
 			state.sortedState = newSortedState;
-		},
-		waitForPosterTableRef(selector: string): Promise<HTMLElement | null> {
-			return waitForElement(document.getElementById('poster-table'), selector);
 		},
 	};
 
@@ -119,6 +179,8 @@ export const useMediaOverviewStore = defineStore('MediaOverviewStore', () => {
 		hasNoSearchResults: computed((): boolean => {
 			return state.filterQuery != '' && get(getters.getMediaItems).length === 0;
 		}),
+		allMediaMode: computed(() => state.libraryId === 0),
+		library: computed(() => libraryStore.getLibrary(state.libraryId)),
 		getMediaItems: computed((): Readonly<PlexMediaSlimDTO[]> => {
 			// Currently sorting
 			const query = state.filterQuery.toLowerCase();
@@ -161,7 +223,6 @@ export const useMediaOverviewStore = defineStore('MediaOverviewStore', () => {
 
 			return null;
 		}),
-
 	};
 
 	watch(getters.getMediaItems, () => actions.setFirstLetterIndex());

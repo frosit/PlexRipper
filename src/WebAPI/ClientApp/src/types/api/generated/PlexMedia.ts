@@ -23,6 +23,42 @@ export class PlexMedia {
  * No description
  *
  * @tags Plexmedia
+ * @name GetAllMediaByTypeEndpoint
+ * @request GET:/api/PlexMedia
+
+ */
+  getAllMediaByTypeEndpoint = (
+    query: {
+      filterOfflineMedia: boolean;
+      filterOwnedMedia: boolean;
+      mediaType: PlexMediaType;
+      /**
+       * @format int32
+       * @default 0
+       */
+      page: number;
+      /**
+       * @format int32
+       * @default 0
+       */
+      size: number;
+    },
+    params: RequestParams = {},
+  ) =>
+    from(
+      Axios.request<PlexMediaSlimDTO[]>({
+        url: `/api/PlexMedia`,
+        method: "GET",
+        params: query,
+        format: "json",
+        ...params,
+      }),
+    ).pipe(apiCheckPipe<PlexMediaSlimDTO[]>);
+
+  /**
+ * No description
+ *
+ * @tags Plexmedia
  * @name GetMediaDetailByIdEndpoint
  * @request GET:/api/PlexMedia/detail/{plexMediaId}
 
@@ -70,6 +106,22 @@ export class PlexMedia {
 }
 
 export class PlexMediaPaths {
+  static getAllMediaByTypeEndpoint = (query: {
+    filterOfflineMedia: boolean;
+    filterOwnedMedia: boolean;
+    mediaType: PlexMediaType;
+    /**
+     * @format int32
+     * @default 0
+     */
+    page: number;
+    /**
+     * @format int32
+     * @default 0
+     */
+    size: number;
+  }) => queryString.stringifyUrl({ url: `/api/PlexMedia`, query });
+
   static getMediaDetailByIdEndpoint = (
     plexMediaId: number,
     query: {

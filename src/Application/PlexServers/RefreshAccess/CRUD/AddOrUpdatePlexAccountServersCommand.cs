@@ -95,6 +95,7 @@ public class AddOrUpdatePlexAccountServersCommandHandler : IRequestHandler<AddOr
                         PlexServerId = plexServer.Id,
                         AuthToken = serverAccessToken.AccessToken,
                         AuthTokenCreationDate = DateTime.UtcNow,
+                        IsServerOwned = serverAccessToken.IsServerOwned,
                     }
                 );
             }
@@ -108,6 +109,7 @@ public class AddOrUpdatePlexAccountServersCommandHandler : IRequestHandler<AddOr
                     );
                 plexAccountServer.AuthToken = serverAccessToken.AccessToken;
                 plexAccountServer.AuthTokenCreationDate = DateTime.UtcNow;
+                plexAccountServer.IsServerOwned = serverAccessToken.IsServerOwned;
             }
         }
 

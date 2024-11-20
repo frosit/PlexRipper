@@ -43,7 +43,6 @@ public class UserSettingsSerializerUnitTests : BaseUnitTest
         // Assert
         sut.GeneralSettings.FirstTimeSetup.ShouldBeFalse();
         sut.GeneralSettings.ActiveAccountId.ShouldBe(0);
-        sut.GeneralSettings.DebugMode.ShouldBeFalse();
         sut.GeneralSettings.DisableAnimatedBackground.ShouldBeFalse();
 
         sut.ConfirmationSettings.AskDownloadMovieConfirmation.ShouldBeFalse();
@@ -95,7 +94,6 @@ public class UserSettingsSerializerUnitTests : BaseUnitTest
         // Assert
         sut.GeneralSettings.FirstTimeSetup.ShouldBeFalse();
         sut.GeneralSettings.ActiveAccountId.ShouldBe(0);
-        sut.GeneralSettings.DebugMode.ShouldBeFalse();
         sut.GeneralSettings.DisableAnimatedBackground.ShouldBeFalse();
 
         sut.ConfirmationSettings.AskDownloadMovieConfirmation.ShouldBeTrue();

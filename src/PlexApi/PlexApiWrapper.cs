@@ -201,7 +201,7 @@ public class PlexApiWrapper
 
     /// <summary>
     ///     Retrieves all the accessible plex server based on the <see cref="PlexAccount" /> token
-    ///     Including the various unique connections to each the server.
+    ///     Including the various unique connections to each server.
     ///     <remarks>https://plex.tv/api/v2/resources?X-Plex-Token={{AUTH_TOKEN}}</remarks>
     /// </summary>
     /// <param name="authToken">The Plex account authentication token.</param>
@@ -232,21 +232,10 @@ public class PlexApiWrapper
         if (result[0].IsSuccess && result[1].IsFailed)
             return result[0].ToApiResult(x => x.PlexDevices ?? []);
 
-        var deviceList1 = result[0].Value?.PlexDevices ?? [];
-        var deviceList2 = result[1].Value?.PlexDevices ?? [];
+        var deviceList1 = result[0].Value?.PlexDevices?.FindAll(x => x.Provides.Contains("server")) ?? [];
+        var deviceList2 = result[1].Value?.PlexDevices?.FindAll(x => x.Provides.Contains("server")) ?? [];
 
-        // Combine connections from both lists
-        var combinedConnections = new List<Connections>();
-        combinedConnections.AddRange(deviceList1.SelectMany(x => x.Connections));
-        combinedConnections.AddRange(deviceList2.SelectMany(x => x.Connections));
-
-        // Find duplicate connections and remove them all later.
-        // This avoids the same connection going to different servers.
-        var duplicateConnectionUris = combinedConnections
-            .GroupBy(x => x.Uri)
-            .Where(g => g.Count() > 1) // Find URIs that appear more than once
-            .Select(g => g.Key) // Get the URI of the duplicates
-            .ToHashSet();
+        var uniqueConnections = new HashSet<string>();
 
         foreach (var device1 in deviceList1)
         {
@@ -256,9 +245,15 @@ public class PlexApiWrapper
 
             var serverConnections = device1.Connections.Concat(device2.Connections).ToList();
 
-            serverConnections.RemoveAll(x => duplicateConnectionUris.Contains(x.Uri));
+            device1.Connections.Clear();
 
-            device1.Connections = serverConnections;
+            foreach (var connection in serverConnections)
+            {
+                if (uniqueConnections.Add(connection.Uri))
+                {
+                    device1.Connections.Add(connection);
+                }
+            }
         }
 
         return Result.Ok(deviceList1);

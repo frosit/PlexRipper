@@ -6,7 +6,9 @@ public record DownloadManagerSettingsModule
 {
     private int _downloadSegments = 4;
 
-    public int DownloadSegments
+    public static DownloadManagerSettingsModule Create() => new() { DownloadSegments = 4 };
+
+    public required int DownloadSegments
     {
         get => _downloadSegments;
         set => SetProperty(ref _downloadSegments, value);

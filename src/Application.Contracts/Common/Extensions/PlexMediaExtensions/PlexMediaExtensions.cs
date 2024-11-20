@@ -4,25 +4,6 @@ namespace Application.Contracts;
 
 public static class PlexMediaExtensions
 {
-    public static void SetFullThumbnailUrl(
-        this PlexMediaSlim plexMediaSlim,
-        string connectionUrl,
-        string plexServerToken
-    )
-    {
-        if (
-            !plexMediaSlim.HasThumb
-            || connectionUrl == string.Empty
-            || plexMediaSlim.ThumbUrl == string.Empty
-            || plexServerToken == string.Empty
-        )
-            return;
-
-        plexMediaSlim.FullThumbUrl =
-            $"{connectionUrl}/photo/:/transcode?url={plexMediaSlim.ThumbUrl}&X-Plex-Token={plexServerToken}";
-        plexMediaSlim.HasThumb = true;
-    }
-
     public static DownloadTaskMovie MapToDownloadTask(this PlexMovie plexMovie) =>
         new()
         {

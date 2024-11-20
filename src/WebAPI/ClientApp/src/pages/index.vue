@@ -26,11 +26,9 @@
 				</QRow>
 			</QCol>
 		</QRow>
-		<!--		<QRow v-else> -->
-		<!--			<QCol> -->
-		<!--				<SearchBar /> -->
-		<!--			</QCol> -->
-		<!--		</QRow> -->
+		<MediaOverview
+			:library-id="0"
+			:media-type="settingsStore.displaySettings.allOverviewViewMode" />
 	</QPage>
 </template>
 

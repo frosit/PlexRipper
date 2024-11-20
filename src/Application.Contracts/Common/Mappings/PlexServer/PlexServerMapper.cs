@@ -24,7 +24,6 @@ public static class PlexServerMapper
             MachineIdentifier = source.MachineIdentifier,
             PublicAddress = source.PublicAddress,
             PreferredConnectionId = source.PreferredConnectionId,
-            Owned = source.Owned,
             IsEnabled = source.IsEnabled,
             Home = source.Home,
             Synced = source.Synced,
@@ -34,7 +33,7 @@ public static class PlexServerMapper
             PublicAddressMatches = source.PublicAddressMatches,
             DnsRebindingProtection = source.DnsRebindingProtection,
             NatLoopbackSupported = source.NatLoopbackSupported,
-            ServerFixApplyDNSFix = source.ServerFixApplyDNSFix,
+            Owned = source.PlexAccountServers.Any(x => x.IsServerOwned),
         };
 
     public static List<PlexServerDTO> ToDTO(this List<PlexServer> source) => source.ConvertAll(ToDTO);
@@ -62,7 +61,6 @@ public static class PlexServerMapper
             PublicAddress = source.PublicAddress,
             PreferredConnectionId = source.PreferredConnectionId,
             IsEnabled = source.IsEnabled,
-            Owned = source.Owned,
             Home = source.Home,
             Synced = source.Synced,
             Relay = source.Relay,
@@ -71,7 +69,6 @@ public static class PlexServerMapper
             PublicAddressMatches = source.PublicAddressMatches,
             DnsRebindingProtection = source.DnsRebindingProtection,
             NatLoopbackSupported = source.NatLoopbackSupported,
-            ServerFixApplyDNSFix = source.ServerFixApplyDNSFix,
             PlexAccountServers = [],
             PlexLibraries = [],
             ServerStatus = [],

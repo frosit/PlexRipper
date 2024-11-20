@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<HelpGroup>
 		<HelpRow
 			:label="$t('help.server-dialog.server-commands.inspect-server.label')"
 			:title="$t('help.server-dialog.server-commands.inspect-server.title')"
@@ -20,7 +20,7 @@
 				:label="$t('general.commands.sync-server-libraries')"
 				@click="syncServerLibraries" />
 		</HelpRow>
-	</div>
+	</HelpGroup>
 </template>
 
 <script setup lang="ts">

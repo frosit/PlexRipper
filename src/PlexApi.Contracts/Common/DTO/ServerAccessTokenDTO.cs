@@ -7,4 +7,6 @@ public record ServerAccessTokenDTO
     public required string MachineIdentifier { get; init; }
 
     public required string AccessToken { get; set; }
+
+    public required bool IsServerOwned { get; set; }
 }

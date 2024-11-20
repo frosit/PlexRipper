@@ -75,12 +75,23 @@ public class GetMediaDetailByIdEndpoint : BaseEndpoint<GetMediaDetailByIdEndpoin
 
             await SetNestedMovieProperties(plexMovie, ct);
 
-            await SendFluentResult(Result.Ok(plexMovie), x => x.ToDTO(), ct);
+            var result = await _dbContext.GetPlexServerTokenAsync(plexMovie.PlexServerId, ct);
+
+            await SendFluentResult(Result.Ok(plexMovie), x => x.ToDTO(result.ValueOrDefault), ct);
         }
         else if (req.Type == PlexMediaType.TvShow)
         {
-            var plexTvShow = await GetPlexTvShow(req.PlexMediaId, ct);
-            await SendFluentResult(plexTvShow, x => x.ToDTO(), ct);
+            var plexTvShowResult = await GetPlexTvShow(req.PlexMediaId, ct);
+            if (plexTvShowResult.IsFailed)
+            {
+                await SendFluentResult(plexTvShowResult, ct);
+                return;
+            }
+
+            var plexServerId = plexTvShowResult.Value.PlexServerId;
+            var result = await _dbContext.GetPlexServerTokenAsync(plexServerId, ct);
+
+            await SendFluentResult(plexTvShowResult, x => x.ToDTO(result.ValueOrDefault), ct);
         }
         else
             await SendFluentResult(ResultExtensions.Create400BadRequestResult($"Type {req.Type} is not allowed"), ct);
@@ -124,10 +135,7 @@ public class GetMediaDetailByIdEndpoint : BaseEndpoint<GetMediaDetailByIdEndpoin
         if (plexServerToken.IsFailed)
         {
             plexServerToken.ToResult().LogError();
-            return;
         }
-
-        plexMovie.SetFullThumbnailUrl(plexServerConnection.Value.Url, plexServerToken.Value);
     }
 
     private async Task SetNestedTvShowProperties(PlexTvShow plexTvShow, CancellationToken ct = default)
@@ -143,15 +151,6 @@ public class GetMediaDetailByIdEndpoint : BaseEndpoint<GetMediaDetailByIdEndpoin
         if (plexServerToken.IsFailed)
         {
             plexServerToken.ToResult().LogError();
-            return;
-        }
-
-        plexTvShow.SetFullThumbnailUrl(plexServerConnection.Value.Url, plexServerToken.Value);
-        foreach (var plexTvShowSeason in plexTvShow.Seasons)
-        {
-            plexTvShowSeason.SetFullThumbnailUrl(plexServerConnection.Value.Url, plexServerToken.Value);
-            foreach (var plexTvShowEpisode in plexTvShowSeason.Episodes)
-                plexTvShowEpisode.SetFullThumbnailUrl(plexServerConnection.Value.Url, plexServerToken.Value);
         }
     }
 }

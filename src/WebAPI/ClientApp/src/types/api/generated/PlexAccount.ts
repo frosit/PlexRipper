@@ -86,8 +86,9 @@ export class PlexAccount {
  */
   generatePlexTokenEndpoint = (
     plexAccountId: number,
-    query: {
-      verificationCode: string;
+    query?: {
+      /** @default "" */
+      verificationCode?: string;
     },
     params: RequestParams = {},
   ) =>
@@ -220,8 +221,9 @@ export class PlexAccountPaths {
 
   static generatePlexTokenEndpoint = (
     plexAccountId: number,
-    query: {
-      verificationCode: string;
+    query?: {
+      /** @default "" */
+      verificationCode?: string;
     },
   ) => queryString.stringifyUrl({ url: `/api/PlexAccount/generate-token/${plexAccountId}`, query });
 

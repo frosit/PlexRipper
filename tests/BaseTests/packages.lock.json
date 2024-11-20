@@ -1717,6 +1717,7 @@
       "data.contracts": {
         "type": "Project",
         "dependencies": {
+          "Application.Contracts": "[1.0.0, )",
           "EFCore.BulkExtensions.SQLite": "[8.1.1, )",
           "FlexLabs.EntityFrameworkCore.Upsert": "[8.0.0, )",
           "Microsoft.EntityFrameworkCore": "[8.0.10, )",

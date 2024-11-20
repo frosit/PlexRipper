@@ -2,9 +2,8 @@
 	<!-- The "Are you sure" dialog -->
 	<QCardDialog
 		:name="DialogType.MediaDownloadConfirmationDialog"
-		max-width="1200px"
-		content-height="80"
 		:loading="loading"
+		full-height
 		@opened="openDialog"
 		@closed="closeDialog">
 		<template #title>
@@ -29,7 +28,6 @@
 		</template>
 		<template #actions="{ close }">
 			<CancelButton @click="close()" />
-			<q-space />
 			<ConfirmButton
 				@click="
 					() => {

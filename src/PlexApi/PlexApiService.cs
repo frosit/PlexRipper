@@ -192,6 +192,7 @@ public class PlexApiService : IPlexApiService
                     PlexAccountId = plexAccountId,
                     MachineIdentifier = x.ClientIdentifier,
                     AccessToken = x.AccessToken,
+                    IsServerOwned = x.Owned,
                 },
                 PlexServer = new PlexServer
                 {
@@ -213,7 +214,6 @@ public class PlexApiService : IPlexApiService
                     PublicAddress = x.PublicAddress,
                     PreferredConnectionId = 0,
                     IsEnabled = !_serverSettingsModule.GetIsHidden(x.ClientIdentifier),
-                    Owned = x.Owned,
                     Home = x.Home,
                     Synced = x.Synced,
                     Relay = x.Relay,
@@ -222,7 +222,6 @@ public class PlexApiService : IPlexApiService
                     PublicAddressMatches = x.PublicAddressMatches,
                     DnsRebindingProtection = x.DnsRebindingProtection,
                     NatLoopbackSupported = x.NatLoopbackSupported,
-                    ServerFixApplyDNSFix = false,
                     PlexAccountServers = [],
                     PlexLibraries = [],
                     ServerStatus = [],

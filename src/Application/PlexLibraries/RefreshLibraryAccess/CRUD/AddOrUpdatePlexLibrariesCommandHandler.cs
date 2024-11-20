@@ -104,6 +104,11 @@ public class AddOrUpdatePlexLibrariesCommandHandler : IRequestHandler<AddOrUpdat
             .PlexAccountLibraries.Where(x => x.PlexAccountId == plexAccountId)
             .ToListAsync(cancellationToken);
 
+        var ownedServerIds = await _dbContext
+            .PlexAccountServers.Where(x => x.PlexAccountId == plexAccountId && x.IsServerOwned)
+            .Select(x => x.PlexServerId)
+            .ToListAsync(cancellationToken);
+
         foreach (var plexLibrary in plexLibraries)
         {
             // Check if this PlexAccount has been associated with the PlexLibrary already
@@ -114,6 +119,7 @@ public class AddOrUpdatePlexLibrariesCommandHandler : IRequestHandler<AddOrUpdat
             );
 
             var plexServerName = await _dbContext.GetPlexServerNameById(plexLibrary.PlexServerId, cancellationToken);
+
             if (plexAccountLibrary is null)
             {
                 // Add entry
@@ -131,6 +137,7 @@ public class AddOrUpdatePlexLibrariesCommandHandler : IRequestHandler<AddOrUpdat
                         PlexAccountId = plexAccountId,
                         PlexLibraryId = plexLibrary.Id,
                         PlexServerId = plexLibrary.PlexServerId,
+                        IsLibraryOwned = ownedServerIds.Contains(plexLibrary.PlexServerId),
                     },
                     cancellationToken
                 );

@@ -44,7 +44,9 @@ public partial class FakePlexApiData
             .RuleFor(x => x.HomeAdmin, f => f.Random.Bool())
             .RuleFor(x => x.MaxHomeSize, f => f.Random.Number(20))
             .RuleFor(x => x.RememberExpiresAt, f => f.Date.Future().Ticks)
+#pragma warning disable CS8603 // Possible null reference return.
             .RuleFor(x => x.Profile, _ => null) // keep null, causes enum conversion exceptions in PlexAPI.SDK
+#pragma warning restore CS8603 // Possible null reference return.
             .RuleFor(x => x.Entitlements, _ => [])
             .RuleFor(x => x.Subscriptions, _ => [])
             .RuleFor(x => x.PastSubscriptions, _ => [])

@@ -2,10 +2,8 @@
 	<QCardDialog
 		:loading="loading"
 		:name="DialogType.DownloadDetailsDialog"
-		:scroll="false"
 		:type="'' as string"
-		:content-height="tabIndex === 'overview' ? '60' : '100'"
-		max-width="60vw"
+		full-height
 		@closed="onClose"
 		@opened="onOpen">
 		<!-- Title -->

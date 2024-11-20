@@ -1,5 +1,5 @@
 import { checkConfig, type MockConfig } from '@mock';
-import { type PlexServerDTO, type SettingsModelDTO, ViewMode } from '@dto';
+import { PlexMediaType, type PlexServerDTO, type SettingsModelDTO, ViewMode } from '@dto';
 
 export function generateSettingsModel({
 	plexServers = [],
@@ -26,6 +26,7 @@ export function generateSettingsModel({
 		displaySettings: {
 			movieViewMode: ViewMode.Poster,
 			tvShowViewMode: ViewMode.Poster,
+			allOverviewViewMode: PlexMediaType.Movie,
 		},
 		downloadManagerSettings: {
 			downloadSegments: 4,
@@ -35,9 +36,11 @@ export function generateSettingsModel({
 		},
 		generalSettings: {
 			firstTimeSetup: validConfig.firstTimeSetup,
-			debugMode: true,
 			activeAccountId: 0,
 			disableAnimatedBackground: true,
+			hideMediaFromOfflineServers: false,
+			hideMediaFromOwnedServers: false,
+			useLowQualityPosterImages: false,
 		},
 		confirmationSettings: {
 			askDownloadEpisodeConfirmation: true,

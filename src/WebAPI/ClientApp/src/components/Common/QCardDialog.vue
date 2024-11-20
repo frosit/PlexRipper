@@ -1,74 +1,64 @@
 <template>
 	<q-dialog
 		v-model:model-value="showDialog"
-		:no-route-dismiss="noRouteDismiss"
-		:no-backdrop-dismiss="noBackdropDismiss"
 		:persistent="persistent"
-		:seamless="seamless"
-		:maximized="maximized"
+		:full-height="fullHeight"
 		:transition-show="transitionShow"
 		:transition-hide="transitionHide"
 		@before-show="$emit('opened', dataValue!)"
 		@before-hide="$emit('closed')">
-		<QRow
-			column
+		<div
 			:data-cy="cy"
-			:class="['q-card-dialog', 'q-card-dialog-background', noBackground ? 'no-background' : '']"
+			:class="{
+				'dialog-container': true,
+				'dialog-container-background': true,
+			}"
 			:style="styles">
-			<!-- Dialog Title	-->
-			<QCol
+			<!--	Dialog Title -->
+			<div
 				v-if="$slots['title']"
-				cols="auto"
-				class="q-card-dialog-title">
-				<div v-if="!loading">
-					<QCardTitle>
-						<slot
-							name="title"
-							:value="parentValue" />
-						<div
-							v-if="closeButton"
-							class="dialog-close-button">
-							<CloseIconButton @click="closeDialog" />
-						</div>
-					</QCardTitle>
-				</div>
-			</QCol>
+				class="dialog-container-title">
+				<QCardTitle>
+					<slot
+						name="title"
+						:value="parentValue" />
+					<div
+						v-if="closeButton"
+						class="dialog-close-button">
+						<CloseIconButton @click="closeDialog" />
+					</div>
+				</QCardTitle>
+			</div>
 			<!--	Dialog Top Row -->
-			<QCol
+			<div
 				v-if="$slots['top-row']"
-				cols="auto"
-				class="q-card-dialog-top-row">
+				class="dialog-container-top-row">
 				<div v-show="!loading">
 					<slot name="top-row" />
 				</div>
-			</QCol>
-			<QCol
+			</div>
+			<!-- Dialog Content	-->
+			<div
 				v-if="$slots['default']"
-				:class="contentClasses"
-				align-self="stretch">
+				:class="{ 'dialog-container-content': true, [`dialog-container-content-${props.contentHeight}`]: contentHeight !== '0' }">
 				<slot
 					v-if="!loading"
 					:value="parentValue" />
-			</QCol>
-			<QCol
+			</div>
+			<!-- Dialog Actions	-->
+			<div
 				v-if="$slots['actions']"
-				cols="auto"
-				align-self="stretch"
-				class="q-card-dialog-actions q-pa-md">
-				<div v-if="!loading">
-					<!--	Dialog Buttons		-->
-					<QCardActions :align="buttonAlign">
-						<slot
-							name="actions"
-							:close="closeDialog"
-							:open="openDialog"
-							:value="parentValue" />
-					</QCardActions>
-				</div>
-			</QCol>
+				:class="['dialog-container-actions', [`justify-${buttonAlign}`]]">
+				<slot
+					name="actions"
+					:close="closeDialog"
+					:open="openDialog"
+					:value="parentValue" />
+			</div>
+
 			<!--	Loading overlay	-->
 			<QLoadingOverlay :loading="loading" />
-		</QRow>
+		</div>
 	</q-dialog>
 </template>
 
@@ -85,45 +75,29 @@ const props = withDefaults(
 		name: string;
 		type?: T;
 		width?: string;
-		minWidth?: string;
-		maxWidth?: string;
-		allWidth?: string;
+		fullHeight?: boolean;
 		contentHeight?: '100' | '80' | '60' | '40' | '20' | '0';
 		loading?: boolean;
-		scroll?: boolean;
 		persistent?: boolean;
-		seamless?: boolean;
-		maximized?: boolean;
 		closeButton?: boolean;
-		noBackdropDismiss?: boolean;
-		noBackground?: boolean;
-		noRouteDismiss?: boolean;
 		transitionShow?: string;
 		transitionHide?: string;
-		buttonAlign?: 'left' | 'center' | 'right' | 'between' | 'around' | 'evenly' | 'stretch';
+		buttonAlign?: 'start' | 'center' | 'end' | 'between' | 'around' | 'evenly';
 		cy?: string;
 	}>(),
 	{
 		name: '',
 		type: undefined,
-		width: '',
-		minWidth: '',
-		maxWidth: '',
-		allWidth: '',
+		width: '1000px',
 		contentHeight: '0',
 		loading: false,
-		scroll: true,
+		fullHeight: false,
 		persistent: false,
-		seamless: false,
-		maximized: false,
 		closeButton: false,
-		noBackground: false,
-		noBackdropDismiss: false,
-		noRouteDismiss: false,
-		cy: 'q-card-dialog-cy',
-		buttonAlign: 'right',
+		buttonAlign: 'between',
 		transitionShow: 'fade',
 		transitionHide: 'fade',
+		cy: 'q-card-dialog-cy',
 	},
 );
 
@@ -134,10 +108,6 @@ defineEmits<{
 
 const parentValue = computed(() => {
 	return get(dataValue);
-});
-
-const contentClasses = computed(() => {
-	return ['q-card-dialog-content', `q-card-dialog-content-${props.contentHeight}`, props.scroll ? 'scroll' : ''];
 });
 
 function openDialog(value: T) {
@@ -151,21 +121,7 @@ function closeDialog() {
 }
 
 const styles = computed(() => {
-	if (props.allWidth) {
-		return Object.assign(
-			{},
-			props.allWidth !== '' ? { width: props.allWidth } : null,
-			props.allWidth !== '' ? { minWidth: props.allWidth } : null,
-			props.allWidth !== '' ? { maxWidth: props.allWidth } : null,
-		);
-	}
-
-	return Object.assign(
-		{},
-		props.width !== '' ? { width: props.width } : null,
-		props.minWidth !== '' ? { minWidth: props.minWidth } : null,
-		props.maxWidth !== '' ? { maxWidth: props.maxWidth } : null,
-	);
+	return { width: `clamp(200px, 100%, ${props.width})` };
 });
 
 onMounted(() => {
@@ -192,44 +148,52 @@ onMounted(() => {
 @import 'quasar/src/css/core/size.sass';
 
 body {
-  .q-card-dialog {
+  .dialog-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: min-content min-content 1fr min-content;
+    grid-column-gap: 0;
+    grid-row-gap: 0;
+    grid-template-areas:
+      "title"
+      "top-row"
+      "content"
+      "actions";
     // Scrollbar is hidden because otherwise the header and footer are also scrolling
     overflow-y: hidden;
-
-    .dialog-close-button {
-      position: absolute;
-      right: 0.5rem;
-      top: 0.5rem;
-    }
 
     &-background {
       @extend .default-border;
       @extend .default-border-radius;
       @extend .default-shadow;
+      @extend .blur;
+      background-color: $dark-sm-background-color;
       max-width: none;
       max-height: none;
     }
 
+    &-title {
+      grid-area: title;
+      max-height: $q-card-dialog-title-height;
+
+      .dialog-close-button {
+        position: absolute;
+        right: 0.5rem;
+        top: 0.5rem;
+      }
+
+    }
+
     &-top-row {
-      @extend .q-pt-none;
-      @extend .q-px-md;
-      width: 100% !important;
+      grid-area: top-row;
+      padding: 0 1rem;
+
     }
 
     &-content {
-      @extend .q-pt-none;
-      @extend .q-px-md;
-      display: flex;
-
-      > div {
-        flex-grow: 1;
-      }
-
-      &-0 {
-        min-height: inherit;
-        height: inherit;
-        max-height: inherit;
-      }
+      grid-area: content;
+      overflow-y: scroll;
+      margin: 1rem;
 
       &-20 {
         min-height: calc(20vh - $q-card-dialog-title-height - $q-card-dialog-actions-height) !important;
@@ -260,34 +224,14 @@ body {
         height: calc(100vh - $q-card-dialog-title-height - $q-card-dialog-actions-height) !important;
         max-height: calc(100vh - $q-card-dialog-title-height - $q-card-dialog-actions-height) !important;
       }
-    }
 
-    &-title,
-    &-actions {
-      height: auto;
-      width: 100% !important;
-    }
-
-    &-title {
-      max-height: $q-card-dialog-title-height;
     }
 
     &-actions {
+      grid-area: actions;
       max-height: $q-card-dialog-actions-height;
-    }
-  }
-
-  &.body--dark {
-    .q-card-dialog-background {
-      @extend .blur;
-      background-color: $dark-sm-background-color;
-    }
-  }
-
-  &.body--light {
-    .q-card-dialog-background {
-      @extend .blur;
-      background-color: $light-sm-background-color;
+      margin: 0 1rem 1rem;
+      display: flex;
     }
   }
 }

@@ -68,7 +68,7 @@ public class AllJobListener : IAllJobListener
                 await _signalRService.SendJobStatusUpdateAsync(
                     new JobStatusUpdate<DownloadTaskKey>(
                         result,
-                        dataMap.GetJsonValue<DownloadTaskKey>(DownloadJob.DownloadTaskIdParameter)
+                        dataMap.GetJsonValue<DownloadTaskKey>(DownloadJob.DownloadTaskIdParameter)!
                     )
                 );
                 break;

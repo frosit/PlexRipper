@@ -1,9 +1,7 @@
 <template>
 	<QCardDialog
 		:name="DialogType.DirectoryBrowserDialog"
-		min-width="70vw"
-		max-width="70vw"
-		content-height="80"
+		full-height
 		:loading="isLoading"
 		button-align="between"
 		@opened="open">

@@ -24,8 +24,10 @@ public static class SettingsModelToDTOMapper
         {
             FirstTimeSetup = dto.FirstTimeSetup,
             ActiveAccountId = dto.ActiveAccountId,
-            DebugMode = dto.DebugMode,
             DisableAnimatedBackground = dto.DisableAnimatedBackground,
+            HideMediaFromOfflineServers = dto.HideMediaFromOfflineServers,
+            HideMediaFromOwnedServers = dto.HideMediaFromOwnedServers,
+            UseLowQualityPosterImages = dto.UseLowQualityPosterImages,
         };
 
     public static ConfirmationSettingsModule ToModel(this ConfirmationSettingsDTO dto) =>
@@ -48,7 +50,12 @@ public static class SettingsModelToDTOMapper
         };
 
     public static DisplaySettingsModule ToModel(this DisplaySettingsDTO dto) =>
-        new() { TvShowViewMode = dto.TvShowViewMode, MovieViewMode = dto.MovieViewMode };
+        new()
+        {
+            TvShowViewMode = dto.TvShowViewMode,
+            MovieViewMode = dto.MovieViewMode,
+            AllOverviewViewMode = dto.AllOverviewViewMode,
+        };
 
     public static LanguageSettingsModule ToModel(this LanguageSettingsDTO dto) => new() { Language = dto.Language };
 
@@ -87,8 +94,10 @@ public static class SettingsModelToDTOMapper
         {
             FirstTimeSetup = module.FirstTimeSetup,
             ActiveAccountId = module.ActiveAccountId,
-            DebugMode = module.DebugMode,
             DisableAnimatedBackground = module.DisableAnimatedBackground,
+            HideMediaFromOfflineServers = module.HideMediaFromOfflineServers,
+            HideMediaFromOwnedServers = module.HideMediaFromOwnedServers,
+            UseLowQualityPosterImages = module.UseLowQualityPosterImages,
         };
 
     public static ConfirmationSettingsDTO ToDTO(this ConfirmationSettingsModule module) =>
@@ -106,12 +115,17 @@ public static class SettingsModelToDTOMapper
             ShortDateFormat = module.ShortDateFormat,
             LongDateFormat = module.LongDateFormat,
             TimeFormat = module.TimeFormat,
-            TimeZone = module.TimeZone,
             ShowRelativeDates = module.ShowRelativeDates,
+            TimeZone = module.TimeZone,
         };
 
     public static DisplaySettingsDTO ToDTO(this DisplaySettingsModule module) =>
-        new() { TvShowViewMode = module.TvShowViewMode, MovieViewMode = module.MovieViewMode };
+        new()
+        {
+            TvShowViewMode = module.TvShowViewMode,
+            MovieViewMode = module.MovieViewMode,
+            AllOverviewViewMode = module.AllOverviewViewMode,
+        };
 
     public static LanguageSettingsDTO ToDTO(this LanguageSettingsModule module) => new() { Language = module.Language };
 

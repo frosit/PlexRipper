@@ -2,8 +2,6 @@
 
 public class PlexMediaDTO : PlexMediaSlimDTO
 {
-    public required int Key { get; set; }
-
     public required bool HasArt { get; set; }
 
     public required bool HasBanner { get; set; }
@@ -26,5 +24,5 @@ public class PlexMediaDTO : PlexMediaSlimDTO
 
     public required List<PlexMediaDataDTO> MediaData { get; set; } = new();
 
-    public new required List<PlexMediaDTO> Children { get; set; } = new();
+    public required List<PlexMediaDTO> Children { get; set; } = new();
 }

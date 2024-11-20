@@ -6,7 +6,8 @@
         },
         "account-dialog": {
             "add-account-title": "Add Plex Account: {name}",
-            "edit-account-title": "Edit Plex Account: {name}"
+            "edit-account-title": "Edit Plex Account: {name}",
+            "generate-token-button": "Generate Token"
         },
         "connection-progress-text": {
             "retry-connection": "Attempting to retry connection, { attemptIndex } of { attemptCount } attempt.",
@@ -240,6 +241,15 @@
         "account-form": {
             "credentials-tab": "Username & Password",
             "token-tab": "Authentication Token"
+        },
+        "media-overview-bar": {
+            "all-media-mode": {
+                "movies": "All Movies",
+                "tv-shows": "All TV-Shows"
+            }
+        },
+        "media-options-dialog": {
+            "title": "Media Overview Options"
         }
     },
     "confirmation": {
@@ -301,7 +311,8 @@
             "set-selection": "Set Selection",
             "download": "Download",
             "refresh": "Refresh",
-            "view": "View"
+            "view": "View",
+            "media-options": "Options"
         },
         "name-version": "PlexRipper - V{version}",
         "units": {
@@ -508,6 +519,23 @@
                     }
                 }
             }
+        },
+        "media-options": {
+            "hide-offline-servers": {
+                "label": "Don't show media from offline Plex servers:",
+                "text": "When enabled, media from currently offline Plex servers will be excluded from this media overview.",
+                "title": "Don't show media from offline Plex servers"
+            },
+            "hide-owned-media": {
+                "label": "Don't show media from owned Plex servers:",
+                "text": "Hide all media in this overview that originates from Plex servers owned by a Plex account.",
+                "title": "Don't show media from owned Plex servers"
+            },
+            "use-low-quality-poster-images": {
+                "label": "Use low quality poster images:",
+                "text": "When enabled, lower-resolution images will be used for poster thumbnails, significantly improving loading speed while browsing Plex libraries.",
+                "title": "Use low quality poster images"
+            }
         }
     },
     "pages": {
@@ -643,7 +671,9 @@
                     "directory-browser": "Directory Browser Dialog",
                     "verification-dialog": "2FA Verification Dialog"
                 },
-                "header": "Debug Dialog Modals"
+                "header": "Debug Dialog Modals",
+                "account-dialog-header": "Account Dialog",
+                "connection-dialog-header": "Connection Dialog"
             }
         },
         "empty": {

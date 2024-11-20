@@ -1,7 +1,7 @@
 <template>
 	<q-toolbar class="media-overview-bar">
 		<!--	Title	-->
-		<q-toolbar-title>
+		<q-toolbar-title style="overflow: visible">
 			<QRow
 				align="center"
 				justify="start">
@@ -16,15 +16,72 @@
 							flat
 							icon="mdi-arrow-left"
 							size="xl"
-							@click="$emit('back')" />
+							@click="$emit('action', 'back')" />
 					</QCol>
 				</Transition>
 				<QCol cols="auto">
 					<q-list class="no-background">
-						<q-item>
+						<!-- All Media Mode Header -->
+						<q-item
+							v-if="libraryId === 0"
+							class="q-pa-none">
+							<q-item-section avatar>
+								<QFab
+									label-position="left"
+									square
+									flat
+									push
+									vertical-actions-align="left"
+									icon="mdi-keyboard-arrow-down"
+									direction="down">
+									<template #label>
+										<QRow
+											justify="center"
+											align="center">
+											<QCol
+												cols="auto"
+												class="q-mr-md">
+												<QMediaTypeIcon
+													:media-type="mediaType"
+													:size="36" />
+											</QCol>
+											<QCol>
+												<QText size="h5">
+													{{ headerText }}
+												</QText>
+											</QCol>
+										</QRow>
+									</template>
+
+									<QFabAction
+										v-for="(type, i) in [PlexMediaType.Movie, PlexMediaType.TvShow].filter(x => x !== mediaType)"
+										:key="i"
+										square
+										outline
+										:label-position="'right'"
+										class="blur"
+										@click="mediaOverviewStore.changeAllMediaOverviewType(type)">
+										<template #icon>
+											<QMediaTypeIcon
+												:media-type="type"
+												:size="36"
+												class="q-mr-md" />
+										</template>
+										<template #label>
+											<QText
+												size="h5"
+												:value="mediaTypeToAllText(type)" />
+										</template>
+									</QFabAction>
+								</QFab>
+							</q-item-section>
+							<q-item-section />
+						</q-item>
+						<!-- Single Library Mode -->
+						<q-item v-else>
 							<q-item-section avatar>
 								<QMediaTypeIcon
-									:media-type="library?.type ?? PlexMediaType.None"
+									:media-type="library?.type"
 									:size="36"
 									class="mx-3" />
 							</q-item-section>
@@ -76,7 +133,8 @@
 			:label="$t('general.commands.download')"
 			:width="verticalButtonWidth"
 			icon="mdi-download"
-			@click="download" />
+			cy="media-overview-bar-download-button"
+			@click="downloadCommandBus.emit('download')" />
 
 		<!--	Selection Dialog Button	-->
 		<VerticalButton
@@ -85,17 +143,27 @@
 			:label="$t('general.commands.selection')"
 			:width="verticalButtonWidth"
 			icon="mdi-select-marker"
-			@click="$emit('selection-dialog')" />
+			@click="$emit('action', 'selection-dialog')" />
 
 		<!--	Refresh library button	-->
 		<VerticalButton
-			v-if="!detailMode"
+			v-if="!mediaOverviewStore.allMediaMode && !detailMode"
 			:height="barHeight"
 			:label="$t('general.commands.refresh')"
 			:width="verticalButtonWidth"
 			cy="media-overview-refresh-library-btn"
 			icon="mdi-refresh"
-			@click="refreshLibrary" />
+			@click="$emit('action', 'refresh-library');" />
+
+		<!--	Media Options button	-->
+		<VerticalButton
+			v-if="mediaOverviewStore.allMediaMode && !detailMode"
+			:height="barHeight"
+			:label="$t('general.commands.media-options')"
+			:width="verticalButtonWidth"
+			cy="media-overview-options-btn"
+			icon="mdi-tune"
+			@click="$emit('action', 'media-options-dialog');" />
 
 		<!--	View mode	-->
 		<VerticalButton
@@ -119,11 +187,9 @@
 						@click="changeView(viewOption.viewMode)">
 						<!-- View mode options -->
 						<q-item-section avatar>
-							<q-avatar>
-								<q-icon
-									v-if="isSelected(viewOption.viewMode)"
-									name="mdi-check" />
-							</q-avatar>
+							<q-icon
+								v-if="isSelected(viewOption.viewMode)"
+								name="mdi-check" />
 						</q-item-section>
 						<!--	Is selected icon	-->
 						<q-item-section> {{ viewOption.label }}</q-item-section>
@@ -135,13 +201,15 @@
 </template>
 
 <script lang="ts" setup>
-import type { PlexLibraryDTO, PlexServerDTO } from '@dto';
+import { get } from '@vueuse/core';
 import { PlexMediaType, ViewMode } from '@dto';
+import type { IMediaOverviewBarActions, IViewOptions } from '@interfaces';
 import {
 	useLibraryStore,
 	useMediaOverviewBarDownloadCommandBus,
 	useMediaOverviewStore,
 	useServerStore,
+	useI18n, useSettingsStore,
 } from '#imports';
 
 const libraryStore = useLibraryStore();
@@ -149,51 +217,42 @@ const serverStore = useServerStore();
 const mediaOverviewStore = useMediaOverviewStore();
 const downloadCommandBus = useMediaOverviewBarDownloadCommandBus();
 
-interface IViewOptions {
-	label: string;
-	viewMode: ViewMode;
-}
+const { t } = useI18n();
+const settingsStore = useSettingsStore();
 
-const props = defineProps<{
-	server: PlexServerDTO | null;
-	library: PlexLibraryDTO | null;
+const props = withDefaults(defineProps<{
+	mediaType: PlexMediaType;
+	libraryId: number;
 	detailMode?: boolean;
-}>();
+}>(), {
+	libraryId: 0,
+	detailMode: false,
+});
 
-const emit = defineEmits<{
-	(e: 'back' | 'selection-dialog'): void;
-	(e: 'refresh-library', libraryId: number): void;
-	(e: 'view-change', viewMode: ViewMode): void;
+defineEmits<{
+	(e: 'action', payload: IMediaOverviewBarActions): void;
 }>();
 
 const barHeight = ref(85);
 const verticalButtonWidth = ref(120);
 
-const refreshLibrary = () => {
-	emit('refresh-library', props.library?.id ?? -1);
-};
+const library = computed(() => libraryStore.getLibrary(props.libraryId));
+const server = computed(() => serverStore.getServer(get(library)?.plexServerId ?? -1));
 
-const download = () => {
-	downloadCommandBus.emit('download');
-};
-
-const changeView = (viewMode: ViewMode) => {
-	emit('view-change', viewMode);
-};
-
-const isSelected = (viewMode: ViewMode) => {
+function isSelected(viewMode: ViewMode) {
 	return mediaOverviewStore.getMediaViewMode === viewMode;
-};
+}
 
 const libraryCountFormatted = computed(() => {
-	if (props.library) {
-		switch (props.library?.type) {
+	const libraryValue = get(library);
+	if (libraryValue) {
+		switch (props.mediaType) {
 			case PlexMediaType.Movie:
-				return `${props.library.count} Movies`;
+				return `${libraryValue.count} Movies`;
 			case PlexMediaType.TvShow:
-				return `${props.library.count} TvShows - ${props.library.seasonCount} Seasons - ${props.library.episodeCount} Episodes`;
+				return `${libraryValue.count} TvShows - ${libraryValue.seasonCount} Seasons - ${libraryValue.episodeCount} Episodes`;
 			default:
-				return `Library type ${props.library?.type} is not supported in the media count`;
+				return `Library type ${props.mediaType} is not supported in the media count`;
 		}
 	}
 	return 'unknown media count';
@@ -211,6 +270,32 @@ const viewOptions = computed((): IViewOptions[] => {
 		},
 	];
 });
+
+const headerText = computed(() => {
+	switch (props.mediaType) {
+		case PlexMediaType.Movie:
+		case PlexMediaType.TvShow:
+			return mediaTypeToAllText(props.mediaType);
+		default:
+			return `Library type ${props.mediaType} is not supported`;
+	}
+});
+
+function changeView(viewMode: ViewMode) {
+	mediaOverviewStore.clearSort();
+	settingsStore.updateDisplayMode(props.mediaType, viewMode);
+}
+
+function mediaTypeToAllText(mediaType: PlexMediaType): string {
+	switch (mediaType) {
+		case PlexMediaType.Movie:
+			return t('components.media-overview-bar.all-media-mode.movies');
+		case PlexMediaType.TvShow:
+			return t('components.media-overview-bar.all-media-mode.tv-shows');
+		default:
+			return t('general.error.unknown');
+	}
+}
 </script>
 
 <style lang="scss">
@@ -219,5 +304,9 @@ const viewOptions = computed((): IViewOptions[] => {
 .media-overview-bar {
   @extend .default-border;
   min-height: $media-overview-bar-height;
+}
+
+.q-fab__label {
+  max-height: none;
 }
 </style>

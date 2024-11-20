@@ -31,14 +31,12 @@ const divClasses = computed(() => ({
 	[`full-width`]: props.fullWidth,
 }));
 
-const spanClasses = computed(() => ({
-	'q-text': true,
-	[`text-${props.size}`]: true,
-	[`text-weight-${props.bold}`]: true,
-	[`full-width`]: props.fullWidth,
-}));
+const spanClasses = computed(() => {
+	return ({
+		'q-text': true,
+		[`text-${props.size}`]: true,
+		[`text-weight-${props.bold}`]: true,
+		[`full-width`]: props.fullWidth,
+	});
+});
 </script>
-
-<style lang="scss">
-.q-text-container {}
-</style>

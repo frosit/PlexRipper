@@ -2,7 +2,7 @@
 	<QCardDialog
 		:name="DialogType.AccountGenerateTokenDialog"
 		persistent
-		max-width="700px"
+		width="700px"
 		cy="generate-token-dialog"
 		@opened="onOpen">
 		<template #title>

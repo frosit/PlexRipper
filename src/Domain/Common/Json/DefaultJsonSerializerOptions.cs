@@ -2,7 +2,7 @@
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 
-namespace PlexRipper.Domain.Config;
+namespace PlexRipper.Domain;
 
 public static class DefaultJsonSerializerOptions
 {
@@ -11,22 +11,15 @@ public static class DefaultJsonSerializerOptions
     /// Otherwise, we need separate models for serialization/deserialization and DTO's.
     /// Source: https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/required-properties
     /// </summary>
-    private static readonly DefaultJsonTypeInfoResolver DisableThrowingExceptionsWhenRequiredPropertyIsMissing =
-        new()
-        {
-            Modifiers =
-            {
-                static typeInfo =>
-                {
-                    if (typeInfo.Kind != JsonTypeInfoKind.Object)
-                        return;
+    private static void DisableThrowingExceptionsWhenRequiredPropertyIsMissing(JsonTypeInfo typeInfo)
+    {
+        if (typeInfo.Kind != JsonTypeInfoKind.Object)
+            return;
 
-                    foreach (var propertyInfo in typeInfo.Properties)
-                        // Strip IsRequired constraint from every property.
-                        propertyInfo.IsRequired = false;
-                },
-            },
-        };
+        foreach (var propertyInfo in typeInfo.Properties)
+            // Strip IsRequired constraint from every property.
+            propertyInfo.IsRequired = false;
+    }
 
     /// <summary>
     /// If a property is missing, and would normally set null, then skip setting the property.
@@ -58,7 +51,10 @@ public static class DefaultJsonSerializerOptions
             PropertyNameCaseInsensitive = true,
             Converters = { new JsonStringEnumConverter() },
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-            TypeInfoResolver = DisableThrowingExceptionsWhenRequiredPropertyIsMissing,
+            TypeInfoResolver = new DefaultJsonTypeInfoResolver
+            {
+                Modifiers = { InterceptNullSetter, DisableThrowingExceptionsWhenRequiredPropertyIsMissing },
+            },
         };
 
     private static readonly Lazy<JsonSerializerOptions> ConfigStandardField =
@@ -93,9 +89,9 @@ public static class DefaultJsonSerializerOptions
 
             //If Model.property is collect and this config is Populate,then skip propertyInfo.Set
             options.PreferredObjectCreationHandling = JsonObjectCreationHandling.Populate;
-            options.TypeInfoResolver = new DefaultJsonTypeInfoResolver { Modifiers = { InterceptNullSetter } };
             options.WriteIndented = true;
             options.PropertyNamingPolicy = null;
+
             return options;
         });
 

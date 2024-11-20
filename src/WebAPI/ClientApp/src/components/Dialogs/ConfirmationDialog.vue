@@ -2,7 +2,7 @@
 	<QCardDialog
 		persistent
 		:name="name"
-		max-width="800px"
+		width="500px"
 		button-align="between"
 		cy="confirmation-dialog">
 		<template #title>

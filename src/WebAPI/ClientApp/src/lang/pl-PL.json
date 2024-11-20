@@ -6,7 +6,8 @@
         },
         "account-dialog": {
             "add-account-title": "Dodaj konto Plex: {name}",
-            "edit-account-title": "Edytuj konto Plex: {name}"
+            "edit-account-title": "Edytuj konto Plex: {name}",
+            "generate-token-button": "Generuj token"
         },
         "connection-progress-text": {
             "retry-connection": "Próba ponownego połączenia, { attemptIndex } z { attemptCount } prób.",
@@ -240,6 +241,15 @@
         "account-form": {
             "credentials-tab": "Nazwa użytkownika i hasło",
             "token-tab": "Token uwierzytelniający"
+        },
+        "media-overview-bar": {
+            "all-media-mode": {
+                "movies": "Wszystkie filmy",
+                "tv-shows": "Wszystkie programy telewizyjne"
+            }
+        },
+        "media-options-dialog": {
+            "title": "Opcje przeglądu mediów"
         }
     },
     "confirmation": {
@@ -301,7 +311,8 @@
             "set-selection": "Ustaw wybór",
             "download": "Pobierz",
             "refresh": "Odśwież",
-            "view": "Widok"
+            "view": "Widok",
+            "media-options": "Opcje"
         },
         "name-version": "PlexRipper - V{version}",
         "units": {
@@ -508,6 +519,23 @@
                     }
                 }
             }
+        },
+        "media-options": {
+            "hide-offline-servers": {
+                "label": "Nie pokazuj multimediów z serwerów Plex znajdujących się w trybie offline:",
+                "text": "Po włączeniu tej opcji media z serwerów Plex, które są obecnie offline, zostaną wykluczone z tego przeglądu multimediów.",
+                "title": "Nie pokazuj multimediów z serwerów Plex w trybie offline"
+            },
+            "hide-owned-media": {
+                "label": "Nie pokazuj multimediów z własnych serwerów Plex:",
+                "text": "Ukryj wszystkie media w tym przeglądzie, jeśli pochodzą z serwerów Plex należących do konta Plex.",
+                "title": "Nie pokazuj multimediów z własnych serwerów Plex"
+            },
+            "use-low-quality-poster-images": {
+                "label": "Użyj plakatów o niskiej jakości:",
+                "text": "Po włączeniu tej opcji miniatury plakatów będą wyświetlane w niższej rozdzielczości, co znacznie skróci czas ładowania podczas przeglądania bibliotek Plex.",
+                "title": "Używaj plakatów o niskiej jakości"
+            }
         }
     },
     "pages": {
@@ -643,7 +671,9 @@
                     "directory-browser": "Okno przeglądarki katalogów",
                     "verification-dialog": "Dialog weryfikacji 2FA"
                 },
-                "header": "Moduły dialogowe debugowania"
+                "header": "Moduły dialogowe debugowania",
+                "account-dialog-header": "Okno dialogowe konta",
+                "connection-dialog-header": "Dialog połączenia"
             }
         },
         "empty": {

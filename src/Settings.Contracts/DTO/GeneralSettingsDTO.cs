@@ -6,8 +6,11 @@ public class GeneralSettingsDTO : IGeneralSettings
 
     public required int ActiveAccountId { get; set; }
 
-    // TODO Remove this as this is now part of the DebugSettingsDTO
-    public required bool DebugMode { get; set; }
-
     public required bool DisableAnimatedBackground { get; set; }
+
+    public required bool HideMediaFromOfflineServers { get; set; }
+
+    public required bool HideMediaFromOwnedServers { get; set; }
+
+    public required bool UseLowQualityPosterImages { get; set; }
 }

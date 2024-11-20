@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Http;
 using PlexRipper.Application;
-using PlexRipper.Domain.Config;
 using Serilog;
 
 namespace PlexRipper.WebAPI;

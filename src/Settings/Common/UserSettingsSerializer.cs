@@ -1,6 +1,5 @@
 using System.Text.Json;
 using Logging.Interface;
-using PlexRipper.Domain.Config;
 using Settings.Contracts;
 
 namespace PlexRipper.Settings;

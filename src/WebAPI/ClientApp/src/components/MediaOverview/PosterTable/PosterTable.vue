@@ -13,7 +13,6 @@
 		data-cy="poster-table"
 		@resize="onResize">
 		<MediaPoster
-			:index="index"
 			:media-item="item"
 			:data-scroll-index="index"
 			@download="sendMediaOverviewDownloadCommand($event)"
@@ -31,6 +30,7 @@ import type { PlexMediaType, PlexMediaSlimDTO } from '@dto';
 import { listenMediaOverviewScrollToCommand, sendMediaOverviewDownloadCommand } from '@composables/event-bus';
 import { triggerBoxHighlight } from '@composables/animations';
 import { waitForElement } from '@composables';
+import { useRouter, useMediaOverviewStore } from '#imports';
 
 const mediaOverviewStore = useMediaOverviewStore();
 
@@ -39,7 +39,7 @@ const recycleScrollerRef = ref<RecycleScroller | null>(null);
 const posterTableRef = computed(() => document.getElementById('poster-table') ?? null);
 const posterCardWidth = ref(200 + 32);
 const posterCardHeight = ref(340 + 32);
-const gridItems = ref(0);
+const gridItems = ref(10);
 const scrolledIndex = ref(0);
 const router = useRouter();
 
@@ -58,9 +58,11 @@ function onResize() {
 
 function onPageReady() {
 	const lastMediaItemViewed = get(mediaOverviewStore.lastMediaItemViewed);
-	if (lastMediaItemViewed && lastMediaItemViewed.sortIndex > 0) {
+	if (lastMediaItemViewed) {
+		// The index is relative depending on the view mode so we translate the mediaId to the index of the current view
+		const index = mediaOverviewStore.getMediaIndex(lastMediaItemViewed?.id);
 		// If we have a last viewed media item, scroll to it
-		scrollToIndex(lastMediaItemViewed.sortIndex - 1);
+		scrollToIndex(index);
 	}
 }
 

@@ -1,7 +1,6 @@
 <template>
 	<QCardDialog
-		max-width="1000px"
-		content-height="80"
+		full-height
 		:name="DialogType.CheckServerConnectionDialogName"
 		cy="check-server-connection-dialog"
 		@closed="onClosed">

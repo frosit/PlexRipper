@@ -26,6 +26,8 @@ public class GetPlexLibraryMediaEndpointRequestValidator : Validator<GetPlexLibr
     public GetPlexLibraryMediaEndpointRequestValidator()
     {
         RuleFor(x => x.PlexLibraryId).GreaterThan(0);
+        RuleFor(x => x.Page).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.Size).GreaterThanOrEqualTo(0);
     }
 }
 
@@ -81,59 +83,16 @@ public class GetPlexLibraryMediaEndpoint : BaseEndpoint<GetPlexLibraryMediaEndpo
         if (plexServerConnection.IsFailed)
             plexServerConnection.ToResult().LogError();
 
-        var plexServerToken = await _dbContext.GetPlexServerTokenAsync(plexServerId, ct);
+        var result = await _dbContext.GetMediaByType(
+            mediaType: plexLibrary.Type,
+            skip: skip,
+            take: take,
+            plexLibraryId: plexLibrary.Id,
+            filterOfflineMedia: false,
+            filterOwnedMedia: false,
+            ct: ct
+        );
 
-        var entities = new List<PlexMediaSlimDTO>();
-        switch (plexLibrary.Type)
-        {
-            case PlexMediaType.Movie:
-            {
-                var plexMovies = await _dbContext
-                    .PlexMovies.AsNoTracking()
-                    .Where(x => x.PlexLibraryId == req.PlexLibraryId)
-                    .OrderBy(x => x.SortIndex)
-                    .Skip(skip)
-                    .Take(take)
-                    .ToListAsync(ct);
-
-                foreach (var plexMovie in plexMovies)
-                {
-                    if (plexServerConnection.IsSuccess && plexMovie.HasThumb && plexServerToken.IsSuccess)
-                        plexMovie.SetFullThumbnailUrl(plexServerConnection.Value.Url, plexServerToken.Value);
-                    entities.Add(plexMovie.ToSlimDTO());
-                }
-
-                break;
-            }
-            case PlexMediaType.TvShow:
-            {
-                var plexTvShow = await _dbContext
-                    .PlexTvShows.AsNoTracking()
-                    .Where(x => x.PlexLibraryId == req.PlexLibraryId)
-                    .OrderBy(x => x.SortIndex)
-                    .Skip(skip)
-                    .Take(take)
-                    .ToListAsync(ct);
-
-                foreach (var tvShow in plexTvShow)
-                {
-                    if (plexServerConnection.IsSuccess && tvShow.HasThumb && plexServerToken.IsSuccess)
-                        tvShow.SetFullThumbnailUrl(plexServerConnection.Value.Url, plexServerToken.Value);
-                    entities.Add(tvShow.ToSlimDTO());
-                }
-
-                break;
-            }
-            default:
-                await SendFluentResult(
-                    Result.Fail(
-                        $"Type {plexLibrary.Type} is not supported for retrieving the PlexMedia data by library id"
-                    ),
-                    ct
-                );
-                return;
-        }
-
-        await SendFluentResult(Result.Ok(entities), ct);
+        await SendFluentResult(result, ct);
     }
 }

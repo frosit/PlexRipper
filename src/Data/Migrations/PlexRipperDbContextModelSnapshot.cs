@@ -893,13 +893,20 @@ namespace PlexRipper.Data.Migrations
             modelBuilder.Entity("PlexRipper.Domain.PlexAccountLibrary", b =>
                 {
                     b.Property<int>("PlexAccountId")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("INTEGER")
+                        .HasColumnOrder(0);
 
                     b.Property<int>("PlexLibraryId")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("INTEGER")
+                        .HasColumnOrder(1);
 
                     b.Property<int>("PlexServerId")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("INTEGER")
+                        .HasColumnOrder(2);
+
+                    b.Property<bool>("IsLibraryOwned")
+                        .HasColumnType("INTEGER")
+                        .HasColumnOrder(4);
 
                     b.HasKey("PlexAccountId", "PlexLibraryId", "PlexServerId");
 
@@ -928,6 +935,10 @@ namespace PlexRipper.Data.Migrations
                     b.Property<DateTime>("AuthTokenCreationDate")
                         .HasColumnType("TEXT")
                         .HasColumnOrder(3);
+
+                    b.Property<bool>("IsServerOwned")
+                        .HasColumnType("INTEGER")
+                        .HasColumnOrder(4);
 
                     b.HasKey("PlexAccountId", "PlexServerId");
 
@@ -1050,6 +1061,18 @@ namespace PlexRipper.Data.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT")
                         .HasColumnOrder(23);
+
+                    b.Property<string>("Guid_IMDB")
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(24);
+
+                    b.Property<string>("Guid_TMDB")
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(25);
+
+                    b.Property<string>("Guid_TVDB")
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(26);
 
                     b.Property<bool>("HasArt")
                         .HasColumnType("INTEGER")
@@ -1190,10 +1213,6 @@ namespace PlexRipper.Data.Migrations
                         .HasColumnType("INTEGER")
                         .HasColumnOrder(24);
 
-                    b.Property<bool>("Owned")
-                        .HasColumnType("INTEGER")
-                        .HasColumnOrder(16);
-
                     b.Property<long>("OwnerId")
                         .HasColumnType("INTEGER")
                         .HasColumnOrder(2);
@@ -1248,10 +1267,6 @@ namespace PlexRipper.Data.Migrations
                     b.Property<bool>("Relay")
                         .HasColumnType("INTEGER")
                         .HasColumnOrder(19);
-
-                    b.Property<bool>("ServerFixApplyDNSFix")
-                        .HasColumnType("INTEGER")
-                        .HasColumnOrder(25);
 
                     b.Property<bool>("Synced")
                         .HasColumnType("INTEGER")
@@ -1389,10 +1404,25 @@ namespace PlexRipper.Data.Migrations
                         .HasColumnType("TEXT")
                         .HasColumnOrder(22);
 
+                    b.Property<int>("GrandChildCount")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Guid")
                         .IsRequired()
                         .HasColumnType("TEXT")
                         .HasColumnOrder(23);
+
+                    b.Property<string>("Guid_IMDB")
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(24);
+
+                    b.Property<string>("Guid_TMDB")
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(25);
+
+                    b.Property<string>("Guid_TVDB")
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(26);
 
                     b.Property<bool>("HasArt")
                         .HasColumnType("INTEGER")
@@ -1516,6 +1546,18 @@ namespace PlexRipper.Data.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT")
                         .HasColumnOrder(23);
+
+                    b.Property<string>("Guid_IMDB")
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(24);
+
+                    b.Property<string>("Guid_TMDB")
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(25);
+
+                    b.Property<string>("Guid_TVDB")
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(26);
 
                     b.Property<bool>("HasArt")
                         .HasColumnType("INTEGER")
@@ -1652,6 +1694,18 @@ namespace PlexRipper.Data.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT")
                         .HasColumnOrder(23);
+
+                    b.Property<string>("Guid_IMDB")
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(24);
+
+                    b.Property<string>("Guid_TMDB")
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(25);
+
+                    b.Property<string>("Guid_TVDB")
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(26);
 
                     b.Property<bool>("HasArt")
                         .HasColumnType("INTEGER")
