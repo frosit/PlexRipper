@@ -522,7 +522,7 @@
         },
         "media-options": {
             "hide-offline-servers": {
-                "label": "Do not show media from offline Plex servers:",
+                "label": "Don't show media from offline Plex servers:",
                 "text": "When enabled, media from currently offline Plex servers will be excluded from this media overview.",
                 "title": "Don't show media from offline Plex servers"
             },

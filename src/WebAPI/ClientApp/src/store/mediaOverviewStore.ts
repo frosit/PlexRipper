@@ -93,8 +93,9 @@ export const useMediaOverviewStore = defineStore('MediaOverviewStore', () => {
 			state.mediaType = mediaType;
 			state.filterQuery = '';
 		},
-		changeMediaType(mediaType: PlexMediaType) {
+		changeAllMediaOverviewType(mediaType: PlexMediaType) {
 			state.mediaType = mediaType;
+			settingsStore.displaySettings.allOverviewViewMode = mediaType;
 			actions.requestMedia({ mediaType, page: 0, size: 0 }).subscribe();
 		},
 		setFirstLetterIndex() {

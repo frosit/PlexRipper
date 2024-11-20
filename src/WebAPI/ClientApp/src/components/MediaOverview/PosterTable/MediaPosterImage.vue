@@ -48,9 +48,10 @@
 import Log from 'consola';
 import { toFullThumbUrl } from '@composables/conversion';
 import type { PlexMediaSlimDTO } from '@dto';
-import { useServerConnectionStore } from '#imports';
+import { useServerConnectionStore, useSettingsStore } from '#imports';
 
 const connectionStore = useServerConnectionStore();
+const settingsStore = useSettingsStore();
 
 const props = withDefaults(defineProps<{
 	mediaItem: PlexMediaSlimDTO;
@@ -83,13 +84,15 @@ const imageUrl = computed((): string => {
 		return '';
 	}
 
+	const useLowQualityPoster = settingsStore.generalSettings.useLowQualityPosterImages;
+
 	return toFullThumbUrl({
 		connectionUrl: connection.url,
 		mediaKey: props.mediaItem.key,
 		MetaDataKey: props.mediaItem.metaDataKey,
 		token: props.mediaItem.plexToken,
-		width: 627,
-		height: 938,
+		width: useLowQualityPoster ? props.thumbWidth : 627,
+		height: useLowQualityPoster ? props.thumbHeight : 938,
 	});
 });
 </script>

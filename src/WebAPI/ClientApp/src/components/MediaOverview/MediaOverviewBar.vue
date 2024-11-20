@@ -60,7 +60,7 @@
 										outline
 										:label-position="'right'"
 										class="blur"
-										@click="mediaOverviewStore.changeMediaType(type)">
+										@click="mediaOverviewStore.changeAllMediaOverviewType(type)">
 										<template #icon>
 											<QMediaTypeIcon
 												:media-type="type"
