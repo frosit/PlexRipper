@@ -81,7 +81,8 @@ public static partial class FakeData
             .StrictMode(true)
             .UseSeed(seed.Next())
             .RuleFor(x => x.MovieViewMode, f => f.Random.Enum<ViewMode>())
-            .RuleFor(x => x.TvShowViewMode, f => f.Random.Enum<ViewMode>());
+            .RuleFor(x => x.TvShowViewMode, f => f.Random.Enum<ViewMode>())
+            .RuleFor(x => x.AllOverviewViewMode, f => f.PickRandom(PlexMediaType.Movie, PlexMediaType.TvShow));
     }
 
     public static Faker<DownloadManagerSettingsModule> GetDownloadManagerSettings(

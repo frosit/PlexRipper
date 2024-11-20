@@ -151,6 +151,7 @@ public static partial class FakeData
             .RuleFor(x => x.PlexServer, _ => null)
             .RuleFor(x => x.AuthToken, f => f.Random.Uuid().ToString())
             .RuleFor(x => x.AuthTokenCreationDate, _ => DateTime.UtcNow)
+            .RuleFor(x => x.IsServerOwned, f => f.Random.Bool())
             .Generate(plexServers.Count);
     }
 
@@ -167,6 +168,7 @@ public static partial class FakeData
             .RuleFor(x => x.PlexAccountId, _ => plexAccount.Id)
             .RuleFor(x => x.MachineIdentifier, _ => plexServers[index++].MachineIdentifier)
             .RuleFor(x => x.AccessToken, f => f.Random.Uuid().ToString())
+            .RuleFor(x => x.IsServerOwned, f => f.Random.Bool())
             .Generate(plexServers.Count);
     }
 }
