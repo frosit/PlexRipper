@@ -24,7 +24,6 @@ public static class SettingsModelToDTOMapper
         {
             FirstTimeSetup = dto.FirstTimeSetup,
             ActiveAccountId = dto.ActiveAccountId,
-            DebugMode = dto.DebugMode,
             DisableAnimatedBackground = dto.DisableAnimatedBackground,
         };
 
@@ -87,7 +86,6 @@ public static class SettingsModelToDTOMapper
         {
             FirstTimeSetup = module.FirstTimeSetup,
             ActiveAccountId = module.ActiveAccountId,
-            DebugMode = module.DebugMode,
             DisableAnimatedBackground = module.DisableAnimatedBackground,
         };
 

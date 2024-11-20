@@ -6,6 +6,11 @@ public interface IGeneralSettings
 
     int ActiveAccountId { get; set; }
 
-    bool DebugMode { get; set; }
     bool DisableAnimatedBackground { get; set; }
+
+    bool HideMediaFromOfflineServers { get; set; }
+
+    bool HideMediaFromOwnedServers { get; set; }
+
+    bool UseLowQualityPosterImages { get; set; }
 }
