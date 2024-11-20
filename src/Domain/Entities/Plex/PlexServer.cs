@@ -86,9 +86,6 @@ public class PlexServer : BaseEntity
     [Column(Order = 15)]
     public required bool IsEnabled { get; set; } = true;
 
-    [Column(Order = 16)]
-    public required bool Owned { get; init; }
-
     [Column(Order = 17)]
     public required bool Home { get; init; }
 
@@ -112,13 +109,6 @@ public class PlexServer : BaseEntity
 
     [Column(Order = 24)]
     public required bool NatLoopbackSupported { get; init; }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether certain servers have protection or are misconfigured which is why we can apply certain fixes to facilitate server communication.
-    /// This will attempt to connect on port 80 of the server.
-    /// </summary>
-    [Column(Order = 25)]
-    public required bool ServerFixApplyDNSFix { get; init; }
 
     #endregion
 
@@ -164,89 +154,6 @@ public class PlexServer : BaseEntity
             };
         }
     }
-
-    #endregion
-
-    #region Equality
-
-    /// <inheritdoc/>
-    [SuppressMessage(
-        "ReSharper",
-        "NonReadonlyMemberInGetHashCode",
-        Justification = "Cannot be ReadOnly due to usage in Entity Framework as Entities"
-    )]
-    public override int GetHashCode()
-    {
-        var hashCode = default(HashCode);
-        hashCode.Add(Name);
-        hashCode.Add(OwnerId);
-        hashCode.Add(PlexServerOwnerUsername);
-        hashCode.Add(Device);
-        hashCode.Add(Platform);
-        hashCode.Add(PlatformVersion);
-        hashCode.Add(Product);
-        hashCode.Add(ProductVersion);
-        hashCode.Add(Provides);
-        hashCode.Add(CreatedAt);
-        hashCode.Add(LastSeenAt);
-        hashCode.Add(MachineIdentifier);
-        hashCode.Add(PublicAddress);
-        hashCode.Add(PreferredConnectionId);
-        hashCode.Add(Owned);
-        hashCode.Add(Home);
-        hashCode.Add(Synced);
-        hashCode.Add(Relay);
-        hashCode.Add(Presence);
-        hashCode.Add(HttpsRequired);
-        hashCode.Add(PublicAddressMatches);
-        hashCode.Add(DnsRebindingProtection);
-        hashCode.Add(NatLoopbackSupported);
-        hashCode.Add(ServerFixApplyDNSFix);
-        return hashCode.ToHashCode();
-    }
-
-    /// <inheritdoc/>
-    public override bool Equals(object? obj)
-    {
-        if (ReferenceEquals(null, obj))
-            return false;
-
-        if (ReferenceEquals(this, obj))
-            return true;
-
-        return obj.GetType() == GetType() && Equals((PlexServer)obj);
-    }
-
-    /// <summary>
-    /// Compares this <see cref="PlexServer"/> against another <see cref="PlexServer"/> without comparing the Id and navigation properties.
-    /// </summary>
-    /// <param name="other">The other <see cref="PlexServer"/> to compare against.</param>
-    /// <returns>Returns whether these <see cref="PlexServer">PlexServers</see> are equal.</returns>
-    protected bool Equals(PlexServer other) =>
-        Name == other.Name
-        && OwnerId == other.OwnerId
-        && PlexServerOwnerUsername == other.PlexServerOwnerUsername
-        && Device == other.Device
-        && Platform == other.Platform
-        && PlatformVersion == other.PlatformVersion
-        && Product == other.Product
-        && ProductVersion == other.ProductVersion
-        && Provides == other.Provides
-        && CreatedAt.Equals(other.CreatedAt)
-        && LastSeenAt.Equals(other.LastSeenAt)
-        && MachineIdentifier == other.MachineIdentifier
-        && PublicAddress == other.PublicAddress
-        && PreferredConnectionId == other.PreferredConnectionId
-        && Owned == other.Owned
-        && Home == other.Home
-        && Synced == other.Synced
-        && Relay == other.Relay
-        && Presence == other.Presence
-        && HttpsRequired == other.HttpsRequired
-        && PublicAddressMatches == other.PublicAddressMatches
-        && DnsRebindingProtection == other.DnsRebindingProtection
-        && NatLoopbackSupported == other.NatLoopbackSupported
-        && ServerFixApplyDNSFix == other.ServerFixApplyDNSFix;
 
     #endregion
 }

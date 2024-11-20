@@ -30,7 +30,6 @@ public static partial class FakeData
             .RuleFor(x => x.PublicAddress, f => f.Internet.Ip())
             .RuleFor(x => x.IsEnabled, _ => true)
             // Server flags
-            .RuleFor(x => x.Owned, f => f.Random.Bool())
             .RuleFor(x => x.Home, f => f.Random.Bool())
             .RuleFor(x => x.Synced, f => f.Random.Bool())
             .RuleFor(x => x.Relay, f => f.Random.Bool())
@@ -46,7 +45,6 @@ public static partial class FakeData
             )
             .RuleFor(x => x.PlexLibraries, _ => [])
             .RuleFor(x => x.ServerStatus, _ => [])
-            .RuleFor(x => x.ServerFixApplyDNSFix, _ => false)
             .RuleFor(x => x.PlexAccountServers, _ => []);
     }
 
