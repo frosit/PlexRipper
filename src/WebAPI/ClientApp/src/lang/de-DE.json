@@ -671,7 +671,9 @@
                     "directory-browser": "Dialogfeld „Verzeichnisbrowser“.",
                     "verification-dialog": "2FA-Verifizierungsdialog"
                 },
-                "header": "Debug-Dialogmodalitäten"
+                "header": "Debug-Dialogmodalitäten",
+                "account-dialog-header": "Dialogfeld „Konto“",
+                "connection-dialog-header": "Dialogfeld Verbindung"
             }
         },
         "empty": {

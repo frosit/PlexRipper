@@ -522,17 +522,17 @@
         },
         "media-options": {
             "hide-offline-servers": {
-                "label": "Ne pas afficher les médias provenant de serveurs Plex hors ligne :",
+                "label": "Ne pas afficher les médias provenant de serveurs Plex hors ligne:",
                 "text": "Lorsque cette option est activée, les médias provenant de serveurs Plex actuellement hors ligne seront exclus de cet aperçu multimédia.",
                 "title": "Ne pas afficher les médias provenant de serveurs Plex hors ligne"
             },
             "hide-owned-media": {
-                "label": "Ne pas afficher les médias provenant des serveurs Plex détenus :",
+                "label": "Ne pas afficher les médias provenant des serveurs Plex détenus:",
                 "text": "Masquer tous les médias dans cet aperçu lorsqu'ils proviennent de serveurs Plex appartenant à un compte Plex.",
                 "title": "Ne pas afficher les médias provenant des serveurs Plex détenus"
             },
             "use-low-quality-poster-images": {
-                "label": "Utilisez des images d’affiche de faible qualité :",
+                "label": "Utilisez des images d’affiche de faible qualité:",
                 "text": "Lorsque cette option est activée, des images de résolution inférieure seront utilisées pour les miniatures des affiches, améliorant considérablement la vitesse de chargement lors de la navigation dans les bibliothèques Plex.",
                 "title": "Utilisez des images d’affiche de mauvaise qualité"
             }
@@ -671,7 +671,9 @@
                     "directory-browser": "Boîte de dialogue Navigateur de répertoire",
                     "verification-dialog": "Boîte de dialogue de vérification 2FA"
                 },
-                "header": "Modaux de dialogue de débogage"
+                "header": "Modaux de dialogue de débogage",
+                "account-dialog-header": "Dialogue de compte",
+                "connection-dialog-header": "Dialogue de connexion"
             }
         },
         "empty": {

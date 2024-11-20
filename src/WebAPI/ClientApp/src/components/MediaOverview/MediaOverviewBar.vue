@@ -157,7 +157,7 @@
 
 		<!--	Media Options button	-->
 		<VerticalButton
-			v-if="mediaOverviewStore.allMediaMode"
+			v-if="mediaOverviewStore.allMediaMode && !detailMode"
 			:height="barHeight"
 			:label="$t('general.commands.media-options')"
 			:width="verticalButtonWidth"

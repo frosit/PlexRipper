@@ -671,7 +671,9 @@
                     "directory-browser": "Okno przeglądarki katalogów",
                     "verification-dialog": "Dialog weryfikacji 2FA"
                 },
-                "header": "Moduły dialogowe debugowania"
+                "header": "Moduły dialogowe debugowania",
+                "account-dialog-header": "Okno dialogowe konta",
+                "connection-dialog-header": "Dialog połączenia"
             }
         },
         "empty": {

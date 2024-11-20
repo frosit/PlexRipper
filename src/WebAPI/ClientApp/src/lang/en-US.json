@@ -671,7 +671,9 @@
                     "directory-browser": "Directory Browser Dialog",
                     "verification-dialog": "2FA Verification Dialog"
                 },
-                "header": "Debug Dialog Modals"
+                "header": "Debug Dialog Modals",
+                "account-dialog-header": "Account Dialog",
+                "connection-dialog-header": "Connection Dialog"
             }
         },
         "empty": {

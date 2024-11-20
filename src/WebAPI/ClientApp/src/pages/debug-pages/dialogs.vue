@@ -77,7 +77,7 @@
 		<!-- Account Dialogs -->
 		<QSection>
 			<template #header>
-				AccountDialog
+				{{ $t('pages.debug.dialogs.account-dialog-header') }}
 			</template>
 			<template #default>
 				<q-markup-table>
@@ -140,7 +140,7 @@
 		<!-- Connection Dialogs -->
 		<QSection>
 			<template #header>
-				Connection Dialog
+				{{ $t('pages.debug.dialogs.connection-dialog-header') }}
 			</template>
 			<template #default>
 				<q-markup-table>
@@ -169,26 +169,15 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
-import { type DownloadMediaDTO, type PlexAccountDTO, PlexMediaType } from '@dto';
-import { generateDefaultFolderPaths, generatePlexAccount } from '@factories';
+import { type DownloadMediaDTO, PlexMediaType } from '@dto';
+import { generateDefaultFolderPaths } from '@factories';
 import { DialogType } from '@enums';
-import QSection from '@components/Common/QSection.vue';
-import MediaSelectionDialog from '@components/Dialogs/MediaSelectionDialog.vue';
-import MediaOptionsDialog from '@components/Dialogs/MediaOptionsDialog.vue';
 import { useAlertStore, useHelpStore, useDialogStore } from '#imports';
 
 const { t } = useI18n();
 const helpStore = useHelpStore();
 const alertStore = useAlertStore();
 const dialogStore = useDialogStore();
-
-const account = ref<PlexAccountDTO>(
-	generatePlexAccount({
-		id: 1,
-		plexLibraries: [],
-		plexServers: [],
-	}),
-);
 
 const folderPath = generateDefaultFolderPaths({})[0];
 

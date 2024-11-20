@@ -253,6 +253,8 @@ export function basePageSetup(config: Partial<MockConfig> = {}): Cypress.Chainab
 				mediaType,
 				page: 0,
 				size: 0,
+				filterOwnedMedia: false,
+				filterOfflineMedia: false,
 			}),
 			{
 				statusCode: 200,
