@@ -95,6 +95,9 @@ public static class SettingsModelToDTOMapper
             FirstTimeSetup = module.FirstTimeSetup,
             ActiveAccountId = module.ActiveAccountId,
             DisableAnimatedBackground = module.DisableAnimatedBackground,
+            HideMediaFromOfflineServers = module.HideMediaFromOfflineServers,
+            HideMediaFromOwnedServers = module.HideMediaFromOwnedServers,
+            UseLowQualityPosterImages = module.UseLowQualityPosterImages,
         };
 
     public static ConfirmationSettingsDTO ToDTO(this ConfirmationSettingsModule module) =>

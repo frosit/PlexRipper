@@ -8,9 +8,9 @@ public class GeneralSettingsDTO : IGeneralSettings
 
     public required bool DisableAnimatedBackground { get; set; }
 
-    public bool HideMediaFromOfflineServers { get; set; }
+    public required bool HideMediaFromOfflineServers { get; set; }
 
-    public bool HideMediaFromOwnedServers { get; set; }
+    public required bool HideMediaFromOwnedServers { get; set; }
 
-    public bool UseLowQualityPosterImages { get; set; }
+    public required bool UseLowQualityPosterImages { get; set; }
 }

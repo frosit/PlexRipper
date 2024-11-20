@@ -50,7 +50,7 @@ public record BaseSettingsModule<TModel>
             if (prop.Name == nameof(HasChanged))
                 continue;
 
-            if (sourceValue != targetValue && targetProp is not null)
+            if (sourceValue != null && !sourceValue.Equals(targetValue) && targetProp is not null)
             {
                 targetProp.SetValue(this, sourceValue);
                 hasChanged = true;
