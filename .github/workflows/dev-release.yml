@@ -16,7 +16,7 @@ jobs:
     # Build And Release Docker Image
     build-and-publish:
         name: Build and Publish On Dev Tagged Docker Image
-        runs-on: ubuntu-latest
+        runs-on: self-hosted
         steps:
             -   name: Checkout source code
                 uses: actions/checkout@v4
