@@ -31,7 +31,7 @@ jobs:
                 with:
                     registry: docker.io
                     username: ${{ secrets.DOCKER_USERNAME }}
-                    password: ${{ secrets.DOCKER_TOKEN }}
+                    password: ${{ secrets.DOCKER_PASSWORD }}
 
             -   name: Build and Push Docker Image
                 run: |
@@ -91,7 +91,7 @@ jobs:
                 with:
                     registry: docker.io
                     username: ${{ secrets.DOCKER_USERNAME }}
-                    password: ${{ secrets.DOCKER_TOKEN }}
+                    password: ${{ secrets.DOCKER_PASSWORD }}
 
             -   name: Build and Push Docker Image
                 run: |
