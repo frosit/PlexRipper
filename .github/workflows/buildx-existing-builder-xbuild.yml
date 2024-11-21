@@ -1,0 +1,47 @@
+name: Buildx existing builder
+
+on:
+    workflow_dispatch:
+    push:
+        branches:
+            - main
+            - master
+        tags:
+            - 'v*.*.*'
+
+jobs:
+    build-and-push-sh:
+        runs-on: self-hosted  # Use your self-hosted runner
+        steps:
+            -   name: Checkout code
+                uses: actions/checkout@v3
+
+            -   name: Use existing Buildx builder
+                run: |
+                    docker buildx ls
+                    docker buildx use xbuild
+                    docker buildx inspect --bootstrap
+                    # change platforms for main node
+
+            -   name: Log in to Docker Hub
+                uses: docker/login-action@v2
+                with:
+                    registry: docker.io
+                    username: ${{ secrets.DOCKER_USERNAME }}
+                    password: ${{ secrets.DOCKER_PASSWORD }}
+
+            -   name: Build and Push Docker Image
+                run: |
+                    docker buildx build \
+                      --builder xbuild \
+                      --platform linux/amd64,linux/arm64 \
+                      -t frosit/plexripper:${{ github.run_number }} \
+                      --push \
+                      --progress=plain \
+                      --file docker/Dockerfile \
+                      .
+
+            -   name: Logout from Docker Hub
+                run: docker logout
+
+
