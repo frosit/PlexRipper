@@ -1,12 +1,12 @@
 ARG VERSION=0.0.0
 ARG PORT=7000
-ARG TARGETPLATFORM=linux/amd64
-ARG BUILDPLATFORM=linux/amd64
 
 # Stage 1 - Build the Nuxt front-end
-FROM --platform=$BUILDPLATFORM oven/bun:alpine AS client-build
+FROM --platform=$TARGETPLATFORM oven/bun:alpine AS client-build
 
 ARG PORT
+ARG TARGETPLATFORM
+ARG TARGETARCH
 
 ENV NUXT_HOST=0.0.0.0
 ENV NUXT_PORT=${PORT}
@@ -15,21 +15,23 @@ ENV NUXT_PUBLIC_IS_DOCKER=true
 
 WORKDIR /tmp/ClientApp
 
-## Copy the package.json and install the dependencies
 COPY ./src/WebAPI/ClientApp/package.json ./src/WebAPI/ClientApp/bun.lockb ./
 RUN bun install --frozen-lockfile
 
-## Copy the project files
 COPY ./src/WebAPI/ClientApp/ ./
 RUN bun run generate --fail-on-error
-    
+
 # Stage 2 - Build the .NET back-end
 FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS back-end
 
 ARG VERSION
+ARG BUILDPLATFORM
 
 WORKDIR /src
 
+# Copy and restore dependencies
+
+# @TODO redundant steps below
 ## Domain Projects
 COPY ["src/Domain/Domain.csproj", "src/Domain/"]
 COPY ["src/Environment/Environment.csproj", "src/Environment/"]
@@ -59,30 +61,30 @@ COPY ["src/WebAPI/WebAPI.csproj", "src/WebAPI/"]
 COPY ["src/WebAPI.Contracts/WebAPI.Contracts.csproj", "src/WebAPI.Contracts/"]
 
 
-## Restore Projects
 RUN dotnet restore "src/WebAPI/WebAPI.csproj" --locked-mode
 
+# Copy the entire source code
 COPY . .
+
 WORKDIR "/src/src/WebAPI"
 
-## Build and Publish
-RUN dotnet build "WebAPI.csproj" -c Release -o /app/build /p:AssemblyVersion=$VERSION --no-restore
+# Build and publish
 RUN dotnet publish "WebAPI.csproj" -c Release -o /app/publish /p:AssemblyVersion=$VERSION
 
 # Stage 3 - Runtime Image
-FROM --platform=$TARGETPLATFORM ghcr.io/linuxserver/baseimage-alpine:3.20 AS final
+FROM ghcr.io/linuxserver/baseimage-alpine:3.20 AS final
 
 ARG VERSION
 ARG PORT
 ARG TARGETPLATFORM
 
-## Set environment variables
 ENV PORT=${PORT}
 ENV VERSION=${VERSION}
 ENV DOTNET_ENVIRONMENT=Production
 ENV DOTNET_URLS=http://+:${PORT}
 ENV ASPNETCORE_URLS=http://+:${PORT}
 ENV S6_SERVICES_GRACETIME=15000
+
 
 ## Install dotnet runtime
 RUN \
@@ -105,20 +107,20 @@ RUN \
 ## Make dotnet command available
 ENV PATH="$PATH:/usr/share/dotnet"
 
-## Copy to final image
 WORKDIR /app
+
 COPY --from=back-end /app/publish .
 COPY --from=client-build /tmp/ClientApp/.output/public /app/wwwroot
 
 ## Copy the s6-overlay config files
 COPY docker/etc/ /etc/
 
-## Set version label
+# Set version label
 LABEL company="PlexRipper"
 LABEL maintainer="plexripper@protonmail.com"
 
 EXPOSE ${PORT}
 VOLUME /Config /Downloads /Movies /TvShows
 
-# Set the entrypoint to use s6-overlay
+# Set the entrypoint (optional)
 ENTRYPOINT ["/init"]
