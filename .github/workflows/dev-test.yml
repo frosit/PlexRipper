@@ -176,8 +176,8 @@ jobs:
                     append: |
                         - endpoint: ssh://app@ssh.panel.fros.it
                           platforms: linux/amd64
-                        - endpoint:  unix:///var/run/docker.sock
-                          platforms: linux/arm64
+                        # - endpoint:  unix:///var/run/docker.sock
+                        #   platforms: linux/arm64
 
             -   name: Build
                 run: |
