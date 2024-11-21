@@ -12,7 +12,7 @@ on:
 jobs:
 
     docker:
-        runs-on: selfhosted
+        runs-on: self-hosted
         steps:
           - name: Log in to Docker Hub
             uses: docker/login-action@v3
@@ -38,7 +38,7 @@ jobs:
               
     # Front-End-Type-Check:
     Front-End-Type-Check:
-        runs-on: ubuntu-latest
+        runs-on: self-hosted
         steps:
             -   uses: actions/checkout@v4
             -   name: Client App Install
@@ -48,7 +48,7 @@ jobs:
                 working-directory: src/WebAPI/ClientApp/
     # Front-End-Unit-Tests:
     Front-End-Unit-Tests:
-        runs-on: ubuntu-latest
+        runs-on: self-hosted
         steps:
             -   uses: actions/checkout@v4
             -   name: Client App Install
@@ -57,7 +57,7 @@ jobs:
                 run: bun run test
                 working-directory: src/WebAPI/ClientApp/
     Front-End-Eslint-Check:
-        runs-on: ubuntu-latest
+        runs-on: self-hosted
         steps:
             -   uses: actions/checkout@v4
             -   name: Client App Install
