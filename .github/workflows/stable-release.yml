@@ -7,7 +7,7 @@ jobs:
     semantic-release:
         if: github.ref_name == github.event.repository.default_branch
         name: Semantic Release Process
-        runs-on: ubuntu-latest
+        runs-on: self-hosted
         permissions:
             contents: write # to be able to publish a GitHub release
             issues: write # to be able to comment on released issues
@@ -38,12 +38,12 @@ jobs:
         outputs:
             new-release-published: ${{ steps.get-next-version.outputs.new-release-published }}
             new-release-version: ${{ steps.get-next-version.outputs.new-release-version }}
-    
+
     # Build Docker Image
     build-and-publish:
         if: needs.semantic-release.outputs.new-release-published == 'true'
         needs: [ semantic-release ]
-        runs-on: ubuntu-latest
+        runs-on: self-hosted
         name: Build and Publish On Latest / Tagged Docker Image
         steps:
             -   name: Checkout source code

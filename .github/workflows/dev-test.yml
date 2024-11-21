@@ -10,9 +10,35 @@ on:
             - '.run/**'
             - '.vscode/**'
 jobs:
+
+    docker:
+        runs-on: self-hosted
+        steps:
+            -   name: Log in to Docker Hub
+                uses: docker/login-action@v3
+                with:
+                    username: ${{ secrets.DOCKER_USERNAME  }}
+                    password: ${{ secrets.DOCKER_PASSWORD  }}
+            -   name: Set up Docker Buildx
+                uses: docker/setup-buildx-action@v3
+                with:
+                    version: "lab:latest"
+                    driver: cloud
+                    endpoint: "frosit/multibuilder"
+                    install: true
+            -   name: Build and push
+                uses: docker/build-push-action@v6
+                with:
+                    tags: "IMAGE"
+                    # For pull requests, export results to the build cache.
+                    # Otherwise, push to a registry.
+                    outputs: ${{ github.event_name == 'pull_request' && 'type=cacheonly' || 'type=registry' }}
+
+
+
     # Front-End-Type-Check:
     Front-End-Type-Check:
-        runs-on: ubuntu-latest
+        runs-on: self-hosted
         steps:
             -   uses: actions/checkout@v4
             -   name: Client App Install
@@ -22,7 +48,7 @@ jobs:
                 working-directory: src/WebAPI/ClientApp/
     # Front-End-Unit-Tests:
     Front-End-Unit-Tests:
-        runs-on: ubuntu-latest
+        runs-on: self-hosted
         steps:
             -   uses: actions/checkout@v4
             -   name: Client App Install
@@ -31,7 +57,7 @@ jobs:
                 run: bun run test
                 working-directory: src/WebAPI/ClientApp/
     Front-End-Eslint-Check:
-        runs-on: ubuntu-latest
+        runs-on: self-hosted
         steps:
             -   uses: actions/checkout@v4
             -   name: Client App Install
@@ -70,7 +96,7 @@ jobs:
     #          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
     # Back-End Unit Tests
     Back-End-Unit-Tests:
-        runs-on: ubuntu-latest
+        runs-on: self-hosted
         steps:
             -   name: Checkout Source Code
                 uses: actions/checkout@v4
@@ -80,7 +106,7 @@ jobs:
                 run: dotnet test tests/UnitTests/UnitTests.sln --no-build --verbosity normal
     # Back-End Integration Tests
     Back-End-Integration-Tests:
-        runs-on: ubuntu-latest
+        runs-on: self-hosted
         steps:
             -   name: Checkout Source Code
                 uses: actions/checkout@v4
@@ -91,14 +117,14 @@ jobs:
     # Ensure the Docker image can be built without errors
     Test-Docker-Build:
         needs: [ Front-End-Unit-Tests, Front-End-Type-Check, Front-End-Eslint-Check, Back-End-Unit-Tests, Back-End-Integration-Tests ]
-        runs-on: ubuntu-latest
+        runs-on: self-hosted
         steps:
             -   name: Checkout Source Code
                 uses: actions/checkout@v4
-                
+
             -   name: Set up Docker Buildx
                 uses: docker/setup-buildx-action@v3
-            
+
             -   name: Test Docker Build
                 uses: elgohr/Publish-Docker-Github-Action@v5
                 with:
@@ -110,3 +136,64 @@ jobs:
                     no_push: true
                     default_branch: dev
 
+    Test-buildx:
+        runs-on: self-hosted
+        steps:
+            -   name: Prepare
+                run: |
+                    platform=${{ matrix.platform }}
+                    echo "PLATFORM_PAIR=${platform//\//-}" >> $GITHUB_ENV  
+
+            -   name: Docker meta
+                id: meta
+                uses: docker/metadata-action@v5
+                with:
+                    images: ${{ env.REGISTRY_IMAGE }}
+
+            -   name: Checkout Source Code
+                uses: actions/checkout@v4
+
+            -   name: Check if builder is there
+                run: docker buildx ls && docker buildx inspect
+
+            -   name: placeholder
+                run: env && ls
+
+            -   name: Set up SSH
+                uses: MrSquaare/ssh-setup-action@2d028b70b5e397cf8314c6eaea229a6c3e34977a # v3.1.0
+                with:
+                    host: ssh.panel.fros.it
+                    private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+                    private-key-name: id_rsa
+                    user: root
+
+            -   name: Set up Docker Buildx
+                uses: docker/setup-buildx-action@v3
+                with:
+                    platforms: linux/amd64,linux/arm64
+                    driver: docker-container
+                    use: true
+                    append: |
+                        - endpoint: ssh://app@ssh.panel.fros.it
+                          platforms: linux/amd64
+                        - endpoint:  unix:///var/run/docker.sock
+                          platforms: linux/arm64
+
+            -   name: Build
+                run: |
+                    docker buildx build --platform linux/amd64,linux/arm64 -t frosit/plexripper:testxxx --push --progress=plain --file docker/Dockerfile . --push
+
+
+
+
+                  # -   name: Test Docker Build
+                  #     uses: elgohr/Publish-Docker-Github-Action@v5
+                  #     with:
+                  #         dockerfile: docker/Dockerfile
+                  #         name: frosit/plexripper
+                  #         username: ${{ secrets.DOCKER_USERNAME }}
+                  #         password: ${{ secrets.DOCKER_PASSWORD }}
+                  #         platforms: linux/amd64,linux/arm64
+                  #         no_push: true
+                  #         default_branch: dev
+                    

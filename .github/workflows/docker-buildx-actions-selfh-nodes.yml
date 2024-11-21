@@ -1,0 +1,108 @@
+name: Build and Push Docker Image
+
+on:
+    workflow_dispatch:
+    push:
+        branches:
+            - main
+            - master
+        tags:
+            - 'v*.*.*'
+
+jobs:
+    build-and-push-sh:
+        runs-on: self-hosted  # Use your self-hosted runner
+        steps:
+            -   name: Checkout code
+                uses: actions/checkout@v3
+
+            #        - name: Set up QEMU
+            #          uses: docker/setup-qemu-action@v2
+
+            -   name: Use existing Buildx builder
+                run: |
+                    docker buildx ls
+                    docker buildx use xbuild3
+                    docker buildx inspect --bootstrap
+                    # change platforms for main node
+
+            -   name: Log in to Docker Hub
+                uses: docker/login-action@v2
+                with:
+                    registry: docker.io
+                    username: ${{ secrets.DOCKER_USERNAME }}
+                    password: ${{ secrets.DOCKER_TOKEN }}
+
+            -   name: Build and Push Docker Image
+                run: |
+                    docker buildx build \
+                      --builder xbuild \
+                      --platform linux/amd64,linux/arm64 \
+                      -t frosit/plexripper:${{ github.run_number }} \
+                      --push \
+                      --progress=plain \
+                      --file docker/Dockerfile \
+                      .
+
+            -   name: Logout from Docker Hub
+                run: docker logout
+
+
+
+    build-and-push-agent:
+        runs-on: ubuntu-latest # Use self-hosted runner
+        steps:
+            -   name: Checkout code
+                uses: actions/checkout@v3
+
+            # - name: Set up QEMU
+            #   uses: docker/setup-qemu-action@v2
+
+            -   name: Set up Docker Buildx
+                id: buildx
+                uses: docker/setup-buildx-action@v2
+                with:
+                    install: true
+                    driver: docker-container
+                    driver-opts: |
+                        network=host
+                    buildkitd-flags: --debug
+
+            -   name: Add SSH key
+                uses: webfactory/ssh-agent@v0.5.4
+                with:
+                    ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+            -   name: Known hosts (Optional)
+                run: |
+                    mkdir -p ~/.ssh
+                    echo "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+
+            -   name: Configure Buildx with remote nodes
+                run: |
+                    docker buildx create --name xbuild2 --driver docker-container
+                    docker buildx create --append --name xbuild2 --node xbuild0 ssh://app@ssh.runner.fros.it --platform linux/arm64
+                    docker buildx create --append --name xbuild2 --node nodeamd64 ssh://app@ssh.web.fros.it --platform linux/amd64
+                    docker buildx use xbuild2
+                    docker buildx inspect --bootstrap
+
+            -   name: Log in to Docker Hub
+                uses: docker/login-action@v2
+                with:
+                    registry: docker.io
+                    username: ${{ secrets.DOCKER_USERNAME }}
+                    password: ${{ secrets.DOCKER_TOKEN }}
+
+            -   name: Build and Push Docker Image
+                run: |
+                    docker buildx build \
+                      --builder xbuild \
+                      --platform linux/amd64,linux/arm64 \
+                      -t frosit/plexripper:${{ github.run_number }} \
+                      --push \
+                      --progress=plain \
+                      --file docker/Dockerfile \
+                      .
+
+            -   name: Logout from Docker Hub
+                run: docker logout
