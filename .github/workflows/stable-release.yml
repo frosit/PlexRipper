@@ -38,7 +38,7 @@ jobs:
         outputs:
             new-release-published: ${{ steps.get-next-version.outputs.new-release-published }}
             new-release-version: ${{ steps.get-next-version.outputs.new-release-version }}
-    
+
     # Build Docker Image
     build-and-publish:
         if: needs.semantic-release.outputs.new-release-published == 'true'
