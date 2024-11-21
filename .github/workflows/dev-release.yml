@@ -53,8 +53,8 @@ jobs:
               env:
                   VERSION: ${{ env.VERSION_NO_V }}
               with:
-                  platforms: linux/amd64,linux/arm64/v8,linux/arm/v7
+                  platforms: linux/amd64,linux/arm64
                   push: true
-                  tags: plexripper/plexripper:dev
+                  tags: frosit/plexripper:dev
                   build-args: VERSION
                   file: docker/Dockerfile
