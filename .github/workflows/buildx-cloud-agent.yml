@@ -1,4 +1,4 @@
-name: Buildx by agent
+name: Buildx Cloud agent / builder
 
 on:
     workflow_dispatch:
